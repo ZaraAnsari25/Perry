@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "node --test checks.test.ts",
-    "optimize": "node --env-file-if-exists=../../.env scripts/run.ts"
+    "optimize": "node --env-file-if-exists=../../.env scripts/run.ts",
+    "serve:patched": "node scripts/serve-patched.ts"
   },
   "dependencies": {
     "@agentfix/diagnosis": "*",
