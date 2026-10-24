@@ -1,0 +1,18 @@
+{
+  "name": "@agentfix/agent-runner",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "run-task": "node --env-file-if-exists=../../.env scripts/run.ts"
+  },
+  "dependencies": {
+    "@agentfix/shared": "*",
+    "@agentfix/verifier": "*",
+    "@anthropic-ai/sdk": "1.3.0",
+    "playwright": "1.64.1"
+  }
+}
