@@ -1,0 +1,52 @@
+{
+  "title": "Perry agent audit",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "targetUrl": {
+      "title": "Storefront URL",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Public URL of the storefront to audit. It must serve GET /api/cart for cart verification."
+    },
+    "taskText": {
+      "title": "Customer task",
+      "type": "string",
+      "editor": "textarea",
+      "description": "Plain-English task given to the shopping agent. Keep it identical across compared runs.",
+      "default": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart."
+    },
+    "expectedSku": {
+      "title": "Expected SKU",
+      "type": "string",
+      "editor": "textfield",
+      "description": "The only cart item that counts as success.",
+      "default": "VEL-BLK-08"
+    },
+    "siteVersion": {
+      "title": "Site version",
+      "type": "string",
+      "editor": "select",
+      "enum": ["baseline", "patched"],
+      "enumTitles": ["Baseline", "Patched"],
+      "description": "Label recorded with the results.",
+      "default": "baseline"
+    },
+    "repetitions": {
+      "title": "Runs",
+      "type": "integer",
+      "description": "How many times to run the agent (1-5). Each run costs model API credits.",
+      "minimum": 1,
+      "maximum": 5,
+      "default": 1
+    },
+    "runLabel": {
+      "title": "Run label",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Optional note saved with the results, e.g. a commit or patch ID.",
+      "default": ""
+    }
+  },
+  "required": ["targetUrl"]
+}

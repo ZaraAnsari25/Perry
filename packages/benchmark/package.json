@@ -1,0 +1,17 @@
+{
+  "name": "@agentfix/benchmark",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "test": "node --test index.test.ts",
+    "bench": "node --env-file-if-exists=../../.env scripts/run.ts"
+  },
+  "dependencies": {
+    "@agentfix/agent-runner": "*",
+    "@agentfix/shared": "*"
+  }
+}

@@ -96,7 +96,8 @@ const products: Product[] = [
 ];
 
 for (const p of products) {
-  Object.freeze(p.variants.map(Object.freeze));
+  p.variants.forEach((v) => Object.freeze(v));
+  Object.freeze(p.variants);
   Object.freeze(p);
 }
 
