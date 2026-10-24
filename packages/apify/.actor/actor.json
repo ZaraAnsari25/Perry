@@ -1,0 +1,12 @@
+{
+  "actorSpecification": 1,
+  "name": "perry-agent-audit",
+  "title": "Perry agent audit",
+  "description": "Runs an AI shopping agent on a storefront, verifies the cart from the store's backend, and reports tool calls, tokens, latency and cost per verified success.",
+  "version": "0.1",
+  "dockerfile": "./Dockerfile",
+  "dockerContextDir": "../../..",
+  "readme": "../README.md",
+  "input": "./input_schema.json",
+  "maxMemoryMbytes": 4096
+}

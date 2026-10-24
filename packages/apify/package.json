@@ -1,0 +1,15 @@
+{
+  "name": "@agentfix/apify",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node main.ts",
+    "local": "node --env-file-if-exists=../../.env main.ts"
+  },
+  "dependencies": {
+    "@agentfix/benchmark": "*",
+    "@agentfix/shared": "*",
+    "apify": "3.7.2"
+  }
+}
