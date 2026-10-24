@@ -3,7 +3,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import type { PatchResult } from "@agentfix/shared";
+import type { BenchmarkResult, PatchResult } from "@agentfix/shared";
 
 /** A saved optimize() result, as written by packages/optimizer/scripts/run.ts. */
 export interface SavedPatch extends PatchResult {
@@ -36,4 +36,13 @@ export async function recentPatches(limit = 10): Promise<SavedPatch[]> {
       return { blocked: [], redTeam: false, traceRunId: "", createdAt: "", ...saved, file: `data/results/${f}` };
     }),
   );
+}
+
+/** The newest benchmark() / compare() result saved by the benchmark package. */
+export async function latestBenchmark(): Promise<{ result: BenchmarkResult; file: string } | null> {
+  const files = await readdir(RESULTS_DIR).catch(() => [] as string[]);
+  const latest = files.filter((f) => /^benchmark-.*\.json$/.test(f)).sort().at(-1);
+  if (!latest) return null;
+  const result = JSON.parse(await readFile(join(RESULTS_DIR, latest), "utf8")) as BenchmarkResult;
+  return { result, file: `data/results/${latest}` };
 }
