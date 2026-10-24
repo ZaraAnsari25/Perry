@@ -1,0 +1,15 @@
+{
+  "name": "@agentfix/diagnosis",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "test": "node --test index.test.ts"
+  },
+  "dependencies": {
+    "@agentfix/shared": "*"
+  }
+}
