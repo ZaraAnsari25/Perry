@@ -1,0 +1,11 @@
+{
+  "tasks": [
+    {
+      "id": "black-running-shoe-size-8",
+      "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+      "expectedSku": "VEL-BLK-08",
+      "expectedQuantity": 1,
+      "maxSteps": 15
+    }
+  ]
+}
