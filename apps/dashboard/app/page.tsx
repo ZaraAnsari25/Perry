@@ -1,6 +1,11 @@
 import { diagnose } from "@agentfix/diagnosis";
 import type { AgentTrace, Finding, Provenance } from "@agentfix/shared";
 import { sampleTrace } from "@agentfix/shared/fixtures";
+import { connection } from "next/server";
+
+import { latestPatch } from "@/lib/results";
+
+import { PatchPanel } from "./patch-panel";
 
 // Until runTask() produces real traces, the dashboard renders the fixture.
 const trace: AgentTrace = sampleTrace;
@@ -21,8 +26,11 @@ const severityTone: Record<Finding["severity"], string> = {
 };
 
 export default async function Home() {
+  // Render per request so newly saved results show up without a rebuild.
+  await connection();
   const { metrics, outcome } = trace;
   const diagnosis = await diagnose(trace);
+  const patch = await latestPatch();
   const flaggedSteps = new Set(
     diagnosis.findings.flatMap((f) => f.evidence.flatMap((e) => e.stepIndexes ?? [])),
   );
@@ -142,6 +150,8 @@ export default async function Home() {
           diagnosis.findings.map((f) => <FindingCard key={f.kind} finding={f} />)
         )}
       </section>
+
+      <PatchPanel patch={patch} />
     </main>
   );
 }
