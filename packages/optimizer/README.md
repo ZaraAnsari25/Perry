@@ -1,5 +1,23 @@
 # packages/optimizer
 
-Owner: **Person B**. Person B (Michelle), branch `feat/optimizer-dashboard`. Person A does not edit this directory. Disposable worktree, allowlist validation, build gate; implements `Optimize`.
+Owner: **Person B** (Michelle), branch `feat/optimizer-dashboard`. Person A does not edit this directory.
 
-Not implemented yet. Add a `package.json` named `@agentfix/optimizer` when you start; it is picked up by the root `packages/*` / `apps/*` workspace glob.
+Implements `Optimize`: `optimize({ trace, repoPath, allowedFiles }, options?) => PatchResult`.
+
+1. Runs `diagnose()` (unless a diagnosis is passed) and stops unless there is an `excessive_navigation` finding.
+2. Creates a disposable git worktree in `<repo>/../<repo>-droid-sandbox/`, pinned to `options.baseRef` (default `HEAD`). Developer checkouts are never edited.
+3. Reads the catalog and the baseline search results for `CHECK_QUERIES` from the worktree, before Droid runs.
+4. Runs Factory Droid through `@agentfix/factory` (permission handler approves only `allowedFiles`).
+5. **allowlist** gate: every changed or new file is allowlisted and outside `DROID_PROTECTED_PATHS`. Nothing is built if this fails.
+6. **build** gate: `npm ci` and `next build` of the storefront in the worktree.
+7. **tests** gate: serves the patched storefront (port 3002) and checks each search page shows the same products in the same order as the baseline, and that no card's visible price, color, category or per-size stock contradicts the catalog.
+
+Status: `accepted` (all gates pass), `rejected` (a gate failed), `failed` (Droid did not finish). The worktree is kept for inspection; `removeWorktree()` deletes it.
+
+The card check is a heuristic over visible text. It catches wrong prices, wrong colors or categories, fabricated sizes and wrong per-size stock written one size per line, and rejects stock lines covering several sizes as uncheckable. It can miss claims phrased in other ways, such as an "Available sizes: 7, 9" list.
+
+```bash
+npm test --workspace packages/optimizer                     # unit tests for the gates
+npm run optimize --workspace packages/optimizer             # end to end on the sample trace (uses Droid)
+npm run optimize --workspace packages/optimizer -- --serve  # keep an accepted patch running on :3002
+```

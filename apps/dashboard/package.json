@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@agentfix/diagnosis": "*",
     "@agentfix/shared": "*",
     "next": "16.4.3",
     "react": "19.3.1",

@@ -1,0 +1,16 @@
+{
+  "name": "@agentfix/factory",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "poc": "node --env-file-if-exists=../../.env scripts/poc.ts"
+  },
+  "dependencies": {
+    "@agentfix/shared": "*",
+    "@factory/droid-sdk": "0.10.0"
+  }
+}
