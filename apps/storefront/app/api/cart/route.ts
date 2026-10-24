@@ -10,6 +10,15 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ cartId: cartId ?? null, items: getCart(cartId) });
 }
 
+// Redirect on the host the browser used (localhost or a tunnel such as the
+// Apify audit's). Next.js resolves request.url and relative Locations against
+// its own internal host, so build the URL from the forwarded headers.
+function redirectTo(request: NextRequest, path: string) {
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? request.nextUrl.host;
+  const proto = request.headers.get("x-forwarded-proto") ?? request.nextUrl.protocol.replace(":", "");
+  return new NextResponse(null, { status: 303, headers: { Location: `${proto}://${host}${path}` } });
+}
+
 // Add-to-cart form submission from a product page.
 export async function POST(request: NextRequest) {
   const form = await request.formData();
@@ -19,13 +28,13 @@ export async function POST(request: NextRequest) {
 
   if (!match || match.variant.stock === 0) {
     const back = slug ? `/products/${encodeURIComponent(slug)}?error=sold-out` : "/search";
-    return NextResponse.redirect(new URL(back, request.url), 303);
+    return redirectTo(request, back);
   }
 
   const cartId = request.cookies.get(CART_COOKIE)?.value ?? crypto.randomUUID();
   addToCart(cartId, sku);
 
-  const response = NextResponse.redirect(new URL("/cart", request.url), 303);
+  const response = redirectTo(request, "/cart");
   response.cookies.set(CART_COOKIE, cartId, { path: "/", httpOnly: true, sameSite: "lax" });
   return response;
 }
