@@ -1,0 +1,30 @@
+# Dependencies and builds
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Secrets: API keys live only in local .env files
+.env
+.env.*
+!.env.example
+
+# Generated artifacts: traces, benchmarks, screenshots, recordings
+data/results/*
+!data/results/.gitkeep
+screenshots/
+traces/
+*.png
+*.webm
+playwright-report/
+test-results/
+
+# Temporary Git worktrees (Factory Droid sandbox lives outside the repo)
+.worktrees/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

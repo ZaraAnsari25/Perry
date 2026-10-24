@@ -1,0 +1,10 @@
+{
+  "name": "@agentfix/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./types.ts",
+    "./fixtures": "./fixtures/sample-trace.ts"
+  }
+}
