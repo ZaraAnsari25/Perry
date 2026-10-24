@@ -69,6 +69,27 @@ test("revisiting the same product counts as separate visits", async () => {
   assert.deepEqual(findings[0]?.evidence[0]?.stepIndexes, [0, 1, 2]);
 });
 
+// Pattern from Zara's real baseline runs: the agent jumps from one product
+// page straight to the next by URL instead of going back to search.
+test("jumping between product pages: the step into the purchased product is not overhead", async () => {
+  const { findings } = await diagnose(
+    traceOf([
+      step(0, "type", "/"),
+      step(1, "navigate", "/search"), // opens tempo-lite: overhead
+      step(2, "navigate", "/products/tempo-lite"), // opens cloud-glide: overhead
+      step(3, "navigate", "/products/cloud-glide"), // opens velocity-runner: needed
+      step(4, "select", "/products/velocity-runner"),
+      step(5, "click", "/products/velocity-runner"),
+      step(6, "done", "/cart"),
+    ]),
+  );
+  const [f] = findings;
+  assert.equal(f?.severity, "medium");
+  assert.deepEqual(f?.evidence[0]?.stepIndexes, [1, 2]);
+  assert.equal(f?.evidence[0]?.metric?.value, 3); // product pages opened
+  assert.equal(f?.evidence[1]?.metric?.value, 2); // overhead tool calls
+});
+
 test("repeated failed actions are flagged", async () => {
   const { findings } = await diagnose(
     traceOf([step(0, "click", "/", false), step(1, "click", "/", false), step(2, "done", "/")]),
