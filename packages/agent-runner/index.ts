@@ -27,8 +27,8 @@ const CART_COOKIE = "cart_id";
 const ACTION_TIMEOUT_MS = 10_000;
 
 const SYSTEM = `You are a shopping assistant operating a web browser in an online store on behalf of a customer.
-Each turn you see the current page as an accessibility outline in which elements have refs such as [ref=e12].
-Take exactly one action per turn using the tools, referring to elements only by refs from the most recent outline.
+Each turn you see the current page as an accessibility outline in which elements have refs such as [ref=f2e12].
+Take exactly one action per turn using the tools, referring to elements only by refs from the most recent outline, copied exactly (e.g. f2e12, including any prefix).
 When the customer's request has been fulfilled, call done. If it cannot be fulfilled, call done and explain why.`;
 
 const object = (properties: Record<string, unknown>) => ({
@@ -37,7 +37,7 @@ const object = (properties: Record<string, unknown>) => ({
   required: Object.keys(properties),
   additionalProperties: false,
 });
-const ref = { type: "string", description: "Element ref from the latest page outline, e.g. e12" };
+const ref = { type: "string", description: "Element ref copied exactly from the latest page outline, e.g. f2e12" };
 
 const TOOLS: Anthropic.Tool[] = [
   {
@@ -116,6 +116,24 @@ async function describe(el: Locator, ref: string | undefined, observation: strin
   return href ? `${label} -> ${href}` : label;
 }
 
+/**
+ * Maps the model's ref to one in the latest outline. Refs after a navigation
+ * carry a frame prefix (e.g. f3e113); the model sometimes drops it, so a
+ * unique suffix match is accepted. Unknown refs fail immediately with a clear
+ * message instead of waiting for a locator timeout.
+ */
+export function resolveRef(raw: string | undefined, observation: string): string {
+  // Accept "[ref=f1e12]" and "ref=f1e12" as well as "f1e12".
+  const ref = raw?.trim().replace(/^\[?(ref=)?/, "").replace(/\]$/, "");
+  const refs = [...observation.matchAll(/\[ref=([a-z0-9]+)\]/g)].map((m) => m[1]!);
+  if (ref && refs.includes(ref)) return ref;
+  const matches = ref ? refs.filter((r) => new RegExp(`^f\\d+${ref}$`).test(r)) : [];
+  if (matches.length === 1) return matches[0]!;
+  throw new Error(
+    `No element with ref "${raw}" on this page. Copy a ref exactly as written in the latest outline, e.g. "${refs.at(-1)}".`,
+  );
+}
+
 /** Performs one tool call in the browser and returns the trace target. Exported for tests. */
 export async function perform(
   page: Page,
@@ -124,8 +142,9 @@ export async function perform(
   input: ToolInput,
   observation: string,
 ): Promise<string> {
-  const el = () => page.locator(`aria-ref=${input.ref}`);
-  const label = () => describe(el(), input.ref, observation);
+  const ref = name === "navigate" ? undefined : resolveRef(input.ref, observation);
+  const el = () => page.locator(`aria-ref=${ref}`);
+  const label = () => describe(el(), ref, observation);
   switch (name) {
     case "navigate": {
       const url = new URL(input.path ?? "/", origin);
@@ -150,7 +169,22 @@ export async function perform(
     }
     case "select": {
       const target = `${await label()}: ${input.option}`;
-      await el().selectOption({ label: input.option ?? "" }, { timeout: ACTION_TIMEOUT_MS });
+      // Fail fast with the valid choices instead of waiting for a locator timeout.
+      // Read the options from the select element itself; chained locators
+      // under an aria-ref locator don't resolve.
+      const options = await el().evaluate(
+        (select) =>
+          Array.from((select as unknown as { options: { textContent: string | null; disabled: boolean }[] }).options ?? []).map(
+            (o) => ({ label: o.textContent?.trim() ?? "", disabled: o.disabled }),
+          ),
+        undefined,
+        { timeout: ACTION_TIMEOUT_MS },
+      );
+      const wanted = options.find((o) => o.label === input.option?.trim());
+      const available = options.filter((o) => !o.disabled).map((o) => `"${o.label}"`).join(", ");
+      if (!wanted) throw new Error(`No option "${input.option}". Available options: ${available}`);
+      if (wanted.disabled) throw new Error(`Option "${input.option}" is disabled. Available options: ${available}`);
+      await el().selectOption({ label: wanted.label }, { timeout: ACTION_TIMEOUT_MS });
       return target;
     }
     default:
@@ -164,7 +198,8 @@ const costUsd = (inputTokens: number, outputTokens: number) =>
   );
 
 export const runTask: RunTask = async ({ url, task, expectedSku, siteVersion, maxSteps = DEFAULT_MAX_STEPS }) => {
-  const client = new Anthropic();
+  // Extra retries so a transient API error (429/5xx) doesn't abort a benchmark.
+  const client = new Anthropic({ maxRetries: 5 });
   const origin = new URL(url).origin;
   const browser = await chromium.launch({ headless: process.env.HEADED !== "1" });
 
