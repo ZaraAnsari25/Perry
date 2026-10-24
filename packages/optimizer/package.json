@@ -1,0 +1,19 @@
+{
+  "name": "@agentfix/optimizer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "test": "node --test checks.test.ts",
+    "optimize": "node --env-file-if-exists=../../.env scripts/run.ts"
+  },
+  "dependencies": {
+    "@agentfix/diagnosis": "*",
+    "@agentfix/factory": "*",
+    "@agentfix/shared": "*",
+    "parse5": "8.0.1"
+  }
+}
