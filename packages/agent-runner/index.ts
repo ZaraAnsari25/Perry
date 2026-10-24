@@ -169,7 +169,10 @@ export const runTask: RunTask = async ({ url, task, expectedSku, siteVersion, ma
   const browser = await chromium.launch({ headless: process.env.HEADED !== "1" });
 
   try {
-    const context = await browser.newContext();
+    // The header skips ngrok's free-plan warning page when the storefront is
+    // reached through a tunnel (e.g. from the Apify Actor). It is sent on every
+    // run, is invisible to the model, and is ignored by the storefront.
+    const context = await browser.newContext({ extraHTTPHeaders: { "ngrok-skip-browser-warning": "1" } });
     // Keep the agent on the storefront under test.
     await context.route("**/*", (route) =>
       new URL(route.request().url()).origin === origin ? route.continue() : route.abort(),
