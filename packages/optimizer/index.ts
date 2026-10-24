@@ -16,7 +16,7 @@ import { runDroid } from "@agentfix/factory";
 import { DROID_ALLOWED_FILES, DROID_PROTECTED_PATHS } from "@agentfix/shared";
 import type { Finding, OptimizeInput, PatchResult } from "@agentfix/shared";
 
-import { type CatalogProduct, checkChangedFiles, checkSearchPage } from "./checks.ts";
+import { type CatalogProduct, cardLines, checkChangedFiles, checkSearchPage } from "./checks.ts";
 
 const run = promisify(execFile);
 const STOREFRONT = "apps/storefront";
@@ -24,6 +24,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 
 /** Queries whose rendered results are checked; "" is the all-products page. */
 export const CHECK_QUERIES = ["", "black running shoe", "running shoes", "black", "hiking"];
+/** The card shown as a before/after preview: the decoy whose size 8 is sold out. */
+const PREVIEW = { query: "black running shoe", slug: "tempo-lite" };
 
 export interface OptimizeOptions {
   /** Commit or ref of the baseline storefront. Defaults to HEAD of repoPath. */
@@ -34,6 +36,8 @@ export interface OptimizeOptions {
   port?: number;
   /** Leave the patched storefront running after an accepted patch and return its URL. */
   keepServer?: boolean;
+  /** Original storefront, if running, for the "before" side of the card preview. */
+  baselineUrl?: string;
   /** Keep the worktree of a rejected or failed patch for inspection (default: delete it). */
   keepRejected?: boolean;
   /** Progress output. */
@@ -51,6 +55,8 @@ export interface OptimizeOptions {
 export interface OptimizeResult extends PatchResult {
   /** File paths or tool types Droid asked to write or run and was refused. */
   blocked: string[];
+  /** Visible text of one search card on the original and patched stores. */
+  preview?: { query: string; slug: string; before?: string[]; after: string[] };
 }
 
 const git = async (cwd: string, ...args: string[]) => (await run("git", args, { cwd, maxBuffer: 16 << 20 })).stdout;
@@ -226,10 +232,19 @@ async function optimizeInWorktree(
   try {
     // Problem -> the queries it appeared on, so each is reported once.
     const problems = new Map<string, string[]>();
+    const searchPage = (base: string, q: string) =>
+      fetch(`${base}/search${q ? `?q=${encodeURIComponent(q)}` : ""}`).then((r) => r.text());
     for (const q of CHECK_QUERIES) {
-      const html = await (await fetch(`${url}/search${q ? `?q=${encodeURIComponent(q)}` : ""}`)).text();
+      const html = await searchPage(url, q);
       const page = checkSearchPage(html, baseline.results[q] ?? [], baseline.catalog);
       for (const p of page.problems) problems.set(p, [...(problems.get(p) ?? []), JSON.stringify(q)]);
+      if (q === PREVIEW.query) {
+        const after = cardLines(html, PREVIEW.slug);
+        const before = options.baselineUrl
+          ? await searchPage(options.baselineUrl, q).then((h) => cardLines(h, PREVIEW.slug), () => undefined)
+          : undefined;
+        if (after) result.preview = { ...PREVIEW, before, after };
+      }
     }
     result.checks.tests = problems.size === 0;
     if (problems.size > 0) {

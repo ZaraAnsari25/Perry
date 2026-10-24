@@ -16,14 +16,17 @@ export interface SavedPatch extends PatchResult {
   redTeam: boolean;
   /** Name of the scripted hostile patch, if one was applied instead of Droid. */
   hostile?: string;
+  /** Progress log of the run: sandbox, Droid tool calls, gate results. */
+  log?: string[];
+  /** Visible text of one search card on the original and patched stores. */
+  preview?: { query: string; slug: string; before?: string[]; after: string[] };
 }
 
 // next dev/build/start run with the dashboard app as the working directory.
 const RESULTS_DIR = join(process.cwd(), "../../data/results");
 
-/** Saved optimize() results, newest first. */
-export async function recentPatches(limit = 10): Promise<SavedPatch[]> {
-  const files = await readdir(RESULTS_DIR).catch(() => [] as string[]);
+async function readPatches(dir: string, limit: number): Promise<SavedPatch[]> {
+  const files = await readdir(join(RESULTS_DIR, dir)).catch(() => [] as string[]);
   const newest = files
     .filter((f) => /^patch-.*\.json$/.test(f))
     .sort()
@@ -31,11 +34,25 @@ export async function recentPatches(limit = 10): Promise<SavedPatch[]> {
     .slice(0, limit);
   return Promise.all(
     newest.map(async (f) => {
-      const saved = JSON.parse(await readFile(join(RESULTS_DIR, f), "utf8")) as Partial<SavedPatch> & PatchResult;
+      const path = join(dir, f);
+      const saved = JSON.parse(await readFile(join(RESULTS_DIR, path), "utf8")) as Partial<SavedPatch> & PatchResult;
       // Results saved before these fields existed lack them.
-      return { blocked: [], redTeam: false, traceRunId: "", createdAt: "", ...saved, file: `data/results/${f}` };
+      return { blocked: [], redTeam: false, traceRunId: "", createdAt: "", ...saved, file: `data/results/${path}` };
     }),
   );
+}
+
+/** Saved optimize() results, newest first. Archived results are not included. */
+export function recentPatches(limit = 50): Promise<SavedPatch[]> {
+  return readPatches("", limit);
+}
+
+/**
+ * A fix generated earlier and kept as a demo fallback, in data/results/backup/.
+ * Shown only on request and labeled as a replay, never as the current fix.
+ */
+export async function backupPatch(): Promise<SavedPatch | null> {
+  return (await readPatches("backup", 1))[0] ?? null;
 }
 
 /** The newest benchmark() / compare() result saved by the benchmark package. */

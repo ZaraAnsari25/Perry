@@ -93,12 +93,12 @@ export function findCards(html: string): { slug: string; card: T.Element }[] {
  * Visible text of a card, split into chunks: one per block element, holding
  * the text whose nearest block ancestor is that element. aria-labels count as text.
  */
-export function cardChunks(card: T.Element): string[] {
+export function cardChunks(card: T.Element, blocks: ReadonlySet<string> = BLOCK): string[] {
   const chunks = new Map<T.Element, string[]>();
   const visit = (node: T.Node, block: T.Element): void => {
     if (isElement(node)) {
       if (SKIP.has(node.tagName) || attr(node, "hidden") !== undefined || attr(node, "aria-hidden") === "true") return;
-      if (BLOCK.has(node.tagName)) block = node;
+      if (blocks.has(node.tagName)) block = node;
       const label = attr(node, "aria-label");
       if (label) push(block, label);
     } else if (node.nodeName === "#text") {
@@ -115,6 +115,18 @@ export function cardChunks(card: T.Element): string[] {
   return [...chunks.values()]
     .map((parts) => parts.join(" ").replace(/\s+/g, " ").trim())
     .filter(Boolean);
+}
+
+// For display, a term and its definition ("Color:" / "black") read as one line.
+const DISPLAY_BLOCK = new Set([...BLOCK].filter((tag) => tag !== "dt" && tag !== "dd"));
+
+/** A card's visible text as display lines, for before/after previews. */
+export function cardLines(html: string, slug: string): string[] | undefined {
+  const card = findCards(html).find((c) => c.slug === slug)?.card;
+  // React splits text into separate nodes ("$", "109"); rejoin them for reading.
+  return card
+    ? cardChunks(card, DISPLAY_BLOCK).map((line) => line.replace(/\$ (?=\d)/g, "$").replace(/ (?=[:,.)])/g, ""))
+    : undefined;
 }
 
 const OUT_OF_STOCK = /sold out|out of stock|unavailable|not available|no stock/;

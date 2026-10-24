@@ -4,8 +4,9 @@ import { sampleTrace } from "@agentfix/shared/fixtures";
 import Link from "next/link";
 import { connection } from "next/server";
 
-import { latestBenchmark, recentPatches } from "@/lib/results";
+import { backupPatch, latestBenchmark, recentPatches } from "@/lib/results";
 
+import { OptimizeButton } from "./optimize-button";
 import { PatchPanel } from "./patch-panel";
 
 /** The run with the median tool-call count, as the default to show. */
@@ -40,7 +41,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
   const trace: AgentTrace = runs[runIndex] ?? sampleTrace;
   const { metrics, outcome } = trace;
   const diagnosis = await diagnose(trace);
-  const patches = await recentPatches();
+  // Only fixes generated from the run being viewed.
+  const patches = (await recentPatches()).filter((p) => p.traceRunId === trace.runId);
+  const backup = await backupPatch();
   const flaggedSteps = new Set(
     diagnosis.findings.flatMap((f) => f.evidence.flatMap((e) => e.stepIndexes ?? [])),
   );
@@ -166,9 +169,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
         ) : (
           diagnosis.findings.map((f) => <FindingCard key={f.kind} finding={f} />)
         )}
+        {diagnosis.findings.some((f) => f.kind === "excessive_navigation") && (
+          <OptimizeButton
+            benchmark={benchmark && runs[runIndex] ? benchmark.file.replace("data/results/", "") : undefined}
+            run={runIndex + 1}
+          />
+        )}
       </section>
 
-      <PatchPanel patches={patches} />
+      <PatchPanel patches={patches} backup={backup} now={Date.now()} />
     </main>
   );
 }
