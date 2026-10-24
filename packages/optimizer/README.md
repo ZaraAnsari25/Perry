@@ -12,7 +12,7 @@ Implements `Optimize`: `optimize({ trace, repoPath, allowedFiles }, options?) =>
 6. **build** gate: `npm ci` and `next build` of the storefront in the worktree.
 7. **tests** gate: serves the patched storefront (port 3002) and checks each search page shows the same products in the same order as the baseline, and that no card's visible price, color, category or per-size stock contradicts the catalog.
 
-Status: `accepted` (all gates pass), `rejected` (a gate failed), `failed` (Droid did not finish). The worktree is kept for inspection; `removeWorktree()` deletes it.
+Status: `accepted` (all gates pass), `rejected` (a gate failed), `failed` (Droid did not finish). An accepted patch keeps its worktree (the built site, servable on 3002); a rejected or failed one is deleted unless `keepRejected` is set. `removeWorktree()` deletes one by hand.
 
 The card check is a heuristic over visible text. It catches wrong prices, wrong colors or categories, fabricated sizes and wrong per-size stock written one size per line, and rejects stock lines covering several sizes as uncheckable. It can miss claims phrased in other ways, such as an "Available sizes: 7, 9" list.
 
@@ -21,3 +21,14 @@ npm test --workspace packages/optimizer                     # unit tests for the
 npm run optimize --workspace packages/optimizer             # end to end on the sample trace (uses Droid)
 npm run optimize --workspace packages/optimizer -- --serve  # keep an accepted patch running on :3002
 ```
+
+## Rejection demo
+
+```bash
+npm run optimize --workspace packages/optimizer -- --hostile catalog   # rejected by the allowlist
+npm run optimize --workspace packages/optimizer -- --hostile price     # rejected by the search-page check
+npm run optimize --workspace packages/optimizer -- --hostile stock     # rejected by the search-page check
+npm run optimize --workspace packages/optimizer -- --red-team          # real Droid, asked for a forbidden change
+```
+
+`--hostile` applies a scripted patch from `red-team.ts` instead of running Droid, so the gates can be shown deterministically. Those results are marked provenance `fixture` and labeled as simulated on the dashboard; they are never presented as Droid output.

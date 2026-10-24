@@ -27,6 +27,13 @@ npm run typecheck
 npm run dev:dashboard   # http://localhost:3000
 ```
 
+Demo servers (after `npm run build --workspace apps/storefront` and one accepted `npm run optimize --workspace packages/optimizer`):
+
+```bash
+npm run start --workspace apps/storefront   # original storefront, http://localhost:3001
+npm run serve:patched                       # newest accepted Droid patch, http://localhost:3002
+```
+
 Node 22+. Each workspace adds its own dependencies in its own `package.json`. Person A: when you add or change dependencies, tell Person B so the lockfile is reconciled at merge time, not edited on both branches in parallel. Use the same versions already in the repo for shared libraries (`next 16.4.3`, `react 19.3.1`, `tailwindcss 4.3.3`, `typescript 5.9.3`).
 
 Secrets go in a local `.env` (see `.env.example`); never commit them.
