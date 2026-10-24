@@ -1,5 +1,6 @@
 // Reads results the CLI scripts save to data/results/ (gitignored, local only).
 
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
@@ -20,12 +21,19 @@ export interface SavedPatch extends PatchResult {
   log?: string[];
   /** Visible text of one search card on the original and patched stores. */
   preview?: { query: string; slug: string; before?: string[]; after: string[] };
+  /** An accepted Droid fix whose built copy still exists, so it can be made live. */
+  servable: boolean;
+  /** Where the result is kept: current fixes, the demo backup, or archived by a reset. */
+  location: PatchLocation;
 }
+
+export type PatchLocation = "current" | "backup" | "archive";
 
 // next dev/build/start run with the dashboard app as the working directory.
 const RESULTS_DIR = join(process.cwd(), "../../data/results");
 
-async function readPatches(dir: string, limit: number): Promise<SavedPatch[]> {
+async function readPatches(location: PatchLocation, limit: number): Promise<SavedPatch[]> {
+  const dir = location === "current" ? "" : location;
   const files = await readdir(join(RESULTS_DIR, dir)).catch(() => [] as string[]);
   const newest = files
     .filter((f) => /^patch-.*\.json$/.test(f))
@@ -37,14 +45,33 @@ async function readPatches(dir: string, limit: number): Promise<SavedPatch[]> {
       const path = join(dir, f);
       const saved = JSON.parse(await readFile(join(RESULTS_DIR, path), "utf8")) as Partial<SavedPatch> & PatchResult;
       // Results saved before these fields existed lack them.
-      return { blocked: [], redTeam: false, traceRunId: "", createdAt: "", ...saved, file: `data/results/${path}` };
+      const servable =
+        saved.status === "accepted" &&
+        saved.provenance === "live" &&
+        existsSync(join(saved.worktreePath, "apps/storefront"));
+      return {
+        blocked: [],
+        redTeam: false,
+        traceRunId: "",
+        createdAt: "",
+        ...saved,
+        file: `data/results/${path}`,
+        servable,
+        location,
+      };
     }),
   );
 }
 
 /** Saved optimize() results, newest first. Archived results are not included. */
 export function recentPatches(limit = 50): Promise<SavedPatch[]> {
-  return readPatches("", limit);
+  return readPatches("current", limit);
+}
+
+/** Every saved fix (current, backup and archived), newest first. */
+export async function allPatches(): Promise<SavedPatch[]> {
+  const all = (await Promise.all((["current", "backup", "archive"] as const).map((l) => readPatches(l, 500)))).flat();
+  return all.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 /**

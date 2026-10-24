@@ -9,7 +9,8 @@
   "scripts": {
     "test": "node --test checks.test.ts",
     "optimize": "node --env-file-if-exists=../../.env scripts/run.ts",
-    "serve:patched": "node scripts/serve-patched.ts"
+    "serve:patched": "node scripts/serve-patched.ts",
+    "reset:demo": "node scripts/reset-demo.ts"
   },
   "dependencies": {
     "@agentfix/diagnosis": "*",

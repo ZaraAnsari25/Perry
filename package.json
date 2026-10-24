@@ -13,7 +13,8 @@
     "dev:dashboard": "npm run dev -w @agentfix/dashboard",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "tsc -p tsconfig.json && npm run typecheck --workspaces --if-present",
-    "serve:patched": "npm run serve:patched --workspace packages/optimizer --"
+    "serve:patched": "npm run serve:patched --workspace packages/optimizer --",
+    "reset:demo": "npm run reset:demo --workspace packages/optimizer"
   },
   "devDependencies": {
     "@types/node": "22.20.5",

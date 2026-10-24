@@ -2,6 +2,8 @@ import type { PatchStatus } from "@agentfix/shared";
 
 import type { SavedPatch } from "@/lib/results";
 
+import { MakeLiveButton } from "./make-live-button";
+
 const statusTone: Record<PatchStatus, string> = {
   accepted: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
   rejected: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
@@ -22,14 +24,14 @@ const gates = [
 ] as const;
 
 /** Who produced the patch. Simulated patches are scripted tests, never shown as Droid's. */
-function source(patch: SavedPatch): string {
+export function source(patch: SavedPatch): string {
   if (patch.hostile) return `Simulated hostile patch "${patch.hostile}" (scripted test, not Droid)`;
   if (patch.redTeam) return "Factory Droid, given a red-team prompt asking for a forbidden change";
   return "Factory Droid";
 }
 
 /** "just now", "12 minutes ago", or a date, relative to when the page was rendered. */
-function age(iso: string, now: number): string {
+export function age(iso: string, now: number): string {
   const minutes = Math.floor((now - Date.parse(iso)) / 60_000);
   if (!Number.isFinite(minutes)) return "at an unknown time";
   if (minutes < 2) return "just now";
@@ -44,10 +46,13 @@ function age(iso: string, now: number): string {
 export function PatchPanel({
   patches,
   backup,
+  live,
   now,
 }: {
   patches: SavedPatch[];
   backup: SavedPatch | null;
+  /** Worktree the fixed store on localhost:3002 is serving, if any. */
+  live?: string;
   now: number;
 }) {
   const [latest, ...earlier] = patches;
@@ -56,7 +61,7 @@ export function PatchPanel({
       <h2 id="patch-heading" className="text-lg font-semibold">
         Fix for this run
       </h2>
-      {latest ? <PatchCard patch={latest} now={now} /> : <NoPatch />}
+      {latest ? <PatchCard patch={latest} now={now} live={live} /> : <NoPatch />}
       {!latest && backup && (
         <details className="rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700">
           <summary className="cursor-pointer px-4 py-3 text-sm">
@@ -66,7 +71,7 @@ export function PatchPanel({
             </span>
           </summary>
           <div className="border-t border-dashed border-zinc-300 p-3 dark:border-zinc-700">
-            <PatchCard patch={backup} now={now} replay />
+            <PatchCard patch={backup} now={now} live={live} replay />
           </div>
         </details>
       )}
@@ -81,9 +86,10 @@ export function PatchPanel({
                     <StatusBadge status={p.status} />
                     <span>{source(p)}</span>
                     <span className="text-xs text-zinc-500">generated {age(p.createdAt, now)}</span>
+                    {live !== undefined && p.worktreePath === live && <LiveBadge />}
                   </summary>
                   <div className="border-t border-zinc-200 p-3 dark:border-zinc-800">
-                    <PatchCard patch={p} now={now} />
+                    <PatchCard patch={p} now={now} live={live} />
                   </div>
                 </details>
               </li>
@@ -95,7 +101,7 @@ export function PatchPanel({
   );
 }
 
-function StatusBadge({ status }: { status: PatchStatus }) {
+export function StatusBadge({ status }: { status: PatchStatus }) {
   return (
     <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${statusTone[status]}`}>
       {status}
@@ -112,7 +118,26 @@ function NoPatch() {
   );
 }
 
-function PatchCard({ patch, now, replay = false }: { patch: SavedPatch; now: number; replay?: boolean }) {
+export function LiveBadge() {
+  return (
+    <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-medium text-white dark:bg-emerald-500 dark:text-emerald-950">
+      Live on localhost:3002
+    </span>
+  );
+}
+
+export function PatchCard({
+  patch,
+  now,
+  live,
+  replay = false,
+}: {
+  patch: SavedPatch;
+  now: number;
+  live?: string;
+  replay?: boolean;
+}) {
+  const isLive = live !== undefined && patch.worktreePath === live;
   return (
     <article className="space-y-5 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <header className="space-y-1">
@@ -123,12 +148,37 @@ function PatchCard({ patch, now, replay = false }: { patch: SavedPatch; now: num
               Replay of an earlier run
             </span>
           )}
+          {isLive && <LiveBadge />}
           <span className="text-xs text-zinc-500">
             {source(patch)} · generated {age(patch.createdAt, now)}
           </span>
         </div>
         <p className="text-base font-medium">{verdict[patch.status]}</p>
       </header>
+
+      {isLive ? (
+        <p className="text-sm">
+          The fixed store at{" "}
+          <a
+            href="http://localhost:3002/search?q=black+running+shoe"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-blue-700 underline dark:text-blue-400"
+          >
+            localhost:3002
+          </a>{" "}
+          is running this fix.
+        </p>
+      ) : (
+        <>
+          {patch.servable && <MakeLiveButton file={patch.file} />}
+          {!patch.servable && patch.status === "accepted" && patch.provenance === "live" && (
+            <p className="text-xs text-zinc-500">
+              This fix&apos;s built copy was removed (for example by a reset), so it can&apos;t be made live again.
+            </p>
+          )}
+        </>
+      )}
 
       {patch.explanation && (
         <blockquote className="border-l-2 border-zinc-300 pl-3 text-sm dark:border-zinc-700">

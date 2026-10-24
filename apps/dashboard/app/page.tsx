@@ -4,7 +4,8 @@ import { sampleTrace } from "@agentfix/shared/fixtures";
 import Link from "next/link";
 import { connection } from "next/server";
 
-import { backupPatch, latestBenchmark, recentPatches } from "@/lib/results";
+import { liveWorktree } from "@/lib/child-process";
+import { allPatches, backupPatch, latestBenchmark, recentPatches } from "@/lib/results";
 
 import { OptimizeButton } from "./optimize-button";
 import { PatchPanel } from "./patch-panel";
@@ -44,6 +45,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
   // Only fixes generated from the run being viewed.
   const patches = (await recentPatches()).filter((p) => p.traceRunId === trace.runId);
   const backup = await backupPatch();
+  const droidFixes = (await allPatches()).filter((p) => !p.redTeam).length;
+  // Which saved fix, if any, the fixed store on localhost:3002 is serving.
+  const live = await liveWorktree();
   const flaggedSteps = new Set(
     diagnosis.findings.flatMap((f) => f.evidence.flatMap((e) => e.stepIndexes ?? [])),
   );
@@ -54,6 +58,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold tracking-tight">AgentFix</h1>
           <ProvenanceBadge provenance={trace.provenance} />
+          <Link href="/history" className="ml-auto text-sm text-blue-700 underline dark:text-blue-400">
+            Fix history
+          </Link>
         </div>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Run <code className="font-mono">{trace.runId}</code> · {trace.siteVersion} site ·{" "}
@@ -177,7 +184,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
         )}
       </section>
 
-      <PatchPanel patches={patches} backup={backup} now={Date.now()} />
+      <PatchPanel patches={patches} backup={backup} live={live} now={Date.now()} />
+      <p className="text-sm">
+        <Link href="/history" className="font-medium text-blue-700 underline dark:text-blue-400">
+          See all Droid fixes ({droidFixes}) →
+        </Link>{" "}
+        <span className="text-zinc-500">including other runs and ones archived by a reset</span>
+      </p>
     </main>
   );
 }

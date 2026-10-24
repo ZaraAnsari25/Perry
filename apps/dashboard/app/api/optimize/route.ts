@@ -3,26 +3,13 @@
 // Factory key stay on the server; one optimize run at a time.
 
 import { spawn } from "node:child_process";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
+import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-// next dev/build/start run with the dashboard app as the working directory.
-const REPO = join(process.cwd(), "../..");
-const LOCK = join(REPO, "data/results/.optimize-running");
+import { OPTIMIZE_LOCK as LOCK, REPO, childEnv, optimizeRunning } from "@/lib/child-process";
+
 // serve:patched uses 3002, so the gate's own check server uses 3003.
 const CHECK_PORT = "3003";
-
-function alreadyRunning(): boolean {
-  if (!existsSync(LOCK)) return false;
-  try {
-    process.kill(Number(readFileSync(LOCK, "utf8")), 0);
-    return true;
-  } catch {
-    rmSync(LOCK, { force: true });
-    return false;
-  }
-}
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as { benchmark?: unknown; run?: unknown };
@@ -34,24 +21,11 @@ export async function POST(request: Request) {
     }
     args.push("--benchmark", body.benchmark, "--run", String(run));
   }
-  if (alreadyRunning()) {
+  if (optimizeRunning()) {
     return new Response("An optimize run is already in progress.\n", { status: 409 });
   }
 
-  // Don't pass the dashboard's own Next.js settings (NODE_ENV=development under
-  // next dev, internal __NEXT_* flags) to the patched storefront's build.
-  // NODE_ENV stays unset on purpose: NODE_ENV=production would make `npm ci`
-  // skip devDependencies.
-  const env: Record<string, string | undefined> = { ...process.env };
-  for (const key of Object.keys(env)) {
-    if (key === "NODE_ENV" || /^(__NEXT|NEXT_|TURBOPACK)/.test(key)) delete env[key];
-  }
-  // The Droid SDK starts the droid CLI from PATH.
-  env.PATH = `${join(homedir(), ".local/bin")}:${process.env.PATH ?? ""}`;
-  const child = spawn(process.execPath, args, {
-    cwd: join(REPO, "packages/optimizer"),
-    env: env as NodeJS.ProcessEnv,
-  });
+  const child = spawn(process.execPath, args, { cwd: join(REPO, "packages/optimizer"), env: childEnv() });
   writeFileSync(LOCK, String(child.pid));
 
   const encoder = new TextEncoder();
