@@ -15,10 +15,9 @@ import {
   PATCHED_PORT,
   REPO,
   RESULTS_DIR,
+  busyWith,
   childEnv,
   liveWorktree,
-  measureRunning,
-  optimizeRunning,
 } from "@/lib/child-process";
 import { MEASUREMENT_INDEX, type MeasurementIndex } from "@/lib/results";
 
@@ -47,8 +46,9 @@ export async function POST(request: Request) {
       status: 409,
     });
   }
-  if (optimizeRunning() || measureRunning()) {
-    return new Response("Busy: an optimize run or another measurement is in progress.\n", { status: 409 });
+  const busy = busyWith();
+  if (busy) {
+    return new Response(`Busy: ${busy} is in progress.\n`, { status: 409 });
   }
   if (!(await reachable(BASELINE_PORT))) {
     return new Response(

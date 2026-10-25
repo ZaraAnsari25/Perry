@@ -1,7 +1,7 @@
 // Shared by the API routes that start the optimizer's scripts.
 
-import { execFile } from "node:child_process";
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { execFile, spawn } from "node:child_process";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -11,6 +11,10 @@ export const REPO = join(process.cwd(), "../..");
 export const RESULTS_DIR = join(REPO, "data/results");
 export const OPTIMIZE_LOCK = join(RESULTS_DIR, ".optimize-running");
 export const MEASURE_LOCK = join(RESULTS_DIR, ".measure-running");
+/** Droid generating the shop commands (Feature 2). */
+export const GENERATE_LOCK = join(RESULTS_DIR, ".generate-running");
+/** Agent runs on the shop commands, or the three-way comparison. */
+export const AGENTS_LOCK = join(RESULTS_DIR, ".agents-running");
 export const BASELINE_PORT = 3001;
 export const PATCHED_PORT = 3002;
 
@@ -31,6 +35,63 @@ export const optimizeRunning = () => lockHeld(OPTIMIZE_LOCK);
 
 /** Whether a measurement (compare runs on 3001 and 3002) is still going. */
 export const measureRunning = () => lockHeld(MEASURE_LOCK);
+
+/**
+ * What's running from the dashboard, if anything: only one job at a time.
+ * `allowGenerate` lets a job run alongside Droid generating the shop commands,
+ * which works in its own copy and only touches the original store's cart.
+ */
+export function busyWith({ allowGenerate = false } = {}): string | null {
+  if (lockHeld(OPTIMIZE_LOCK)) return "an optimize run";
+  if (lockHeld(MEASURE_LOCK)) return "a measurement";
+  if (!allowGenerate && lockHeld(GENERATE_LOCK)) return "Droid generating the shop commands";
+  if (lockHeld(AGENTS_LOCK)) return "agent runs";
+  return null;
+}
+
+/**
+ * Runs scripts one after another (each only if the previous one succeeded) and
+ * streams their combined output, ending with "[exit <code>]". The lock file holds
+ * the running child's PID. If the page goes away, the scripts keep going.
+ */
+export function streamScripts(steps: { cwd: string; args: string[] }[], lock: string): Response {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      const send = (text: string) => {
+        try {
+          controller.enqueue(encoder.encode(text));
+        } catch {
+          // The page went away; the scripts keep going and still save their results.
+        }
+      };
+      const next = (i: number) => {
+        const step = steps[i];
+        if (!step) return finish(0);
+        const child = spawn(process.execPath, step.args, { cwd: step.cwd, env: childEnv() });
+        writeFileSync(lock, String(child.pid));
+        child.stdout.on("data", (chunk: Buffer) => send(chunk.toString()));
+        child.stderr.on("data", (chunk: Buffer) => send(chunk.toString()));
+        child.on("close", (code) => (code === 0 ? next(i + 1) : finish(code ?? 1)));
+      };
+      const finish = (code: number) => {
+        rmSync(lock, { force: true });
+        send(`\n[exit ${code}]\n`);
+        try {
+          controller.close();
+        } catch {}
+      };
+      next(0);
+    },
+  });
+  return new Response(stream, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
+}
+
+export const reachable = (port: number) =>
+  fetch(`http://localhost:${port}`).then(
+    () => true,
+    () => false,
+  );
 
 /**
  * Environment for scripts started from the dashboard. Drops the dashboard's own

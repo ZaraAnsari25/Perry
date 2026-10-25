@@ -1,13 +1,14 @@
 // Puts the demo back to "nothing optimized yet": archives current fix results,
-// stops the fixed store on localhost:3002, and removes the sandbox copies of the
-// archived fixes. Keeps the backup fix (data/results/backup/), the benchmark
+// stops the fixed store on localhost:3002, removes the sandbox copies of the
+// archived fixes, and starts a new demo session (data/results/.demo-start): the
+// dashboard shows Feature 2 and the comparison only from runs after it. Keeps the backup fix (data/results/backup/), the benchmark
 // data, the original store and the dashboard.
 //
 // Usage (from the repo root):
 //   npm run reset:demo
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -25,6 +26,8 @@ const sh = (cmd: string, args: string[]) => {
 for (const [name, what] of [
   [".optimize-running", "An optimize run"],
   [".measure-running", "A measurement"],
+  [".generate-running", "Droid generating the shop commands"],
+  [".agents-running", "An agent run"],
 ] as const) {
   const lock = join(resultsDir, name);
   if (!existsSync(lock)) continue;
@@ -68,4 +71,9 @@ for (const w of worktrees) {
 }
 sh("git", ["worktree", "prune"]);
 console.log(`Removed ${removed} sandbox cop${removed === 1 ? "y" : "ies"}; kept ${keep.size} (the backup fix).`);
+// 5. Start a new demo session: earlier generated commands, agent runs and
+// comparisons move to the dashboard's "last recorded" backups.
+writeFileSync(join(resultsDir, ".demo-start"), `${new Date().toISOString()}\n`);
+console.log("Started a new demo session: Feature 2 and the comparison are empty until you run them.");
+
 console.log("\nReset done. Refresh the dashboard: every run now shows \"No fix yet\".");
