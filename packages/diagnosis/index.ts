@@ -35,18 +35,23 @@ function productVisits(steps: TraceStep[]): ProductVisit[] {
  * The task needs one product. Every product page the agent opened and left
  * without buying is overhead the search results could have prevented: the
  * click that opened it plus every step on it (including navigating back).
+ * The step that opens the purchased product is never overhead, even when the
+ * agent takes it from a wasted page by jumping straight to the next product.
  */
 function excessiveNavigation(trace: AgentTrace): Finding | null {
   const visits = productVisits(trace.steps);
   // The last visit is where the agent added to cart; the rest were checks.
   const wasted = visits.slice(0, -1);
-  if (wasted.length === 0) return null;
+  const purchase = visits.at(-1);
+  if (wasted.length === 0 || !purchase) return null;
 
   const overhead = new Set<number>();
   for (const visit of wasted) {
     if (visit.opener) overhead.add(visit.opener.index);
     for (const s of visit.steps) overhead.add(s.index);
   }
+  const purchaseOpener = trace.steps[trace.steps.indexOf(purchase.steps[0]!) - 1];
+  if (purchaseOpener) overhead.delete(purchaseOpener.index);
   const steps = trace.steps.filter((s) => overhead.has(s.index));
   const tokens = steps.reduce((t, s) => t + s.inputTokens + s.outputTokens, 0);
   const ms = steps.reduce((t, s) => t + s.modelMs + s.browserMs, 0);

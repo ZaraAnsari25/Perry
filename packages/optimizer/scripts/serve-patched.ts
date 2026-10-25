@@ -1,6 +1,7 @@
 // Serves the newest accepted patch: finds the latest accepted result in
-// data/results/ whose worktree still exists, builds it if needed, and runs
-// `next start` in the foreground until Ctrl+C.
+// data/results/ (or, failing that, the saved backup in data/results/backup/)
+// whose worktree still exists, builds it if needed, and runs `next start` in
+// the foreground until Ctrl+C.
 //
 // Usage (from the repo root):
 //   npm run serve:patched                       # http://localhost:3002
@@ -24,13 +25,17 @@ const port = Number(arg("--port") ?? 3002);
 
 function pickResult(): { file: string; patch: PatchResult } {
   const chosen = arg("--result");
+  const newestFirst = (dir: string) =>
+    existsSync(dir)
+      ? readdirSync(dir, { withFileTypes: true })
+          .filter((d) => d.isFile() && /^patch-.*\.json$/.test(d.name))
+          .map((d) => join(dir, d.name))
+          .sort()
+          .reverse()
+      : [];
   const files = chosen
     ? [resolve(repoPath, chosen)]
-    : readdirSync(resultsDir, { withFileTypes: true })
-        .filter((d) => d.isFile() && /^patch-.*\.json$/.test(d.name))
-        .map((d) => join(resultsDir, d.name))
-        .sort()
-        .reverse();
+    : [...newestFirst(resultsDir), ...newestFirst(join(resultsDir, "backup"))];
   for (const file of files) {
     const patch = JSON.parse(readFileSync(file, "utf8")) as PatchResult;
     if (patch.status === "accepted" && patch.provenance === "live" && existsSync(patch.worktreePath)) {
