@@ -8,7 +8,7 @@ Two ways to use it:
 
 Both are thin wrappers around `runShop` in `core.ts`, so one implementation and one set of tests cover every way in.
 
-The standard `runShop` must meet is written down in [CONTRACT.md](CONTRACT.md): commands, flags, exact output formats, exit codes and refusals. `core.ts` is the hand-written implementation; Perry can also have Factory Droid write one for the store (`npm run generate:interface`), accepted only if it passes the same contract tests. `PERRY_SHOP_IMPL=generated` makes the sandbox and the MCP server use `generated/core.ts` instead (default `handwritten`); `AgentShell.implementation` says which one ran.
+The standard `runShop` must meet is written down in [CONTRACT.md](CONTRACT.md): commands, flags, exact output formats, exit codes and refusals. Agents use `generated/core.ts`, written by Factory Droid from the store's code (`npm run generate:interface`, then `npm run use:generated`) and accepted only after Perry's gates, including these contract tests and a real cart purchase. `core.ts` is the hand-written reference and fallback: `PERRY_SHOP_IMPL=handwritten` makes the sandbox and the MCP server use it instead (default `generated`); `AgentShell.implementation` says which one ran.
 
 ## `shop`
 
