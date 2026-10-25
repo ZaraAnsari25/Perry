@@ -198,7 +198,7 @@ export function PatchCard({
       {patch.preview && <CardPreview preview={patch.preview} />}
 
       <div className="space-y-2">
-        <p className="text-xs font-medium text-zinc-500">Checks AgentFix ran before accepting the fix</p>
+        <p className="text-xs font-medium text-zinc-500">Checks Perry ran before accepting the fix</p>
         <ul className="grid gap-2 sm:grid-cols-3">
           {gates.map((g) => {
             const passed = patch.checks[g.key];
@@ -224,7 +224,7 @@ export function PatchCard({
       {patch.blocked.length > 0 && (
         <div className="rounded-md bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
           <div className="font-medium text-amber-900 dark:text-amber-200">
-            Droid tried to change something it wasn&apos;t allowed to, and AgentFix stopped it
+            Droid tried to change something it wasn&apos;t allowed to, and Perry stopped it
           </div>
           <ul className="mt-1 list-disc pl-5 font-mono text-xs">
             {patch.blocked.map((b) => (

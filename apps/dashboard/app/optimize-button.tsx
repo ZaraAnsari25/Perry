@@ -113,7 +113,7 @@ export function OptimizeButton({ benchmark, run }: { benchmark?: string; run?: n
         </button>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           {state === "idle"
-            ? "Factory Droid fixes a copy of the store; AgentFix checks the fix before accepting it."
+            ? "Factory Droid fixes a copy of the store; Perry checks the fix before accepting it."
             : state === "running"
               ? "Usually takes about a minute."
               : null}

@@ -1,7 +1,7 @@
 {
-  "name": "agentfix",
+  "name": "perry",
   "private": true,
-  "description": "AgentFix: measure, diagnose, repair and verify how AI agents complete tasks on a website.",
+  "description": "Perry: measure, diagnose, repair and verify how AI agents complete tasks on a website.",
   "workspaces": [
     "apps/*",
     "packages/*"

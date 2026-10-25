@@ -2,7 +2,7 @@
 
 Owner: **Person B** (Michelle), branch `feat/optimizer-dashboard`. Person A does not edit this directory.
 
-Factory Droid adapter, built on the official TypeScript SDK `@factory/droid-sdk` (0.10.0, `@factory/droid-sdk/node` entrypoint). Droid is a runtime component of AgentFix.
+Factory Droid adapter, built on the official TypeScript SDK `@factory/droid-sdk` (0.10.0, `@factory/droid-sdk/node` entrypoint). Droid is a runtime component of Perry.
 
 ## Requirements
 
