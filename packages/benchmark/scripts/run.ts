@@ -4,10 +4,6 @@
 //   npm run bench -w @agentfix/benchmark -- --reps 2                     # baseline on BASELINE_URL
 //   npm run bench -w @agentfix/benchmark -- --reps 2 --version patched   # patched on PATCHED_URL
 //   npm run bench -w @agentfix/benchmark -- --reps 5 --compare           # baseline vs patched
-//   ... -- --out-prefix friction                                         # save as friction-<time>.json
-//
-// --out-prefix keeps side experiments (e.g. the STORE_FRICTION store) out of
-// benchmark-* / compare-*, which the dashboard reads as its browser runs.
 //
 // Every run costs API credits; the estimated cost is printed before starting.
 // Each trace is saved to data/results/trace-<runId>.json as it finishes, and
@@ -80,8 +76,6 @@ console.log(row(result.baseline));
 if (result.patched) console.log(row(result.patched));
 if (result.verdict) console.log(`Verdict: ${result.verdict}`);
 
-const prefix = arg("out-prefix") ?? (isCompare ? "compare" : "benchmark");
-if (!/^[a-z0-9-]+$/.test(prefix)) throw new Error(`--out-prefix must be lowercase letters, digits or dashes, got "${prefix}"`);
-const file = join(resultsDir, `${prefix}-${result.createdAt.replace(/[:.]/g, "-")}.json`);
+const file = join(resultsDir, `${isCompare ? "compare" : "benchmark"}-${result.createdAt.replace(/[:.]/g, "-")}.json`);
 writeFileSync(file, JSON.stringify(result, null, 2));
 console.log(`Saved ${file}`);
