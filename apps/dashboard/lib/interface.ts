@@ -6,8 +6,10 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import type { BenchmarkResult, Provenance } from "@agentfix/shared";
+import { READ_ONLY } from "@/lib/mode";
 
-const RESULTS_DIR = join(process.cwd(), "../../data/results");
+// The online copy reads a recorded snapshot (demo-data/) instead.
+const RESULTS_DIR = join(process.cwd(), READ_ONLY ? "demo-data" : "../../data/results");
 
 /** When `npm run reset:demo` last started a demo session, or null if it never has. */
 export async function demoStart(): Promise<string | null> {

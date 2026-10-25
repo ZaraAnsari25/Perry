@@ -3,6 +3,7 @@ import { connection } from "next/server";
 
 import { demoStart, latestThreeWay } from "@/lib/interface";
 import { averages } from "@/lib/metrics";
+import { STORE_URL, host } from "@/lib/mode";
 import { progress } from "@/lib/progress";
 import { latestBenchmark } from "@/lib/results";
 
@@ -75,7 +76,10 @@ export default async function Overview() {
               <ArrowRightIcon />
             </Link>
             <span className="text-sm text-faint">
-              Demo shoe store on <span className="font-mono">localhost:3001</span>
+              Demo shoe store on{" "}
+              <a href={STORE_URL} className="font-mono underline decoration-seam underline-offset-2 hover:text-ink">
+                {host(STORE_URL)}
+              </a>
               {model && (
                 <>
                   {" "}

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import type { RunAverages } from "@/lib/metrics";
+import { READ_ONLY } from "@/lib/mode";
 
 export interface TowerEntry {
   label: string;
@@ -157,7 +158,7 @@ export function TimingTower({
 
 /** "This demo session" with a live dot, or "Last recorded run". */
 export function TowerStatus({ session }: { session: boolean }) {
-  return session ? (
+  return session && !READ_ONLY ? (
     <span className="inline-flex items-center gap-1.5 text-improved">
       <span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-improved" />
       This demo session

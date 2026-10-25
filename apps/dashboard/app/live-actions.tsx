@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { StateMark } from "./icons";
+import { READ_ONLY } from "@/lib/mode";
+
+import { ReadOnlyAction } from "./read-only-action";
 
 type RunState = "idle" | "running" | "done" | "error";
 type Kind = "generate" | "try" | "compare";
@@ -201,6 +204,8 @@ export function LiveAction({
     state === "idle" || refused ? [] : progress(kind, log, state === "running");
   const reason = /^(rejected|failed): (.+)$/m.exec(log)?.[2];
 
+  if (READ_ONLY) return <ReadOnlyAction label={c.label} />;
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3">
@@ -208,7 +213,7 @@ export function LiveAction({
           type="button"
           onClick={start}
           disabled={state === "running" || disabledReason !== undefined}
-          className="rounded-md bg-zinc-900 px-3.5 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          className="inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-ground transition-colors hover:bg-perry-deep disabled:cursor-not-allowed disabled:bg-seam disabled:text-faint"
         >
           {state === "running"
             ? c.running

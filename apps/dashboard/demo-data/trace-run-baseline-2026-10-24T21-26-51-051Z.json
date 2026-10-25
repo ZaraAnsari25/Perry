@@ -1,0 +1,120 @@
+{
+  "runId": "run-baseline-2026-10-24T21-26-51-051Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "http://localhost:3001",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-24T21:26:51.051Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "type",
+      "target": "searchbox \"Search products\": black running shoe",
+      "pagePath": "/",
+      "startMs": 116,
+      "browserMs": 69,
+      "modelMs": 1166,
+      "inputTokens": 1319,
+      "outputTokens": 92,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "navigate",
+      "target": "/products/tempo-lite",
+      "pagePath": "/search",
+      "startMs": 1352,
+      "browserMs": 47,
+      "modelMs": 1780,
+      "inputTokens": 2311,
+      "outputTokens": 184,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "navigate",
+      "target": "/products/cloud-glide",
+      "pagePath": "/products/tempo-lite",
+      "startMs": 3179,
+      "browserMs": 48,
+      "modelMs": 1000,
+      "inputTokens": 3194,
+      "outputTokens": 85,
+      "ok": true
+    },
+    {
+      "index": 3,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/cloud-glide",
+      "startMs": 4227,
+      "browserMs": 51,
+      "modelMs": 1199,
+      "inputTokens": 3965,
+      "outputTokens": 84,
+      "ok": true
+    },
+    {
+      "index": 4,
+      "action": "select",
+      "target": "combobox \"Size\": 8",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 5476,
+      "browserMs": 14,
+      "modelMs": 920,
+      "inputTokens": 4744,
+      "outputTokens": 102,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "action": "click",
+      "target": "button \"Add to cart\"",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 6411,
+      "browserMs": 70,
+      "modelMs": 918,
+      "inputTokens": 5541,
+      "outputTokens": 47,
+      "ok": true
+    },
+    {
+      "index": 6,
+      "action": "done",
+      "target": "Added the Velocity Runner (black running shoe, $98, size 8, in stock, SKU VEL-BLK-08) to your cart. I checked the other options: Tempo Lite is black but size 8 is sold out, Cloud Glide is navy, and Aero Pace and Summit Hiker were not checked in detail.",
+      "pagePath": "/cart",
+      "startMs": 7399,
+      "browserMs": 0,
+      "modelMs": 1175,
+      "inputTokens": 5912,
+      "outputTokens": 149,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 8574,
+    "modelMs": 8158,
+    "browserMs": 415,
+    "inputTokens": 26986,
+    "outputTokens": 743,
+    "toolCalls": 6,
+    "estimatedCostUsd": 0.00307
+  },
+  "outcome": {
+    "success": true,
+    "agentClaimedDone": true,
+    "cart": [
+      {
+        "sku": "VEL-BLK-08",
+        "quantity": 1
+      }
+    ]
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25",
+    "cartId": "c481fe64-358e-40d7-8068-0ffb69512381"
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "runId": "run-baseline-2026-10-25T10-01-51-154Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "http://localhost:3003",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-25T10:01:51.154Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "type",
+      "target": "searchbox \"Search products\": black running shoe",
+      "pagePath": "/",
+      "startMs": 117,
+      "browserMs": 69,
+      "modelMs": 1581,
+      "inputTokens": 1363,
+      "outputTokens": 92,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "navigate",
+      "target": "/products/tempo-lite",
+      "pagePath": "/search",
+      "startMs": 1767,
+      "browserMs": 53,
+      "modelMs": 3183,
+      "inputTokens": 2355,
+      "outputTokens": 173,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "navigate",
+      "target": "/products/cloud-glide",
+      "pagePath": "/products/tempo-lite",
+      "startMs": 5003,
+      "browserMs": 49,
+      "modelMs": 1899,
+      "inputTokens": 3366,
+      "outputTokens": 88,
+      "ok": true
+    },
+    {
+      "index": 3,
+      "action": "navigate",
+      "target": "/products/aero-pace",
+      "pagePath": "/products/cloud-glide",
+      "startMs": 6952,
+      "browserMs": 50,
+      "modelMs": 1135,
+      "inputTokens": 4299,
+      "outputTokens": 77,
+      "ok": true
+    },
+    {
+      "index": 4,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/aero-pace",
+      "startMs": 8138,
+      "browserMs": 50,
+      "modelMs": 909,
+      "inputTokens": 5216,
+      "outputTokens": 77,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "action": "click",
+      "target": "f5e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 9097,
+      "browserMs": 10014,
+      "modelMs": 1371,
+      "inputTokens": 6127,
+      "outputTokens": 83,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 6,
+      "action": "click",
+      "target": "f5e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 20483,
+      "browserMs": 10015,
+      "modelMs": 1172,
+      "inputTokens": 7075,
+      "outputTokens": 135,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 7,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 31670,
+      "browserMs": 46,
+      "modelMs": 2000,
+      "inputTokens": 8075,
+      "outputTokens": 287,
+      "ok": true
+    },
+    {
+      "index": 8,
+      "action": "click",
+      "target": "f6e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 33716,
+      "browserMs": 10011,
+      "modelMs": 1095,
+      "inputTokens": 9196,
+      "outputTokens": 47,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 9,
+      "action": "click",
+      "target": "f6e32",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 44822,
+      "browserMs": 10012,
+      "modelMs": 2288,
+      "inputTokens": 10108,
+      "outputTokens": 320,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 10,
+      "action": "click",
+      "target": "button \"×\"",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 57123,
+      "browserMs": 20,
+      "modelMs": 2173,
+      "inputTokens": 11293,
+      "outputTokens": 284,
+      "ok": true
+    },
+    {
+      "index": 11,
+      "action": "click",
+      "target": "generic: \"8\"",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 59316,
+      "browserMs": 22,
+      "modelMs": 1927,
+      "inputTokens": 12281,
+      "outputTokens": 66,
+      "ok": true
+    },
+    {
+      "index": 12,
+      "action": "click",
+      "target": "button \"Add to cart\"",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 61264,
+      "browserMs": 62,
+      "modelMs": 729,
+      "inputTokens": 13051,
+      "outputTokens": 47,
+      "ok": true
+    },
+    {
+      "index": 13,
+      "action": "done",
+      "target": "Added the Velocity Runner (black running shoe, $98, size 8, in stock) to your cart. Cart shows Velocity Runner, size 8, quantity 1, SKU VEL-BLK-08. Other options were ruled out: Tempo Lite was black but size 8 was sold out, Cloud Glide is navy, and Aero Pace is white.</summary>\n",
+      "pagePath": "/cart",
+      "startMs": 62056,
+      "browserMs": 0,
+      "modelMs": 1277,
+      "inputTokens": 13422,
+      "outputTokens": 185,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 63332,
+    "modelMs": 22739,
+    "browserMs": 40590,
+    "inputTokens": 107227,
+    "outputTokens": 1961,
+    "toolCalls": 13,
+    "estimatedCostUsd": 0.011703
+  },
+  "outcome": {
+    "success": true,
+    "agentClaimedDone": true,
+    "cart": [
+      {
+        "sku": "VEL-BLK-08",
+        "quantity": 1
+      }
+    ]
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25",
+    "cartId": "34983fbd-27f3-41d7-be02-999b6f96f592"
+  }
+}

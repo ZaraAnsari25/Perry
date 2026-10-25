@@ -1,0 +1,73 @@
+{
+  "provenance": "live",
+  "status": "accepted",
+  "gates": [
+    {
+      "name": "allowlist",
+      "ok": true,
+      "detail": "Only packages/agent-interface/generated/core.ts changed."
+    },
+    {
+      "name": "independence",
+      "ok": true,
+      "detail": "No imports from the hand-written interface; longest run of lines shared with it: 1 (limit 7)."
+    },
+    {
+      "name": "typecheck",
+      "ok": true,
+      "detail": "The repo typechecks with the generated file."
+    },
+    {
+      "name": "contract tests",
+      "ok": true,
+      "detail": "All 18 contract tests pass."
+    },
+    {
+      "name": "integration",
+      "ok": true,
+      "detail": "Bought VEL-BLK-08 on the real cart at http://localhost:3001; refusals left it unchanged; verifyCart succeeded."
+    }
+  ],
+  "createdAt": "2026-10-25T14:11:50.105Z",
+  "baseCommit": "09ac01a9f92703ecc9b742d280e84ceeccb6de9b",
+  "explanation": "Implemented `runShop` in `packages/agent-interface/generated/core.ts`, including search, product details, safe cart operations, and checkout previews.\n\nOnly that file changed. No dependencies added. Reviewed against the contract; typecheck and tests were not run because shell commands are blocked.",
+  "blocked": [],
+  "droidSessionId": "39e3459e-27fb-4ae2-973f-cdce6aed6c0a",
+  "sourceFile": "data/results/interface-gen-2026-10-25T14-11-50-105Z.core.ts",
+  "log": [
+    "worktree: /Users/zara/Desktop/calhacks-setup/Perry-droid-sandbox/interface-2026-10-25T14-11-50-105Z @ 09ac01a",
+    "running Factory Droid...",
+    "[tool] Script",
+    "[tool] TodoWrite",
+    "[tool] Glob",
+    "[tool] Read",
+    "[tool] Read",
+    "[tool] Script",
+    "[tool] Read",
+    "[tool] Read",
+    "[tool] Read",
+    "[tool] Read",
+    "[tool] Read",
+    "[tool] Script",
+    "[tool] TodoWrite",
+    "[tool] Script",
+    "[tool] ApplyPatch",
+    "[tool] Script",
+    "[tool] TodoWrite",
+    "[tool] Read",
+    "[tool] Script",
+    "[tool] ApplyPatch",
+    "[tool] Script",
+    "[tool] TodoWrite",
+    "allowlist: pass (Only packages/agent-interface/generated/core.ts changed.)",
+    "independence: pass (No imports from the hand-written interface; longest run of lines shared with it: 1 (limit 7).)",
+    "installing dependencies and typechecking...",
+    "typecheck: pass (The repo typechecks with the generated file.)",
+    "running the contract tests against the generated runShop...",
+    "contract tests: pass (All 18 contract tests pass.)",
+    "integration test against http://localhost:3001...",
+    "integration: pass (Bought VEL-BLK-08 on the real cart at http://localhost:3001; refusals left it unchanged; verifyCart succeeded.)",
+    "accepted",
+    "removed worktree: /Users/zara/Desktop/calhacks-setup/Perry-droid-sandbox/interface-2026-10-25T14-11-50-105Z"
+  ]
+}

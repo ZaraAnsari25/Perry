@@ -13,6 +13,7 @@ import {
   latestThreeWay,
 } from "@/lib/interface";
 import { type RunAverages, averages, change, usd, whole } from "@/lib/metrics";
+import { FIXED_STORE_URL, host } from "@/lib/mode";
 
 import { LiveAction } from "./live-actions";
 import { age } from "./patch-panel";
@@ -1003,7 +1004,7 @@ export async function ResultsSection({
   const checklist = [
     {
       done: fixLive,
-      text: "Feature 1: a Droid fix is live on the fixed store (localhost:3002)",
+      text: `Feature 1: a Droid fix is live on the fixed store (${host(FIXED_STORE_URL)})`,
     },
     {
       done: commandsReady,

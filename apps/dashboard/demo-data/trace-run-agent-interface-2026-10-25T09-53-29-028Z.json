@@ -1,0 +1,80 @@
+{
+  "runId": "run-agent-interface-2026-10-25T09-53-29-028Z",
+  "provenance": "live",
+  "siteVersion": "agent-interface",
+  "url": "http://localhost:3001",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-25T09:53:29.028Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "shell",
+      "target": "shop search --color black --category running --max-price 120 --size 8 --in-stock",
+      "command": "shop search --color black --category running --max-price 120 --size 8 --in-stock",
+      "exitCode": 0,
+      "output": "1 match (showing 1)\nVEL-BLK-08\tVelocity Runner\tblack\trunning\t$98\tsize 8\tstock 3\nNear misses:\n  Tempo Lite: size 8 is sold out\n  Cloud Glide: color is navy, not black\n  Aero Pace: color is white, not black\n",
+      "pagePath": "cli",
+      "startMs": 1,
+      "browserMs": 1,
+      "modelMs": 1304,
+      "inputTokens": 986,
+      "outputTokens": 69,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "shell",
+      "target": "shop cart add VEL-BLK-08",
+      "command": "shop cart add VEL-BLK-08",
+      "exitCode": 0,
+      "output": "Added VEL-BLK-08 (Velocity Runner, size 8).\n{\"items\":[{\"sku\":\"VEL-BLK-08\",\"name\":\"Velocity Runner\",\"size\":8,\"priceUsd\":98,\"quantity\":1}],\"totalUsd\":98}\n",
+      "pagePath": "cli",
+      "startMs": 1306,
+      "browserMs": 10,
+      "modelMs": 1196,
+      "inputTokens": 1174,
+      "outputTokens": 57,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "done",
+      "target": "Found the Velocity Runner (black running shoe, size 8, $98, 3 in stock) and added it to your cart (SKU VEL-BLK-08). The cart total is $98.",
+      "pagePath": "cli",
+      "startMs": 2512,
+      "browserMs": 0,
+      "modelMs": 1534,
+      "inputTokens": 1339,
+      "outputTokens": 103,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 4046,
+    "modelMs": 4034,
+    "browserMs": 11,
+    "inputTokens": 3499,
+    "outputTokens": 229,
+    "toolCalls": 2,
+    "estimatedCostUsd": 0.000464
+  },
+  "outcome": {
+    "success": true,
+    "agentClaimedDone": true,
+    "cart": [
+      {
+        "sku": "VEL-BLK-08",
+        "quantity": 1
+      }
+    ]
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25",
+    "cartId": "558e5a70-718b-4a54-b116-b1572cec549a",
+    "interface": "cli",
+    "interfaceImpl": "handwritten"
+  }
+}

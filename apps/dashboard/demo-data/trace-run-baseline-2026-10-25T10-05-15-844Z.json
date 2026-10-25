@@ -1,0 +1,179 @@
+{
+  "runId": "run-baseline-2026-10-25T10-05-15-844Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "http://localhost:3003",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-25T10:05:15.844Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "type",
+      "target": "searchbox \"Search products\": black running shoe",
+      "pagePath": "/",
+      "startMs": 46,
+      "browserMs": 55,
+      "modelMs": 949,
+      "inputTokens": 1363,
+      "outputTokens": 92,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "navigate",
+      "target": "/products/tempo-lite",
+      "pagePath": "/search",
+      "startMs": 1049,
+      "browserMs": 53,
+      "modelMs": 1319,
+      "inputTokens": 2355,
+      "outputTokens": 184,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "navigate",
+      "target": "/products/cloud-glide",
+      "pagePath": "/products/tempo-lite",
+      "startMs": 2421,
+      "browserMs": 39,
+      "modelMs": 924,
+      "inputTokens": 3377,
+      "outputTokens": 82,
+      "ok": true
+    },
+    {
+      "index": 3,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/cloud-glide",
+      "startMs": 3384,
+      "browserMs": 46,
+      "modelMs": 906,
+      "inputTokens": 4304,
+      "outputTokens": 83,
+      "ok": true
+    },
+    {
+      "index": 4,
+      "action": "click",
+      "target": "f4e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 4335,
+      "browserMs": 10015,
+      "modelMs": 1107,
+      "inputTokens": 5221,
+      "outputTokens": 85,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 5,
+      "action": "click",
+      "target": "f4e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 15458,
+      "browserMs": 10010,
+      "modelMs": 2152,
+      "inputTokens": 6171,
+      "outputTokens": 237,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 6,
+      "action": "select",
+      "target": "f4e27",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 27619,
+      "browserMs": 25,
+      "modelMs": 2989,
+      "inputTokens": 7273,
+      "outputTokens": 352,
+      "ok": false,
+      "error": "No option \"8\". Available options: "
+    },
+    {
+      "index": 7,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 30633,
+      "browserMs": 49,
+      "modelMs": 1317,
+      "inputTokens": 8481,
+      "outputTokens": 138,
+      "ok": true
+    },
+    {
+      "index": 8,
+      "action": "click",
+      "target": "f5e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 31998,
+      "browserMs": 10012,
+      "modelMs": 1231,
+      "inputTokens": 9453,
+      "outputTokens": 47,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 9,
+      "action": "navigate",
+      "target": "/products/aero-pace",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 43242,
+      "browserMs": 52,
+      "modelMs": 1722,
+      "inputTokens": 10365,
+      "outputTokens": 203,
+      "ok": true
+    },
+    {
+      "index": 10,
+      "action": "navigate",
+      "target": "/search?q=black",
+      "pagePath": "/products/aero-pace",
+      "startMs": 45016,
+      "browserMs": 50,
+      "modelMs": 2203,
+      "inputTokens": 11408,
+      "outputTokens": 327,
+      "ok": true
+    },
+    {
+      "index": 11,
+      "action": "done",
+      "target": "I did not add anything to your cart. The only black running shoe under $120 is Velocity Runner ($98), and size 8 is in stock, but I could not select size 8 on its product page. The size tile timed out on every click attempt, including after reloading the page, and the size dropdown would not accept it either. I did not add it in another size. The other options don't fit: Tempo Lite ($109, black) is sold out in size 8, Cloud Glide ($95) is navy, Aero Pace ($79) is white, Stride Pro ($125) is over budget, and Summit Hiker ($89) is a hiking shoe. Please try again later, or pick Velocity Runner in size 8 yourself at /products/velocity-runner.",
+      "pagePath": "/search",
+      "startMs": 47268,
+      "browserMs": 0,
+      "modelMs": 1998,
+      "inputTokens": 12431,
+      "outputTokens": 341,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 49267,
+    "modelMs": 18817,
+    "browserMs": 30452,
+    "inputTokens": 82202,
+    "outputTokens": 2171,
+    "toolCalls": 11,
+    "estimatedCostUsd": 0.009306
+  },
+  "outcome": {
+    "success": false,
+    "agentClaimedDone": true,
+    "cart": [],
+    "reason": "Cart is empty"
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25"
+  }
+}

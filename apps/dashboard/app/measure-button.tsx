@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { READ_ONLY } from "@/lib/mode";
+
+import { ReadOnlyAction } from "./read-only-action";
 
 type RunState = "idle" | "running" | "done" | "error";
 
@@ -57,6 +60,8 @@ export function MeasureButton({ file }: { file: string }) {
     { label: "Agent runs on this fix", done: count("patched"), of: total },
   ];
 
+  if (READ_ONLY) return <ReadOnlyAction label="Measure this fix" />;
+
   return (
     <div className="space-y-3 rounded-md border border-zinc-200 p-3 dark:border-zinc-800">
       <div className="flex flex-wrap items-center gap-3">
@@ -64,7 +69,7 @@ export function MeasureButton({ file }: { file: string }) {
           type="button"
           onClick={start}
           disabled={state === "running"}
-          className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          className="inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-ground transition-colors hover:bg-perry-deep disabled:cursor-not-allowed disabled:bg-seam disabled:text-faint"
         >
           {state === "running" ? "Measuring…" : "Measure this fix"}
         </button>

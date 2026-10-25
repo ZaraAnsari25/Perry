@@ -1,0 +1,69 @@
+{
+  "provenance": "live",
+  "status": "rejected",
+  "gates": [
+    {
+      "name": "allowlist",
+      "ok": true,
+      "detail": "Only packages/agent-interface/generated/core.ts changed."
+    },
+    {
+      "name": "independence",
+      "ok": true,
+      "detail": "No imports from the hand-written interface; longest run of lines shared with it: 2 (limit 7)."
+    },
+    {
+      "name": "typecheck",
+      "ok": true,
+      "detail": "The repo typechecks with the generated file."
+    },
+    {
+      "name": "contract tests",
+      "ok": false,
+      "detail": "The tests didn't run: \u001b[34mℹ skipped 1\u001b[39m \u001b[34mℹ todo 0\u001b[39m \u001b[34mℹ duration_ms 225.728333\u001b[39m"
+    },
+    {
+      "name": "integration",
+      "ok": false,
+      "skipped": true,
+      "detail": "Not run: an earlier check failed."
+    }
+  ],
+  "createdAt": "2026-10-25T14:07:51.505Z",
+  "baseCommit": "09ac01a9f92703ecc9b742d280e84ceeccb6de9b",
+  "explanation": "Implemented `runShop` in `packages/agent-interface/generated/core.ts`. No other repository files changed.\n\nStatically reviewed against the contract. Typecheck and tests were not run because shell commands are prohibited.",
+  "blocked": [],
+  "droidSessionId": "f44bef07-4cbc-46cb-8ef2-7a67b1334a48",
+  "reason": "The tests didn't run: \u001b[34mℹ skipped 1\u001b[39m \u001b[34mℹ todo 0\u001b[39m \u001b[34mℹ duration_ms 225.728333\u001b[39m",
+  "sourceFile": "data/results/interface-gen-2026-10-25T14-07-51-505Z.core.ts",
+  "log": [
+    "worktree: /Users/zara/Desktop/calhacks-setup/Perry-droid-sandbox/interface-2026-10-25T14-07-51-505Z @ 09ac01a",
+    "running Factory Droid...",
+    "[tool] Script",
+    "[tool] TodoWrite",
+    "[tool] Glob",
+    "[tool] Read",
+    "[tool] Read",
+    "[tool] Script",
+    "[tool] Read",
+    "[tool] Read",
+    "[tool] Glob",
+    "[tool] TodoWrite",
+    "[tool] Script",
+    "[tool] Read",
+    "[tool] Script",
+    "[tool] ApplyPatch",
+    "[tool] Script",
+    "[tool] Read",
+    "[tool] TodoWrite",
+    "[tool] Script",
+    "[tool] TodoWrite",
+    "allowlist: pass (Only packages/agent-interface/generated/core.ts changed.)",
+    "independence: pass (No imports from the hand-written interface; longest run of lines shared with it: 2 (limit 7).)",
+    "installing dependencies and typechecking...",
+    "typecheck: pass (The repo typechecks with the generated file.)",
+    "running the contract tests against the generated runShop...",
+    "rejected: The tests didn't run: \u001b[34mℹ skipped 1\u001b[39m \u001b[34mℹ todo 0\u001b[39m \u001b[34mℹ duration_ms 225.728333\u001b[39m",
+    "removed worktree: /Users/zara/Desktop/calhacks-setup/Perry-droid-sandbox/interface-2026-10-25T14-07-51-505Z"
+  ]
+}

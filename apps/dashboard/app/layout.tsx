@@ -6,6 +6,7 @@ import { progress } from "@/lib/progress";
 
 import { StepNav } from "./step-nav";
 import "./globals.css";
+import { READ_ONLY, READ_ONLY_REASON } from "@/lib/mode";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
@@ -32,6 +33,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </Link>
           </div>
         </header>
+        {READ_ONLY && (
+          <p className="border-b border-seam bg-perry-wash px-4 py-2 text-center text-[13px] text-perry-deep">
+            {READ_ONLY_REASON} See the demo video for the live run.
+          </p>
+        )}
         {children}
       </body>
     </html>

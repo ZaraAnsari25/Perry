@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { MakeLiveButton } from "./make-live-button";
+import { READ_ONLY } from "@/lib/mode";
+
+import { ReadOnlyAction } from "./read-only-action";
 
 /** A first attempt plus two retries; matches the optimize route's cap. */
 const MAX_ATTEMPTS = 3;
@@ -148,6 +151,8 @@ export function OptimizeButton({
   const isRetry = retryOf !== undefined;
   const nextAttempt = (isRetry ? retryAttempt : 0) + 1;
 
+  if (READ_ONLY) return <ReadOnlyAction label="Optimize with Factory Droid" />;
+
   return (
     <div className="space-y-4 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
       {state === "idle" && (
@@ -156,7 +161,7 @@ export function OptimizeButton({
             type="button"
             onClick={() => start(retryOf)}
             disabled={isRetry && nextAttempt > MAX_ATTEMPTS}
-            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+            className="inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-ground transition-colors hover:bg-perry-deep disabled:cursor-not-allowed disabled:bg-seam disabled:text-faint"
           >
             {isRetry ? "Try again with Droid" : "Optimize with Factory Droid"}
           </button>
@@ -214,7 +219,7 @@ export function OptimizeButton({
                   <button
                     type="button"
                     onClick={() => start(result.file)}
-                    className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+                    className="inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-ground transition-colors hover:bg-perry-deep disabled:cursor-not-allowed disabled:bg-seam disabled:text-faint"
                   >
                     Try again with Droid
                   </button>
@@ -237,7 +242,7 @@ export function OptimizeButton({
             <button
               type="button"
               onClick={() => start(retryOf)}
-              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700"
+              className="inline-flex items-center gap-2 rounded-lg border border-seam bg-panel px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-perry hover:text-perry-deep disabled:cursor-not-allowed disabled:opacity-60"
             >
               Run again
             </button>

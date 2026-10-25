@@ -5,6 +5,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import type { BenchmarkResult, PatchResult } from "@agentfix/shared";
+import { READ_ONLY } from "@/lib/mode";
 
 /** A saved optimize() result, as written by packages/optimizer/scripts/run.ts. */
 export interface SavedPatch extends PatchResult {
@@ -52,7 +53,8 @@ export interface Measurement {
 export type MeasurementIndex = Record<string, { toolRunId: string; source: Measurement["source"]; note?: string }>;
 
 // next dev/build/start run with the dashboard app as the working directory.
-const RESULTS_DIR = join(process.cwd(), "../../data/results");
+// The online copy reads a recorded snapshot (demo-data/) instead.
+const RESULTS_DIR = join(process.cwd(), READ_ONLY ? "demo-data" : "../../data/results");
 export const MEASUREMENT_INDEX = join(RESULTS_DIR, "measurements.json");
 
 export async function readMeasurementIndex(): Promise<MeasurementIndex> {
