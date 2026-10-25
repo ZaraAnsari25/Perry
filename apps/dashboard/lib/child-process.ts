@@ -10,19 +10,27 @@ import { promisify } from "node:util";
 export const REPO = join(process.cwd(), "../..");
 export const RESULTS_DIR = join(REPO, "data/results");
 export const OPTIMIZE_LOCK = join(RESULTS_DIR, ".optimize-running");
+export const MEASURE_LOCK = join(RESULTS_DIR, ".measure-running");
+export const BASELINE_PORT = 3001;
 export const PATCHED_PORT = 3002;
 
-/** Whether an optimize run started from the dashboard is still going. Clears a stale lock. */
-export function optimizeRunning(): boolean {
-  if (!existsSync(OPTIMIZE_LOCK)) return false;
+/** Whether the process recorded in a lock file is still running. Clears a stale lock. */
+function lockHeld(lock: string): boolean {
+  if (!existsSync(lock)) return false;
   try {
-    process.kill(Number(readFileSync(OPTIMIZE_LOCK, "utf8")), 0);
+    process.kill(Number(readFileSync(lock, "utf8")), 0);
     return true;
   } catch {
-    rmSync(OPTIMIZE_LOCK, { force: true });
+    rmSync(lock, { force: true });
     return false;
   }
 }
+
+/** Whether an optimize run started from the dashboard is still going. */
+export const optimizeRunning = () => lockHeld(OPTIMIZE_LOCK);
+
+/** Whether a measurement (compare runs on 3001 and 3002) is still going. */
+export const measureRunning = () => lockHeld(MEASURE_LOCK);
 
 /**
  * Environment for scripts started from the dashboard. Drops the dashboard's own

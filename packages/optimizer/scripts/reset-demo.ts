@@ -21,12 +21,16 @@ const sh = (cmd: string, args: string[]) => {
   }
 };
 
-// 1. Never cut off an optimize run started from the dashboard.
-const lock = join(resultsDir, ".optimize-running");
-if (existsSync(lock)) {
+// 1. Never cut off an optimize run or a measurement started from the dashboard.
+for (const [name, what] of [
+  [".optimize-running", "An optimize run"],
+  [".measure-running", "A measurement"],
+] as const) {
+  const lock = join(resultsDir, name);
+  if (!existsSync(lock)) continue;
   try {
     process.kill(Number(readFileSync(lock, "utf8")), 0);
-    console.error("An optimize run is in progress. Wait for it to finish, then reset.");
+    console.error(`${what} is in progress. Wait for it to finish, then reset.`);
     process.exit(1);
   } catch {
     rmSync(lock, { force: true });

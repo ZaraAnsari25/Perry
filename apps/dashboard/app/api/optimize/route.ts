@@ -6,7 +6,7 @@ import { spawn } from "node:child_process";
 import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { OPTIMIZE_LOCK as LOCK, REPO, childEnv, optimizeRunning } from "@/lib/child-process";
+import { OPTIMIZE_LOCK as LOCK, REPO, childEnv, measureRunning, optimizeRunning } from "@/lib/child-process";
 
 // serve:patched uses 3002, so the gate's own check server uses 3003.
 const CHECK_PORT = "3003";
@@ -16,13 +16,17 @@ export async function POST(request: Request) {
   const args = ["--env-file-if-exists=../../.env", "scripts/run.ts", "--port", CHECK_PORT];
   if (body.benchmark !== undefined) {
     const run = Number(body.run);
-    if (typeof body.benchmark !== "string" || !/^benchmark-[\w.-]+\.json$/.test(body.benchmark) || !Number.isInteger(run) || run < 1) {
+    if (typeof body.benchmark !== "string" || !/^(benchmark|compare)-[\w.-]+\.json$/.test(body.benchmark) || !Number.isInteger(run) || run < 1) {
       return new Response("Invalid benchmark or run.\n", { status: 400 });
     }
     args.push("--benchmark", body.benchmark, "--run", String(run));
   }
   if (optimizeRunning()) {
     return new Response("An optimize run is already in progress.\n", { status: 409 });
+  }
+  // A Droid build would slow the agent and distort a measurement's timings.
+  if (measureRunning()) {
+    return new Response("A measurement is in progress; optimize when it finishes.\n", { status: 409 });
   }
 
   const child = spawn(process.execPath, args, { cwd: join(REPO, "packages/optimizer"), env: childEnv() });

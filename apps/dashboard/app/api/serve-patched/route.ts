@@ -8,7 +8,7 @@ import { join } from "node:path";
 
 import type { PatchResult } from "@agentfix/shared";
 
-import { PATCHED_PORT, REPO, RESULTS_DIR, childEnv, listeners, optimizeRunning } from "@/lib/child-process";
+import { PATCHED_PORT, REPO, RESULTS_DIR, childEnv, listeners, measureRunning, optimizeRunning } from "@/lib/child-process";
 
 let switching = false;
 
@@ -36,8 +36,11 @@ export async function POST(request: Request) {
   if (!existsSync(join(patch.worktreePath, "apps/storefront"))) {
     return Response.json({ error: "This fix's built copy no longer exists." }, { status: 409 });
   }
-  if (optimizeRunning() || switching) {
-    return Response.json({ error: "Busy: an optimize run or another switch is in progress." }, { status: 409 });
+  if (optimizeRunning() || measureRunning() || switching) {
+    return Response.json(
+      { error: "Busy: an optimize run, a measurement or another switch is in progress." },
+      { status: 409 },
+    );
   }
 
   switching = true;

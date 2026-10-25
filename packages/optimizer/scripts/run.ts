@@ -32,7 +32,7 @@ const arg = (name: string) => {
 function pickTrace(): AgentTrace {
   const file = arg("--benchmark");
   if (!file) return sampleTrace;
-  if (!/^benchmark-[\w.-]+\.json$/.test(file)) throw new Error(`Not a benchmark file name: ${file}`);
+  if (!/^(benchmark|compare)-[\w.-]+\.json$/.test(file)) throw new Error(`Not a benchmark or compare file name: ${file}`);
   const benchmark = JSON.parse(readFileSync(join(resultsDir, file), "utf8")) as BenchmarkResult;
   const run = Number(arg("--run") ?? 1);
   const trace = benchmark.baseline.runs[run - 1];

@@ -1,8 +1,10 @@
-import type { PatchStatus } from "@agentfix/shared";
+import type { PatchStatus, VariantSummary } from "@agentfix/shared";
+import Link from "next/link";
 
-import type { SavedPatch } from "@/lib/results";
+import type { Measurement, SavedPatch } from "@/lib/results";
 
 import { MakeLiveButton } from "./make-live-button";
+import { MeasureButton } from "./measure-button";
 
 const statusTone: Record<PatchStatus, string> = {
   accepted: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
@@ -180,6 +182,10 @@ export function PatchCard({
         </>
       )}
 
+      {patch.status === "accepted" && patch.provenance === "live" && (
+        <MeasurementSection patch={patch} isLive={isLive} now={now} />
+      )}
+
       {patch.explanation && (
         <blockquote className="border-l-2 border-zinc-300 pl-3 text-sm dark:border-zinc-700">
           <div className="text-xs font-medium text-zinc-500">
@@ -283,6 +289,149 @@ export function PatchCard({
         </Expandable>
       </div>
     </article>
+  );
+}
+
+/** Does the fix help? The newest measurement of it, and the button to measure it. */
+function MeasurementSection({ patch, isLive, now }: { patch: SavedPatch; isLive: boolean; now: number }) {
+  const [latest, ...older] = patch.measurements;
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-medium text-zinc-500">Does this fix help the shopping agent?</p>
+      {latest ? (
+        <MeasurementResult measurement={latest} now={now} />
+      ) : isLive ? null : (
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          Not measured yet.{" "}
+          {patch.servable
+            ? "Make it live on localhost:3002, then measure it."
+            : "Its built copy was removed, so it can't be measured."}
+        </p>
+      )}
+      {isLive && <MeasureButton file={patch.file} />}
+      {older.length > 0 && (
+        <details className="rounded-md border border-zinc-200 dark:border-zinc-800">
+          <summary className="cursor-pointer px-3 py-2 text-sm">
+            {older.length} earlier measurement{older.length === 1 ? "" : "s"} of this fix
+          </summary>
+          <div className="space-y-4 border-t border-zinc-200 p-3 dark:border-zinc-800">
+            {older.map((m) => (
+              <MeasurementResult key={m.file} measurement={m} now={now} />
+            ))}
+          </div>
+        </details>
+      )}
+    </div>
+  );
+}
+
+/** Relative change from before to after, e.g. "−41%". */
+function change(before: number, after: number): string {
+  if (before === 0) return "–";
+  const pct = Math.round(((after - before) / before) * 100);
+  return pct === 0 ? "no change" : `${pct > 0 ? "+" : "−"}${Math.abs(pct)}%`;
+}
+
+function MeasurementResult({ measurement, now }: { measurement: Measurement; now: number }) {
+  const { result, file, source, note } = measurement;
+  const before = result.baseline;
+  const after = result.patched;
+  if (!after) return null;
+  const tokens = (v: VariantSummary) => Math.round(v.avgInputTokens + v.avgOutputTokens);
+  const cost = (v: VariantSummary) =>
+    v.costPerVerifiedSuccessUsd === null ? "no successes" : `$${v.costPerVerifiedSuccessUsd.toFixed(5)}`;
+  const rows: { label: string; before: string; after: string; change: string }[] = [
+    {
+      label: "Verified success",
+      before: `${Math.round(before.completionRate * 100)}%`,
+      after: `${Math.round(after.completionRate * 100)}%`,
+      change: change(before.completionRate, after.completionRate),
+    },
+    {
+      label: "Steps (tool calls)",
+      before: before.avgToolCalls.toFixed(1),
+      after: after.avgToolCalls.toFixed(1),
+      change: change(before.avgToolCalls, after.avgToolCalls),
+    },
+    {
+      label: "Tokens",
+      before: tokens(before).toLocaleString("en-US"),
+      after: tokens(after).toLocaleString("en-US"),
+      change: change(tokens(before), tokens(after)),
+    },
+    {
+      label: "Median time",
+      before: `${(before.medianTotalMs / 1000).toFixed(1)}s`,
+      after: `${(after.medianTotalMs / 1000).toFixed(1)}s`,
+      change: change(before.medianTotalMs, after.medianTotalMs),
+    },
+    {
+      label: "Cost per verified success",
+      before: cost(before),
+      after: cost(after),
+      change:
+        before.costPerVerifiedSuccessUsd !== null && after.costPerVerifiedSuccessUsd !== null
+          ? change(before.costPerVerifiedSuccessUsd, after.costPerVerifiedSuccessUsd)
+          : "–",
+    },
+  ];
+  const name = file.replace("data/results/", "");
+  const verdictTone =
+    result.verdict === "improved"
+      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+      : result.verdict === "regressed"
+        ? "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
+        : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300";
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+        {result.verdict && (
+          <span className={`rounded-full px-2.5 py-0.5 font-medium ${verdictTone}`}>
+            {result.verdict === "no_change" ? "No clear change" : result.verdict === "improved" ? "Improved" : "Got worse"}
+          </span>
+        )}
+        {source === "recorded" && (
+          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
+            Replay of recorded runs
+          </span>
+        )}
+        <span>
+          {result.repetitions} runs on each store with the same agent, measured {age(result.createdAt, now)}
+          {note ? ` · ${note}` : ""}
+        </span>
+      </div>
+      <div className="overflow-x-auto rounded-md border border-zinc-200 dark:border-zinc-800">
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800">
+            <tr>
+              <th className="px-3 py-2 font-medium" />
+              <th className="px-3 py-2 text-right font-medium">Original store</th>
+              <th className="px-3 py-2 text-right font-medium">With this fix</th>
+              <th className="px-3 py-2 text-right font-medium">Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.label} className="border-b border-zinc-100 last:border-0 dark:border-zinc-800/60">
+                <td className="px-3 py-2">{r.label}</td>
+                <td className="px-3 py-2 text-right tabular-nums">{r.before}</td>
+                <td className="px-3 py-2 text-right tabular-nums">{r.after}</td>
+                <td className="px-3 py-2 text-right font-medium tabular-nums">{r.change}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-xs">
+        <Link href={`/?compare=${name}&site=patched&run=1`} className="text-blue-700 underline dark:text-blue-400">
+          See the agent&apos;s steps on the fixed store
+        </Link>
+        <span className="text-zinc-500"> · </span>
+        <Link href={`/?compare=${name}&run=1`} className="text-blue-700 underline dark:text-blue-400">
+          and on the original store
+        </Link>
+      </p>
+    </div>
   );
 }
 

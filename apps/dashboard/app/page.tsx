@@ -1,11 +1,11 @@
 import { diagnose } from "@agentfix/diagnosis";
-import type { AgentTrace, BenchmarkResult, Finding, Provenance, VariantSummary } from "@agentfix/shared";
+import type { AgentTrace, BenchmarkResult, Finding, Provenance, SiteVersion, VariantSummary } from "@agentfix/shared";
 import { sampleTrace } from "@agentfix/shared/fixtures";
 import Link from "next/link";
 import { connection } from "next/server";
 
 import { liveWorktree } from "@/lib/child-process";
-import { allPatches, backupPatch, latestBenchmark, recentPatches } from "@/lib/results";
+import { allPatches, backupPatch, latestBenchmark, loadCompare, recentPatches } from "@/lib/results";
 
 import { OptimizeButton } from "./optimize-button";
 import { PatchPanel } from "./patch-panel";
@@ -17,7 +17,7 @@ function medianRunIndex(runs: AgentTrace[]): number {
 }
 
 const provenanceLabel: Record<Provenance, string> = {
-  live: "Live run",
+  live: "Real agent run",
   replay: "Replay of a recorded run",
   fixture: "Fixture data: illustrative, not measured",
 };
@@ -31,12 +31,21 @@ const severityTone: Record<Finding["severity"], string> = {
   low: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
 };
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ run?: string }> }) {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ run?: string; site?: string; compare?: string }>;
+}) {
   // Render per request so newly saved results show up without a rebuild.
   await connection();
-  const benchmark = await latestBenchmark();
-  const runs = benchmark?.result.baseline.runs ?? [];
-  const requested = Number((await searchParams).run) - 1;
+  const params = await searchParams;
+  // ?compare=<file> views the runs of one measurement (both stores); otherwise
+  // the page lists the newest recorded runs on the original store to optimize.
+  const measured = params.compare ? await loadCompare(params.compare) : null;
+  const benchmark = measured ? { result: measured, file: `data/results/${params.compare}` } : await latestBenchmark();
+  const site: SiteVersion = measured && params.site === "patched" && measured.patched ? "patched" : "baseline";
+  const runs = (site === "patched" ? benchmark?.result.patched?.runs : benchmark?.result.baseline.runs) ?? [];
+  const requested = Number(params.run) - 1;
   const runIndex = runs[requested] ? requested : medianRunIndex(runs);
   // Real baseline runs when a benchmark has been saved; the fixture otherwise.
   const trace: AgentTrace = runs[runIndex] ?? sampleTrace;
@@ -72,7 +81,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
       </header>
 
       {benchmark && (
-        <BenchmarkPanel result={benchmark.result} file={benchmark.file} runIndex={runIndex} />
+        <RunsPanel result={benchmark.result} file={benchmark.file} site={site} runIndex={runIndex} measurement={!!measured} />
       )}
 
       <section className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
@@ -176,7 +185,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
         ) : (
           diagnosis.findings.map((f) => <FindingCard key={f.kind} finding={f} />)
         )}
-        {diagnosis.findings.some((f) => f.kind === "excessive_navigation") && (
+        {!measured && diagnosis.findings.some((f) => f.kind === "excessive_navigation") && (
           <OptimizeButton
             benchmark={benchmark && runs[runIndex] ? benchmark.file.replace("data/results/", "") : undefined}
             run={runIndex + 1}
@@ -184,7 +193,23 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
         )}
       </section>
 
-      <PatchPanel patches={patches} backup={backup} live={live} now={Date.now()} />
+      {!measured ? (
+        <PatchPanel patches={patches} backup={backup} live={live} now={Date.now()} />
+      ) : (
+        <p className="rounded-lg border border-dashed border-zinc-300 p-5 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+          {site === "patched" ? (
+            <>
+              This run used the <strong>fixed store</strong>, so there is nothing to fix. Compare its steps with an
+              original-store run from the same measurement.
+            </>
+          ) : (
+            <>This run is part of a measurement. To make a new fix, go back to the dashboard.</>
+          )}{" "}
+          <Link href="/" className="font-medium text-blue-700 underline dark:text-blue-400">
+            Back to the dashboard
+          </Link>
+        </p>
+      )}
       <p className="text-sm">
         <Link href="/history" className="font-medium text-blue-700 underline dark:text-blue-400">
           See all Droid fixes ({droidFixes}) →
@@ -205,74 +230,80 @@ function Metric({ label, value, detail }: { label: string; value: string; detail
   );
 }
 
-function BenchmarkPanel({ result, file, runIndex }: { result: BenchmarkResult; file: string; runIndex: number }) {
-  const variants = [result.baseline, result.patched].filter((v): v is VariantSummary => v !== undefined);
+const siteName: Record<SiteVersion, string> = { baseline: "Original store", patched: "With the fix" };
+
+/**
+ * The agent runs the page can show. On the dashboard: recorded runs on the
+ * original store, to pick one to optimize. In a measurement view: that
+ * measurement's runs on both stores.
+ */
+function RunsPanel({
+  result,
+  file,
+  site,
+  runIndex,
+  measurement,
+}: {
+  result: BenchmarkResult;
+  file: string;
+  site: SiteVersion;
+  runIndex: number;
+  measurement: boolean;
+}) {
+  const variants = measurement
+    ? [result.baseline, result.patched].filter((v): v is VariantSummary => v !== undefined)
+    : [result.baseline];
+  const b = result.baseline;
+  const name = file.replace("data/results/", "");
   return (
-    <section aria-labelledby="benchmark-heading" className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 id="benchmark-heading" className="text-lg font-semibold">
-          Benchmark
-        </h2>
-        <ProvenanceBadge provenance={result.provenance} />
-      </div>
+    <section aria-labelledby="runs-heading" className="space-y-3">
+      <h2 id="runs-heading" className="text-lg font-semibold">
+        {measurement ? "Runs from a measurement" : "Shopping agent runs on the original store"}
+      </h2>
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        {result.repetitions} runs per site with the same agent (
-        <code className="font-mono">{result.model}</code>), recorded{" "}
-        {new Date(result.createdAt).toLocaleString("en-US")} ·{" "}
-        <code className="font-mono">{file}</code>
+        {measurement ? (
+          <>
+            The same agent ran {result.repetitions} times on each store, measured{" "}
+            {new Date(result.createdAt).toLocaleString("en-US")}. Pick a run to see its steps.{" "}
+            <Link href="/" className="text-blue-700 underline dark:text-blue-400">
+              Back to the dashboard
+            </Link>
+          </>
+        ) : (
+          <>
+            {b.runs.length} real runs, recorded {new Date(result.createdAt).toLocaleString("en-US")}:{" "}
+            {Math.round(b.completionRate * 100)}% verified, {b.avgToolCalls.toFixed(1)} steps on average,{" "}
+            {b.costPerVerifiedSuccessUsd === null ? "no successes" : `$${b.costPerVerifiedSuccessUsd.toFixed(5)}`} per
+            verified purchase. Pick one to see where it wasted effort.
+          </>
+        )}{" "}
+        <code className="font-mono text-xs text-zinc-500">{file}</code>
       </p>
-      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800">
-            <tr>
-              <th className="px-3 py-2 font-medium">Site</th>
-              <th className="px-3 py-2 text-right font-medium">Verified success</th>
-              <th className="px-3 py-2 text-right font-medium">Avg tool calls</th>
-              <th className="px-3 py-2 text-right font-medium">Avg tokens</th>
-              <th className="px-3 py-2 text-right font-medium">Median time</th>
-              <th className="px-3 py-2 text-right font-medium">Cost per verified success</th>
-            </tr>
-          </thead>
-          <tbody>
-            {variants.map((v) => (
-              <tr key={v.siteVersion} className="border-b border-zinc-100 last:border-0 dark:border-zinc-800/60">
-                <td className="px-3 py-2 font-medium capitalize">
-                  {v.siteVersion} <span className="font-normal text-zinc-500">{v.url}</span>
-                </td>
-                <td className="px-3 py-2 text-right tabular-nums">{Math.round(v.completionRate * 100)}%</td>
-                <td className="px-3 py-2 text-right tabular-nums">{v.avgToolCalls.toFixed(1)}</td>
-                <td className="px-3 py-2 text-right tabular-nums">
-                  {count(Math.round(v.avgInputTokens + v.avgOutputTokens))}
-                </td>
-                <td className="px-3 py-2 text-right tabular-nums">{seconds(v.medianTotalMs)}</td>
-                <td className="px-3 py-2 text-right tabular-nums">
-                  {v.costPerVerifiedSuccessUsd === null ? "no successes" : `$${v.costPerVerifiedSuccessUsd.toFixed(5)}`}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {!result.patched && (
-        <p className="text-xs text-zinc-500">Patched-site runs appear here once compare() has been run.</p>
-      )}
-      <nav aria-label="Baseline runs" className="flex flex-wrap items-center gap-2 text-sm">
-        <span className="text-zinc-500">Showing baseline run:</span>
-        {result.baseline.runs.map((r, i) => (
-          <Link
-            key={r.runId}
-            href={`/?run=${i + 1}`}
-            aria-current={i === runIndex ? "page" : undefined}
-            className={`rounded-md border px-2.5 py-1 tabular-nums ${
-              i === runIndex
-                ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                : "border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-            }`}
-          >
-            {i + 1} · {r.metrics.toolCalls} calls {r.outcome.success ? "✓" : "✗"}
-          </Link>
-        ))}
-      </nav>
+      {variants.map((v) => (
+        <nav key={v.siteVersion} aria-label={`${siteName[v.siteVersion]} runs`} className="flex flex-wrap items-center gap-2 text-sm">
+          {measurement && <span className="w-32 text-zinc-500">{siteName[v.siteVersion]}:</span>}
+          {v.runs.map((r, i) => {
+            const current = v.siteVersion === site && i === runIndex;
+            const href = measurement
+              ? `/?compare=${name}${v.siteVersion === "patched" ? "&site=patched" : ""}&run=${i + 1}`
+              : `/?run=${i + 1}`;
+            return (
+              <Link
+                key={r.runId}
+                href={href}
+                aria-current={current ? "page" : undefined}
+                className={`rounded-md border px-2.5 py-1 tabular-nums ${
+                  current
+                    ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                    : "border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                }`}
+              >
+                Run {i + 1} · {r.metrics.toolCalls} steps {r.outcome.success ? "✓" : "✗"}
+              </Link>
+            );
+          })}
+        </nav>
+      ))}
     </section>
   );
 }
