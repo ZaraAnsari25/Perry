@@ -8,6 +8,7 @@ import { apifyAudits } from "@/lib/apify";
 import { liveWorktree } from "@/lib/child-process";
 import { allPatches, latestBenchmark, loadCompare, recentPatches } from "@/lib/results";
 
+import { AgentInterfacePanel } from "./agent-interface-panel";
 import { ApifyPanel } from "./apify-panel";
 import { OptimizeButton } from "./optimize-button";
 import { PatchPanel } from "./patch-panel";
@@ -228,6 +229,7 @@ export default async function Home({
         <span className="text-zinc-500">including other runs and ones archived by a reset</span>
       </p>
 
+      {!measured && <AgentInterfacePanel now={Date.now()} />}
       {apify && <ApifyPanel data={apify} now={Date.now()} />}
     </main>
   );
