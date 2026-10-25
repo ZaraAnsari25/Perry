@@ -1,0 +1,69 @@
+{
+  "runId": "run-baseline-2026-10-25T10-14-21-415Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "https://www.automationexercise.com",
+  "task": "Find the men's t-shirt from the brand Polo that costs less than Rs. 1200. Reply with its exact product name, price and page URL. This is read-only: do not add anything to a cart, sign up or log in.",
+  "expectedSku": "(audit: no cart)",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-25T10:14:21.415Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "navigate",
+      "target": "/brand_products/Polo",
+      "pagePath": "/",
+      "startMs": 925,
+      "browserMs": 553,
+      "modelMs": 1911,
+      "inputTokens": 16326,
+      "outputTokens": 133,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "navigate",
+      "target": "/product_details/29",
+      "pagePath": "/brand_products/Polo",
+      "startMs": 3389,
+      "browserMs": 321,
+      "modelMs": 1742,
+      "inputTokens": 21245,
+      "outputTokens": 248,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "done",
+      "target": "The men's Polo t-shirt under Rs. 1200 is \"Green Side Placket Detail T-Shirt\", priced Rs. 1000 (category Men > Tshirts, brand Polo, in stock). Page URL: /product_details/29 (full URL: https://automationexercise.com/product_details/29, relative path shown on the site). Other Polo items were excluded: Premium Polo T-Shirts is Rs. 1500 (over budget), and the rest are a top, a dress-style top, and jeans. Nothing was added to the cart and no login or signup was done.",
+      "pagePath": "/product_details/29",
+      "startMs": 5451,
+      "browserMs": 0,
+      "modelMs": 1808,
+      "inputTokens": 24181,
+      "outputTokens": 310,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 7260,
+    "modelMs": 5461,
+    "browserMs": 1799,
+    "inputTokens": 61752,
+    "outputTokens": 691,
+    "toolCalls": 2,
+    "estimatedCostUsd": 0.006521
+  },
+  "outcome": {
+    "success": true,
+    "agentClaimedDone": true,
+    "cart": []
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25",
+    "mode": "audit",
+    "expectedAnswer": "Green Side Placket Detail T-Shirt | 1000",
+    "crossOriginAssets": "allowed"
+  }
+}

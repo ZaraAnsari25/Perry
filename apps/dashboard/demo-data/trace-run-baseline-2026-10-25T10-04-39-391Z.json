@@ -1,0 +1,170 @@
+{
+  "runId": "run-baseline-2026-10-25T10-04-39-391Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "http://localhost:3003",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-25T10:04:39.391Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "type",
+      "target": "searchbox \"Search products\": black running shoe",
+      "pagePath": "/",
+      "startMs": 43,
+      "browserMs": 58,
+      "modelMs": 1372,
+      "inputTokens": 1363,
+      "outputTokens": 92,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "navigate",
+      "target": "/products/tempo-lite",
+      "pagePath": "/search",
+      "startMs": 1472,
+      "browserMs": 45,
+      "modelMs": 1509,
+      "inputTokens": 2355,
+      "outputTokens": 212,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "navigate",
+      "target": "/products/cloud-glide",
+      "pagePath": "/products/tempo-lite",
+      "startMs": 3026,
+      "browserMs": 51,
+      "modelMs": 2247,
+      "inputTokens": 3405,
+      "outputTokens": 85,
+      "ok": true
+    },
+    {
+      "index": 3,
+      "action": "navigate",
+      "target": "/products/aero-pace",
+      "pagePath": "/products/cloud-glide",
+      "startMs": 5324,
+      "browserMs": 42,
+      "modelMs": 952,
+      "inputTokens": 4335,
+      "outputTokens": 82,
+      "ok": true
+    },
+    {
+      "index": 4,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/aero-pace",
+      "startMs": 6318,
+      "browserMs": 38,
+      "modelMs": 973,
+      "inputTokens": 5257,
+      "outputTokens": 82,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "action": "click",
+      "target": "f5e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 7329,
+      "browserMs": 10017,
+      "modelMs": 1797,
+      "inputTokens": 6173,
+      "outputTokens": 83,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 6,
+      "action": "click",
+      "target": "f5e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 19143,
+      "browserMs": 10007,
+      "modelMs": 1860,
+      "inputTokens": 7121,
+      "outputTokens": 169,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 7,
+      "action": "click",
+      "target": "button \"×\"",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 31010,
+      "browserMs": 24,
+      "modelMs": 1742,
+      "inputTokens": 8155,
+      "outputTokens": 223,
+      "ok": true
+    },
+    {
+      "index": 8,
+      "action": "click",
+      "target": "generic: \"8\"",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 32776,
+      "browserMs": 20,
+      "modelMs": 896,
+      "inputTokens": 9082,
+      "outputTokens": 64,
+      "ok": true
+    },
+    {
+      "index": 9,
+      "action": "click",
+      "target": "button \"Add to cart\"",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 33692,
+      "browserMs": 76,
+      "modelMs": 1172,
+      "inputTokens": 9850,
+      "outputTokens": 88,
+      "ok": true
+    },
+    {
+      "index": 10,
+      "action": "done",
+      "target": "Added the Velocity Runner in black, size 8 ($98, running shoe, in stock) to your cart (SKU VEL-BLK-08, qty 1). Other options were ruled out: Tempo Lite is black but size 8 is sold out, Cloud Glide is navy, and Aero Pace is white.",
+      "pagePath": "/cart",
+      "startMs": 34941,
+      "browserMs": 0,
+      "modelMs": 1321,
+      "inputTokens": 10262,
+      "outputTokens": 145,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 36261,
+    "modelMs": 15841,
+    "browserMs": 20421,
+    "inputTokens": 67358,
+    "outputTokens": 1325,
+    "toolCalls": 10,
+    "estimatedCostUsd": 0.007398
+  },
+  "outcome": {
+    "success": true,
+    "agentClaimedDone": true,
+    "cart": [
+      {
+        "sku": "VEL-BLK-08",
+        "quantity": 1
+      }
+    ]
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25",
+    "cartId": "c3d469aa-8ee0-4314-9292-5798410e7712"
+  }
+}

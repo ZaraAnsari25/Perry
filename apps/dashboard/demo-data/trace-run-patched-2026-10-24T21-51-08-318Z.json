@@ -1,0 +1,96 @@
+{
+  "runId": "run-patched-2026-10-24T21-51-08-318Z",
+  "provenance": "live",
+  "siteVersion": "patched",
+  "url": "http://localhost:3002",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-24T21:51:08.318Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "type",
+      "target": "searchbox \"Search products\": black running shoe",
+      "pagePath": "/",
+      "startMs": 47,
+      "browserMs": 59,
+      "modelMs": 1051,
+      "inputTokens": 1319,
+      "outputTokens": 92,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "click",
+      "target": "link \"View details\" -> /products/velocity-runner",
+      "pagePath": "/search",
+      "startMs": 1157,
+      "browserMs": 42,
+      "modelMs": 1497,
+      "inputTokens": 3988,
+      "outputTokens": 178,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "select",
+      "target": "combobox \"Size\": 8",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 2695,
+      "browserMs": 9,
+      "modelMs": 868,
+      "inputTokens": 4861,
+      "outputTokens": 68,
+      "ok": true
+    },
+    {
+      "index": 3,
+      "action": "click",
+      "target": "button \"Add to cart\"",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 3572,
+      "browserMs": 72,
+      "modelMs": 679,
+      "inputTokens": 5624,
+      "outputTokens": 47,
+      "ok": true
+    },
+    {
+      "index": 4,
+      "action": "done",
+      "target": "Added the Velocity Runner (black running shoe, $98, size 8, in stock) to your cart. It's the only match: Tempo Lite's size 8 is sold out, and Stride Pro is black running in size 8 but costs $125, over your $120 limit.",
+      "pagePath": "/cart",
+      "startMs": 4323,
+      "browserMs": 0,
+      "modelMs": 1328,
+      "inputTokens": 5995,
+      "outputTokens": 128,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 5651,
+    "modelMs": 5423,
+    "browserMs": 229,
+    "inputTokens": 21787,
+    "outputTokens": 513,
+    "toolCalls": 4,
+    "estimatedCostUsd": 0.002435
+  },
+  "outcome": {
+    "success": true,
+    "agentClaimedDone": true,
+    "cart": [
+      {
+        "sku": "VEL-BLK-08",
+        "quantity": 1
+      }
+    ]
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25",
+    "cartId": "0c4aef4c-defa-48ab-8963-bf0c37c988ab"
+  }
+}

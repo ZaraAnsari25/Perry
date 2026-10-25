@@ -3,6 +3,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 
 import { liveWorktree } from "@/lib/child-process";
+import { FIXED_STORE_URL, host } from "@/lib/mode";
 import { allPatches, recentPatches } from "@/lib/results";
 import { type RunParams, selectRun } from "@/lib/run-selection";
 
@@ -106,8 +107,8 @@ export default async function Website({ searchParams }: { searchParams: Promise<
           <SectionTitle
             aside={
               <>
-                <a href="http://localhost:3002/search?q=black+running+shoe" className="text-perry-deep underline">
-                  localhost:3002
+                <a href={`${FIXED_STORE_URL}/search?q=black+running+shoe`} className="text-perry-deep underline">
+                  {host(FIXED_STORE_URL)}
                 </a>{" "}
                 is serving it{liveElsewhere.location === "backup" ? ": the Demo backup Droid made earlier (a replay)" : ", made from another run"}
               </>

@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { READ_ONLY } from "@/lib/mode";
+
+import { ReadOnlyAction } from "./read-only-action";
 
 /** Puts one accepted fix live on localhost:3002 through /api/serve-patched. */
 export function MakeLiveButton({ file }: { file: string }) {
@@ -28,13 +31,15 @@ export function MakeLiveButton({ file }: { file: string }) {
     }
   }
 
+  if (READ_ONLY) return <ReadOnlyAction label="Make this fix live" />;
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <button
         type="button"
         onClick={makeLive}
         disabled={busy}
-        className="rounded-md border border-emerald-700 px-3 py-1.5 text-sm font-medium text-emerald-800 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-500 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+        className="inline-flex items-center gap-2 rounded-lg border border-perry bg-perry-wash px-4 py-2.5 text-sm font-medium text-perry-deep transition-colors hover:bg-perry hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
       >
         {busy ? "Starting the fixed store…" : "Make this fix live on localhost:3002"}
       </button>

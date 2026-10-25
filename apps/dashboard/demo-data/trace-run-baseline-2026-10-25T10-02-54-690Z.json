@@ -1,0 +1,167 @@
+{
+  "runId": "run-baseline-2026-10-25T10-02-54-690Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "http://localhost:3003",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-25T10:02:54.690Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "type",
+      "target": "searchbox \"Search products\": black running shoe",
+      "pagePath": "/",
+      "startMs": 43,
+      "browserMs": 43,
+      "modelMs": 1114,
+      "inputTokens": 1363,
+      "outputTokens": 92,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "navigate",
+      "target": "/products/tempo-lite",
+      "pagePath": "/search",
+      "startMs": 1200,
+      "browserMs": 53,
+      "modelMs": 1321,
+      "inputTokens": 2355,
+      "outputTokens": 207,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "navigate",
+      "target": "/products/cloud-glide",
+      "pagePath": "/products/tempo-lite",
+      "startMs": 2574,
+      "browserMs": 46,
+      "modelMs": 967,
+      "inputTokens": 3400,
+      "outputTokens": 82,
+      "ok": true
+    },
+    {
+      "index": 3,
+      "action": "navigate",
+      "target": "/products/aero-pace",
+      "pagePath": "/products/cloud-glide",
+      "startMs": 3587,
+      "browserMs": 44,
+      "modelMs": 923,
+      "inputTokens": 4327,
+      "outputTokens": 77,
+      "ok": true
+    },
+    {
+      "index": 4,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/aero-pace",
+      "startMs": 4554,
+      "browserMs": 46,
+      "modelMs": 900,
+      "inputTokens": 5244,
+      "outputTokens": 74,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "action": "click",
+      "target": "f5e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 5499,
+      "browserMs": 10013,
+      "modelMs": 1112,
+      "inputTokens": 6152,
+      "outputTokens": 85,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 6,
+      "action": "click",
+      "target": "f5e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 16624,
+      "browserMs": 10012,
+      "modelMs": 1602,
+      "inputTokens": 7102,
+      "outputTokens": 130,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 7,
+      "action": "click",
+      "target": "f5e32",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 28238,
+      "browserMs": 10009,
+      "modelMs": 2373,
+      "inputTokens": 8097,
+      "outputTokens": 305,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 8,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 40621,
+      "browserMs": 51,
+      "modelMs": 1406,
+      "inputTokens": 9267,
+      "outputTokens": 128,
+      "ok": true
+    },
+    {
+      "index": 9,
+      "action": "click",
+      "target": "f6e29",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 42078,
+      "browserMs": 10012,
+      "modelMs": 1085,
+      "inputTokens": 10229,
+      "outputTokens": 47,
+      "ok": false,
+      "error": "locator.click: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 10,
+      "action": "done",
+      "target": "I could not add the shoe to your cart. Velocity Runner ($98, black running shoe, size 8 in stock) is the only match, but on its product page the size 8 option and the Add to cart button will not respond to clicks. I tried them several times, including after reloading the page, and every attempt timed out. I did not add a different size or an unselected size to your cart. Other results were ruled out: Tempo Lite (black) is sold out in size 8, Cloud Glide is navy, Aero Pace is white, and Stride Pro is over $120. You could try the Velocity Runner page again later, or I can retry now.",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 53175,
+      "browserMs": 0,
+      "modelMs": 2589,
+      "inputTokens": 11141,
+      "outputTokens": 393,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 55764,
+    "modelMs": 15392,
+    "browserMs": 40372,
+    "inputTokens": 68677,
+    "outputTokens": 1620,
+    "toolCalls": 10,
+    "estimatedCostUsd": 0.007678
+  },
+  "outcome": {
+    "success": false,
+    "agentClaimedDone": true,
+    "cart": [],
+    "reason": "Cart is empty"
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25"
+  }
+}

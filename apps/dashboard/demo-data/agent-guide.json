@@ -1,0 +1,5 @@
+{
+  "provenance": "live",
+  "generatedAt": "2026-10-25T10:46:38.297Z",
+  "guide": "Trailhead Shoes: agent interface\nThis store sells 6 products (5 running, 1 hiking), in sizes 7–10.\nUse the bash tool to run shop commands. Pipes and jq work.\n\nCommands\n  shop search [--color C] [--category C] [--min-price N] [--max-price N] [--size N] [--in-stock] [words...] [--json] [--limit N]\n      find variants matching every filter; prints a count and near misses\n  shop product <slug-or-SKU>    one product with every size, SKU and live stock\n  shop cart add <SKU>           add one item; prints the full cart\n  shop cart show                show the cart\n  shop checkout --dry-run       preview an order (orders are never placed here)\n\nExample\n$ shop search --color white --size 9 --in-stock\n1 match (showing 1)\nAER-WHT-09\tAero Pace\twhite\trunning\t$79\tsize 9\tstock 2\nNear misses:\n  Tempo Lite: color is black, not white\n  Cloud Glide: color is navy, not white\n  Summit Hiker: color is black, not white\n"
+}

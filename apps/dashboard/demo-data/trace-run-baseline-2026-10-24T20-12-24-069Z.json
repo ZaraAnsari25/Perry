@@ -1,0 +1,193 @@
+{
+  "runId": "run-baseline-2026-10-24T20-12-24-069Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "http://localhost:3001",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-24T20:12:24.069Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "type",
+      "target": "e13",
+      "pagePath": "/",
+      "startMs": 123,
+      "browserMs": 10016,
+      "modelMs": 7817,
+      "inputTokens": 1319,
+      "outputTokens": 92,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 1,
+      "action": "type",
+      "target": "e13",
+      "pagePath": "/",
+      "startMs": 17956,
+      "browserMs": 10012,
+      "modelMs": 1575,
+      "inputTokens": 1744,
+      "outputTokens": 110,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 2,
+      "action": "navigate",
+      "target": "/search",
+      "pagePath": "/",
+      "startMs": 29544,
+      "browserMs": 54,
+      "modelMs": 1073,
+      "inputTokens": 2187,
+      "outputTokens": 73,
+      "ok": true
+    },
+    {
+      "index": 3,
+      "action": "navigate",
+      "target": "/products/tempo-lite",
+      "pagePath": "/search",
+      "startMs": 30671,
+      "browserMs": 51,
+      "modelMs": 1427,
+      "inputTokens": 3154,
+      "outputTokens": 208,
+      "ok": true
+    },
+    {
+      "index": 4,
+      "action": "navigate",
+      "target": "/products/cloud-glide",
+      "pagePath": "/products/tempo-lite",
+      "startMs": 32149,
+      "browserMs": 51,
+      "modelMs": 909,
+      "inputTokens": 4061,
+      "outputTokens": 86,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "action": "navigate",
+      "target": "/products/aero-pace",
+      "pagePath": "/products/cloud-glide",
+      "startMs": 33110,
+      "browserMs": 48,
+      "modelMs": 897,
+      "inputTokens": 4833,
+      "outputTokens": 82,
+      "ok": true
+    },
+    {
+      "index": 6,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/aero-pace",
+      "startMs": 34055,
+      "browserMs": 45,
+      "modelMs": 1536,
+      "inputTokens": 5596,
+      "outputTokens": 82,
+      "ok": true
+    },
+    {
+      "index": 7,
+      "action": "select",
+      "target": "f5e28",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 35636,
+      "browserMs": 10017,
+      "modelMs": 1113,
+      "inputTokens": 6373,
+      "outputTokens": 102,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 8,
+      "action": "select",
+      "target": "f5e28",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 46766,
+      "browserMs": 10015,
+      "modelMs": 944,
+      "inputTokens": 7205,
+      "outputTokens": 87,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 9,
+      "action": "click",
+      "target": "f5e28",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 57725,
+      "browserMs": 10014,
+      "modelMs": 1268,
+      "inputTokens": 8022,
+      "outputTokens": 128,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 10,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 69006,
+      "browserMs": 48,
+      "modelMs": 1718,
+      "inputTokens": 8880,
+      "outputTokens": 179,
+      "ok": true
+    },
+    {
+      "index": 11,
+      "action": "select",
+      "target": "f6e28",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 70771,
+      "browserMs": 10016,
+      "modelMs": 816,
+      "inputTokens": 9754,
+      "outputTokens": 68,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 12,
+      "action": "done",
+      "target": "I could not add a shoe to your cart. The only black running shoe under $120 with size 8 in stock is Velocity Runner ($98, /products/velocity-runner), but I could not set the size. The size dropdown fails to respond every time I try to choose size 8, including after reloading the page, so I did not add anything to the cart. Other options I checked: Tempo Lite is black but size 8 is sold out, Cloud Glide is navy, and Aero Pace is white. You could try the size dropdown on that page yourself, or I can try again later.",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 81603,
+      "browserMs": 0,
+      "modelMs": 2063,
+      "inputTokens": 10552,
+      "outputTokens": 282,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 83666,
+    "modelMs": 23156,
+    "browserMs": 60510,
+    "inputTokens": 73680,
+    "outputTokens": 1579,
+    "toolCalls": 12,
+    "estimatedCostUsd": 0.008157
+  },
+  "outcome": {
+    "success": false,
+    "agentClaimedDone": true,
+    "cart": [],
+    "reason": "Cart is empty"
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25"
+  }
+}

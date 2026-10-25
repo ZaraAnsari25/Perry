@@ -2,13 +2,17 @@
 
 import { execFile, spawn } from "node:child_process";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 
+import { ONLINE_FIX_FILE, READ_ONLY } from "@/lib/mode";
+
 // next dev/build/start run with the dashboard app as the working directory.
 export const REPO = join(process.cwd(), "../..");
-export const RESULTS_DIR = join(REPO, "data/results");
+/** The online copy reads a recorded snapshot (demo-data/) instead. */
+export const RESULTS_DIR = READ_ONLY ? join(process.cwd(), "demo-data") : join(REPO, "data/results");
 export const OPTIMIZE_LOCK = join(RESULTS_DIR, ".optimize-running");
 export const MEASURE_LOCK = join(RESULTS_DIR, ".measure-running");
 /** Droid generating the shop commands (Feature 2). */
@@ -125,6 +129,12 @@ export async function processCwd(pid: number): Promise<string | undefined> {
 
 /** The sandbox worktree the fixed store on port 3002 is serving, if any. */
 export async function liveWorktree(): Promise<string | undefined> {
+  // Online, the fix that's live is the one the online fixed store is built from.
+  if (READ_ONLY)
+    return readFile(join(RESULTS_DIR, ONLINE_FIX_FILE), "utf8").then(
+      (t) => (JSON.parse(t) as { worktreePath?: string }).worktreePath,
+      () => undefined,
+    );
   const [pid] = await listeners(PATCHED_PORT);
   const cwd = pid === undefined ? undefined : await processCwd(pid);
   return cwd?.replace(/\/apps\/storefront$/, "");

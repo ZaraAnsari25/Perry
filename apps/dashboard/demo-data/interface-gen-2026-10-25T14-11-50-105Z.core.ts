@@ -1,0 +1,399 @@
+import { catalog, findVariant, getProduct, type Product } from "../../../apps/storefront/lib/catalog.ts";
+
+type ShopContext = { storeUrl: string; cartId: string };
+type ShopResult = { stdout: string; stderr: string; exitCode: number };
+type CatalogVariant = Product["variants"][number];
+type SearchHit = {
+  sku: string;
+  slug: string;
+  name: string;
+  color: string;
+  category: string;
+  priceUsd: number;
+  size: number;
+  stock: number;
+  inStock: boolean;
+};
+type SearchOptions = {
+  color?: string;
+  category?: string;
+  minimum?: number;
+  maximum?: number;
+  size?: number;
+  availableOnly: boolean;
+  limit: number;
+  json: boolean;
+  words: string[];
+};
+type CartEntry = {
+  sku: string;
+  name: string;
+  size: number;
+  priceUsd: number;
+  quantity: number;
+};
+type CartView = { items: CartEntry[]; totalUsd: number };
+
+const usage = [
+  "shop search [--color c] [--category c] [--min-price n] [--max-price n] [--size n] [--in-stock] [words...] [--json] [--limit N]",
+  "shop product <slug-or-SKU> [--json]",
+  "shop cart add <SKU>",
+  "shop cart show [--json]",
+  "shop checkout --dry-run",
+].join("\n");
+
+function print(text: string): ShopResult {
+  return { stdout: `${text}\n`, stderr: "", exitCode: 0 };
+}
+
+function reject(message: string, showUsage = false): ShopResult {
+  return {
+    stdout: "",
+    stderr: `shop: ${message}\n${showUsage ? `${usage}\n` : ""}`,
+    exitCode: 1,
+  };
+}
+
+function unrecognized(args: string[]): ShopResult {
+  return reject(`unknown command "${args.join(" ")}"`, true);
+}
+
+function searchHit(product: Product, variant: CatalogVariant): SearchHit {
+  const { slug, name, color, category, priceUsd } = product;
+  const { sku, size, stock } = variant;
+  return { sku, slug, name, color, category, priceUsd, size, stock, inStock: stock > 0 };
+}
+
+function hitLine(hit: SearchHit): string {
+  return `${hit.sku}\t${hit.name}\t${hit.color}\t${hit.category}\t$${hit.priceUsd}\tsize ${hit.size}\t${hit.stock > 0 ? `stock ${hit.stock}` : "sold out"}`;
+}
+
+function readSearchOptions(
+  tokens: string[],
+): { options: SearchOptions } | { error: string } {
+  const options: SearchOptions = {
+    availableOnly: false, limit: 20, json: false, words: [],
+  };
+  const numericFlags: Record<string, "minimum" | "maximum" | "size" | "limit"> = {
+    "--min-price": "minimum",
+    "--max-price": "maximum",
+    "--size": "size",
+    "--limit": "limit",
+  };
+
+  for (let cursor = 0; cursor < tokens.length; cursor += 1) {
+    const token = tokens[cursor]!;
+    if (!token.startsWith("-")) {
+      options.words.push(token);
+    } else if (token === "--json") {
+      options.json = true;
+    } else if (token === "--in-stock") {
+      options.availableOnly = true;
+    } else {
+      const separator = token.indexOf("=");
+      const flag = separator < 0 ? token : token.substring(0, separator);
+      const numericKey = numericFlags[flag];
+      if (flag !== "--color" && flag !== "--category" && numericKey === undefined) {
+        return { error: `unknown flag "${flag}". Use the supported flags shown below.` };
+      }
+      const value = separator < 0 ? tokens[++cursor] : token.substring(separator + 1);
+      if (value === undefined || value.trim() === "" || value.startsWith("--")) {
+        return { error: `missing value for ${flag}. Supply a value after ${flag}.` };
+      }
+      if (flag === "--color" || flag === "--category") {
+        if (value.startsWith("-")) {
+          return { error: `missing value for ${flag}. Supply a value after ${flag}.` };
+        }
+        options[flag === "--color" ? "color" : "category"] = value;
+      } else {
+        const number = Number(value);
+        if (!Number.isFinite(number) || number < 0) {
+          return { error: `${flag} needs a non-negative number. Use ${flag} <n>.` };
+        }
+        if (flag === "--limit" && (!Number.isInteger(number) || number < 1)) {
+          return { error: "--limit needs a whole number of at least 1. Use --limit 20." };
+        }
+        if (numericKey !== undefined) options[numericKey] = number;
+      }
+    }
+  }
+  return { options };
+}
+
+function inspectProduct(product: Product, options: SearchOptions) {
+  const failures: string[] = [];
+  const comparisons: [string | undefined, string, string][] = [
+    [options.color, product.color, "color"],
+    [options.category, product.category, "category"],
+  ];
+  for (const [requested, actual, label] of comparisons) {
+    if (requested !== undefined && requested.toLowerCase() !== actual.toLowerCase()) {
+      failures.push(`${label} is ${actual}, not ${requested}`);
+    }
+  }
+  if (options.minimum !== undefined && product.priceUsd < options.minimum) {
+    failures.push(`$${product.priceUsd} is under --min-price ${options.minimum}`);
+  }
+  if (options.maximum !== undefined && product.priceUsd > options.maximum) {
+    failures.push(`$${product.priceUsd} is over --max-price ${options.maximum}`);
+  }
+  const searchable = [product.name, product.description].map((text) => text.toLowerCase());
+  for (const word of options.words) {
+    if (!searchable.some((text) => text.includes(word.toLowerCase()))) {
+      failures.push(`doesn't mention "${word}"`);
+    }
+  }
+  const sized = product.variants.filter(
+    ({ size }) => options.size === undefined || size === options.size,
+  );
+  if (sized.length === 0) {
+    if (options.size !== undefined) failures.push(`no size ${options.size}`);
+  } else if (options.availableOnly && sized.every(({ stock }) => stock <= 0)) {
+    failures.push(options.size === undefined
+      ? "sold out in every size"
+      : `size ${options.size} is sold out`);
+  }
+  const eligible = sized.filter(({ stock }) => !options.availableOnly || stock > 0);
+  return { product, failures, eligible };
+}
+
+function executeSearch(tokens: string[]): ShopResult {
+  const parsed = readSearchOptions(tokens);
+  if ("error" in parsed) return reject(parsed.error, true);
+  const options = parsed.options;
+  const inspected = catalog.map((product) => inspectProduct(product, options));
+  const hits = inspected.flatMap(({ product, failures, eligible }) =>
+    failures.length > 0 ? [] : eligible.map((variant) => searchHit(product, variant)),
+  );
+  const visible = hits.slice(0, options.limit);
+  if (options.json) return print(JSON.stringify(visible));
+
+  let summary = hits.length === 0
+    ? "0 matches"
+    : `${hits.length} ${hits.length === 1 ? "match" : "matches"} (showing ${visible.length})`;
+  if (hits.length > visible.length) summary += "; narrow with --max-price or --size";
+  const output = [summary, ...visible.map(hitLine)];
+  if (hits.length < 3) {
+    const near = inspected
+      .filter(({ failures }) => failures.length === 1)
+      .slice(0, 3)
+      .map(({ product, failures }) => `  ${product.name}: ${failures[0]!}`);
+    if (near.length > 0) output.push("Near misses:", ...near);
+  }
+  return print(output.join("\n"));
+}
+
+function executeProduct(tokens: string[], originalArgs: string[]): ShopResult {
+  const keys = tokens.filter((token) => token !== "--json");
+  const key = keys[0];
+  if (keys.length !== 1 || key === undefined || key.startsWith("-") ||
+      tokens.length > keys.length + 1) return unrecognized(originalArgs);
+
+  const found = getProduct(key) ?? findVariant(key)?.product;
+  if (!found) return reject(`no product "${key}". Try shop search.`);
+  const { slug, name, category, color, priceUsd, description, variants } = found;
+  if (tokens.includes("--json")) {
+    return print(JSON.stringify({
+      slug, name, category, color, priceUsd, description,
+      variants: variants.map(({ size, sku, stock }) => ({
+        size, sku, stock, inStock: stock > 0,
+      })),
+    }));
+  }
+  const table = variants.map(({ size, sku, stock }) =>
+    `${size}\t${sku}\t${stock > 0 ? stock : "sold out"}`,
+  );
+  return print([
+    `${name}\t${color}\t${category}\t$${priceUsd}`,
+    description,
+    "size\tSKU\tstock",
+    ...table,
+  ].join("\n"));
+}
+
+class StoreAccessError extends Error {}
+
+function isTimeout(error: unknown): boolean {
+  return error instanceof Error &&
+    (error.name === "AbortError" || error.name === "TimeoutError");
+}
+
+async function contactStore(url: URL, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: AbortSignal.timeout(5000),
+      redirect: "manual",
+    });
+  } catch (error: unknown) {
+    throw new StoreAccessError(isTimeout(error) ? "request timed out" : "network error");
+  }
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+async function loadCart(context: ShopContext): Promise<CartView> {
+  const endpoint = new URL("/api/cart", context.storeUrl);
+  endpoint.searchParams.set("cartId", context.cartId);
+  const response = await contactStore(endpoint, { method: "GET" });
+  if (!response.ok) {
+    throw new StoreAccessError(`HTTP ${response.status} while reading cart`);
+  }
+
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch (error: unknown) {
+    throw new StoreAccessError(isTimeout(error) ? "request timed out" : "invalid cart JSON");
+  }
+  if (!isObject(data) || !Array.isArray(data.items)) {
+    throw new StoreAccessError("unexpected cart response");
+  }
+  const items: CartEntry[] = data.items.map((raw: unknown) => {
+    if (!isObject(raw) || typeof raw.sku !== "string" ||
+        typeof raw.quantity !== "number" || !Number.isSafeInteger(raw.quantity) ||
+        raw.quantity <= 0) {
+      throw new StoreAccessError("unexpected cart item");
+    }
+    const catalogEntry = findVariant(raw.sku);
+    if (!catalogEntry) throw new StoreAccessError("unknown SKU in cart response");
+    return {
+      sku: raw.sku,
+      name: catalogEntry.product.name,
+      size: catalogEntry.variant.size,
+      priceUsd: catalogEntry.product.priceUsd,
+      quantity: raw.quantity,
+    };
+  });
+  const totalUsd = items.reduce((sum, item) => sum + item.priceUsd * item.quantity, 0);
+  if (!Number.isFinite(totalUsd)) throw new StoreAccessError("invalid cart total");
+  return { items, totalUsd };
+}
+
+function unavailableSku(product: Product, variant: CatalogVariant): ShopResult {
+  const sameColorAndSize = catalog
+    .filter((other) => other.slug !== product.slug &&
+      other.color.toLowerCase() === product.color.toLowerCase())
+    .flatMap((other) => other.variants
+      .filter((option) => option.size === variant.size && option.stock > 0)
+      .map((option) => searchHit(other, option)));
+  const otherSizes = product.variants
+    .filter((option) => option.size !== variant.size && option.stock > 0)
+    .map((option) => searchHit(product, option));
+  const suggestions = [...sameColorAndSize, ...otherSizes].slice(0, 3);
+  const message = [
+    `${variant.sku} (${product.name}, size ${variant.size}) is sold out.`,
+  ];
+  if (suggestions.length > 0) message.push("In stock instead:", ...suggestions.map(hitLine));
+  return reject(message.join("\n"));
+}
+
+async function executeAdd(tokens: string[], context: ShopContext): Promise<ShopResult> {
+  if (tokens.length > 1) {
+    return reject("add one SKU at a time. Usage: shop cart add <SKU>");
+  }
+  const sku = tokens[0];
+  if (sku === undefined) return reject("missing SKU. Usage: shop cart add <SKU>");
+  const found = findVariant(sku);
+  if (!found) {
+    return reject(`unknown SKU "${sku}". Find SKUs with shop search or shop product <slug>.`);
+  }
+  const { product, variant } = found;
+  if (variant.stock === 0) return unavailableSku(product, variant);
+
+  const current = await loadCart(context);
+  const alreadyPresent = current.items.find((item) => item.sku === sku);
+  if (alreadyPresent) {
+    return reject(`${sku} is already in the cart (quantity ${alreadyPresent.quantity}). Not adding it again.`);
+  }
+
+  const added = await contactStore(new URL("/api/cart", context.storeUrl), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Cookie: `cart_id=${context.cartId}`,
+    },
+    body: new URLSearchParams([["sku", sku], ["slug", product.slug]]),
+  });
+  if (added.status !== 303) {
+    throw new StoreAccessError(`HTTP ${added.status} while adding; expected 303`);
+  }
+  const location = added.headers.get("location");
+  if (!location) throw new StoreAccessError("add response has no redirect");
+  let target: URL;
+  try {
+    target = new URL(location, context.storeUrl);
+  } catch {
+    throw new StoreAccessError("invalid add redirect");
+  }
+  if (target.pathname === "/search" || target.searchParams.get("error") === "sold-out") {
+    return reject(`${sku} is sold out or unavailable.`);
+  }
+  if (target.pathname !== "/cart") throw new StoreAccessError("unexpected add redirect");
+  const updated = await loadCart(context);
+  return print(`Added ${sku} (${product.name}, size ${variant.size}).\n${JSON.stringify(updated)}`);
+}
+
+async function previewOrder(context: ShopContext): Promise<ShopResult> {
+  const cart = await loadCart(context);
+  const preview = cart.items.length === 0
+    ? ["Cart is empty; nothing would be ordered."]
+    : [
+      "Would order:",
+      ...cart.items.map((item) =>
+        `${item.sku}\t${item.name}\tsize ${item.size}\tqty ${item.quantity}\t$${item.priceUsd} each\t$${item.priceUsd * item.quantity}`,
+      ),
+      `Total: $${cart.totalUsd}`,
+    ];
+  preview.push("Dry run: no order was placed.");
+  return print(preview.join("\n"));
+}
+
+export async function runShop(
+  args: string[],
+  ctx: { storeUrl: string; cartId: string },
+): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  try {
+    const cleaned: string[] = [];
+    for (let index = 0; index < args.length; index += 1) {
+      const arg = args[index]!;
+      if (arg === "--qty" || arg.startsWith("--qty=")) {
+        const value = arg === "--qty" ? args[++index] : arg.substring("--qty=".length);
+        if (value !== "1") return reject("only quantity 1 per add is supported");
+      } else {
+        cleaned.push(arg);
+      }
+    }
+
+    if (cleaned.length === 0 ||
+        (cleaned.length === 1 && (cleaned[0] === "help" || cleaned[0] === "--help"))) {
+      return print(usage);
+    }
+    const [command, subcommand] = cleaned;
+    if (command === "search") return executeSearch(cleaned.slice(1));
+    if (command === "product") return executeProduct(cleaned.slice(1), args);
+    if (command === "cart" && subcommand === "add") {
+      return await executeAdd(cleaned.slice(2), ctx);
+    }
+    if (command === "cart" && subcommand === "show" &&
+        (cleaned.length === 2 || (cleaned.length === 3 && cleaned[2] === "--json"))) {
+      return print(JSON.stringify(await loadCart(ctx)));
+    }
+    if (command === "checkout") {
+      if (cleaned.length === 1) {
+        return reject("checkout needs human approval and is not available to agents. Use --dry-run to preview.");
+      }
+      if (cleaned.length === 2 && subcommand === "--dry-run") return await previewOrder(ctx);
+    }
+    return unrecognized(args);
+  } catch (error: unknown) {
+    const reason = error instanceof StoreAccessError ? error.message : "unexpected store response";
+    return {
+      stdout: "",
+      stderr: `shop: could not reach the store (${reason})\n`,
+      exitCode: 2,
+    };
+  }
+}

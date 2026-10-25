@@ -1,0 +1,57 @@
+{
+  "runId": "run-baseline-2026-10-25T10-14-28-854Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "https://books.toscrape.com",
+  "task": "Find the cheapest book in the Poetry category. Reply with its exact title, price and page URL. This is read-only: do not add anything to a basket.",
+  "expectedSku": "(audit: no cart)",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-25T10:14:28.854Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "navigate",
+      "target": "/catalogue/category/books/poetry_23/index.html",
+      "pagePath": "/",
+      "startMs": 800,
+      "browserMs": 482,
+      "modelMs": 1140,
+      "inputTokens": 12887,
+      "outputTokens": 63,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "done",
+      "target": "The Poetry category (19 books, all on one page) has a cheapest book: \"Poems That Make Grown Women Cry\", priced at £14.19. Page URL: /catalogue/poems-that-make-grown-women-cry_824/index.html (relative to the store's root; the store's origin wasn't shown in the page outline). Next cheapest were \"Untitled Collection: Sabbath Poems 2014\" at £14.27 and \"The Collected Poems of W.B. Yeats\" at £15.42. I only browsed and did not add anything to the basket.",
+      "pagePath": "/catalogue/category/books/poetry_23/index.html",
+      "startMs": 2421,
+      "browserMs": 0,
+      "modelMs": 4011,
+      "inputTokens": 24572,
+      "outputTokens": 613,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 6433,
+    "modelMs": 5151,
+    "browserMs": 1282,
+    "inputTokens": 37459,
+    "outputTokens": 676,
+    "toolCalls": 1,
+    "estimatedCostUsd": 0.004084
+  },
+  "outcome": {
+    "success": true,
+    "agentClaimedDone": true,
+    "cart": []
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25",
+    "mode": "audit",
+    "expectedAnswer": "Poems That Make Grown Women Cry | 14.19",
+    "crossOriginAssets": "allowed"
+  }
+}

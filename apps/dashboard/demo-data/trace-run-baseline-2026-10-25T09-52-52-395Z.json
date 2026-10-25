@@ -1,0 +1,108 @@
+{
+  "runId": "run-baseline-2026-10-25T09-52-52-395Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "http://localhost:3001",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-25T09:52:52.395Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "type",
+      "target": "searchbox \"Search products\": black running shoe",
+      "pagePath": "/",
+      "startMs": 41,
+      "browserMs": 63,
+      "modelMs": 1200,
+      "inputTokens": 1363,
+      "outputTokens": 92,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "navigate",
+      "target": "/products/tempo-lite",
+      "pagePath": "/search",
+      "startMs": 1304,
+      "browserMs": 50,
+      "modelMs": 2105,
+      "inputTokens": 2355,
+      "outputTokens": 232,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/products/tempo-lite",
+      "startMs": 3459,
+      "browserMs": 44,
+      "modelMs": 925,
+      "inputTokens": 3286,
+      "outputTokens": 88,
+      "ok": true
+    },
+    {
+      "index": 3,
+      "action": "select",
+      "target": "combobox \"Size\": 8",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 4428,
+      "browserMs": 27,
+      "modelMs": 886,
+      "inputTokens": 4069,
+      "outputTokens": 102,
+      "ok": true
+    },
+    {
+      "index": 4,
+      "action": "click",
+      "target": "button \"Add to cart\"",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 5341,
+      "browserMs": 64,
+      "modelMs": 1047,
+      "inputTokens": 4866,
+      "outputTokens": 47,
+      "ok": true
+    },
+    {
+      "index": 5,
+      "action": "done",
+      "target": "Added the Velocity Runner in black, size 8, to your cart at $98. It's a running shoe and size 8 is in stock. Tempo Lite was also black and under $120, but size 8 was sold out, so I didn't choose it.",
+      "pagePath": "/cart",
+      "startMs": 6452,
+      "browserMs": 0,
+      "modelMs": 2840,
+      "inputTokens": 5237,
+      "outputTokens": 119,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 9292,
+    "modelMs": 9003,
+    "browserMs": 289,
+    "inputTokens": 21176,
+    "outputTokens": 680,
+    "toolCalls": 5,
+    "estimatedCostUsd": 0.002458
+  },
+  "outcome": {
+    "success": true,
+    "agentClaimedDone": true,
+    "cart": [
+      {
+        "sku": "VEL-BLK-08",
+        "quantity": 1
+      }
+    ]
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25",
+    "cartId": "e055a4d8-f48d-4296-8141-35ba7a98415b"
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "runId": "run-patched-2026-10-24T21-52-20-187Z",
+  "provenance": "live",
+  "siteVersion": "patched",
+  "url": "http://localhost:3002",
+  "task": "Find a black running shoe under $120 in size 8 that is in stock, and add it to my cart.",
+  "expectedSku": "VEL-BLK-08",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-24T21:52:20.187Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "type",
+      "target": "searchbox \"Search products\": black running shoe",
+      "pagePath": "/",
+      "startMs": 45,
+      "browserMs": 69,
+      "modelMs": 911,
+      "inputTokens": 1319,
+      "outputTokens": 92,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "click",
+      "target": "e113",
+      "pagePath": "/search",
+      "startMs": 1025,
+      "browserMs": 10010,
+      "modelMs": 1710,
+      "inputTokens": 3974,
+      "outputTokens": 200,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 2,
+      "action": "navigate",
+      "target": "/products/velocity-runner",
+      "pagePath": "/search",
+      "startMs": 12745,
+      "browserMs": 50,
+      "modelMs": 1286,
+      "inputTokens": 6786,
+      "outputTokens": 78,
+      "ok": true
+    },
+    {
+      "index": 3,
+      "action": "select",
+      "target": "e28",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 14081,
+      "browserMs": 10005,
+      "modelMs": 1447,
+      "inputTokens": 7559,
+      "outputTokens": 66,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 4,
+      "action": "select",
+      "target": "e28",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 25533,
+      "browserMs": 10011,
+      "modelMs": 1059,
+      "inputTokens": 8355,
+      "outputTokens": 85,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 5,
+      "action": "click",
+      "target": "e28",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 36602,
+      "browserMs": 10005,
+      "modelMs": 2447,
+      "inputTokens": 9170,
+      "outputTokens": 111,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 6,
+      "action": "type",
+      "target": "e28",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 49055,
+      "browserMs": 10009,
+      "modelMs": 1322,
+      "inputTokens": 10011,
+      "outputTokens": 161,
+      "ok": false,
+      "error": "locator.getAttribute: Timeout 10000ms exceeded."
+    },
+    {
+      "index": 7,
+      "action": "done",
+      "target": "I did not add anything to your cart. The best match I found is the Velocity Runner ($98, black, running, size 8 in stock at /products/velocity-runner). Other black running options were ruled out: Tempo Lite's size 8 is sold out, and Stride Pro is $125, over your budget. I could not select size 8 on the Velocity Runner page: the size dropdown timed out on every attempt (select, click, and typing), so the Add to cart step was never reached. You could select size 8 and click Add to cart manually, or I can retry later.",
+      "pagePath": "/products/velocity-runner",
+      "startMs": 60387,
+      "browserMs": 0,
+      "modelMs": 3637,
+      "inputTokens": 10902,
+      "outputTokens": 427,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 64024,
+    "modelMs": 13819,
+    "browserMs": 50204,
+    "inputTokens": 58076,
+    "outputTokens": 1220,
+    "toolCalls": 7,
+    "estimatedCostUsd": 0.006418
+  },
+  "outcome": {
+    "success": false,
+    "agentClaimedDone": true,
+    "cart": [],
+    "reason": "Cart is empty"
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25"
+  }
+}

@@ -1,0 +1,286 @@
+{
+  "provenance": "live",
+  "mode": "audit",
+  "createdAt": "2026-10-25T10:14:54.110Z",
+  "audits": [
+    {
+      "id": "automationexercise-polo-tshirt",
+      "provenance": "live",
+      "mode": "audit",
+      "url": "https://www.automationexercise.com/",
+      "task": "Find the men's t-shirt from the brand Polo that costs less than Rs. 1200. Reply with its exact product name, price and page URL. This is read-only: do not add anything to a cart, sign up or log in.",
+      "expectedAnswer": [
+        "Green Side Placket Detail T-Shirt",
+        "1000"
+      ],
+      "model": "claude-haiku-5-5",
+      "repetitions": 1,
+      "summary": {
+        "siteVersion": "baseline",
+        "url": "https://www.automationexercise.com/",
+        "runs": [
+          {
+            "runId": "run-baseline-2026-10-25T10-14-21-415Z",
+            "provenance": "live",
+            "siteVersion": "baseline",
+            "url": "https://www.automationexercise.com",
+            "task": "Find the men's t-shirt from the brand Polo that costs less than Rs. 1200. Reply with its exact product name, price and page URL. This is read-only: do not add anything to a cart, sign up or log in.",
+            "expectedSku": "(audit: no cart)",
+            "model": "claude-haiku-5-5",
+            "startedAt": "2026-10-25T10:14:21.415Z",
+            "steps": [
+              {
+                "index": 0,
+                "action": "navigate",
+                "target": "/brand_products/Polo",
+                "pagePath": "/",
+                "startMs": 925,
+                "browserMs": 553,
+                "modelMs": 1911,
+                "inputTokens": 16326,
+                "outputTokens": 133,
+                "ok": true
+              },
+              {
+                "index": 1,
+                "action": "navigate",
+                "target": "/product_details/29",
+                "pagePath": "/brand_products/Polo",
+                "startMs": 3389,
+                "browserMs": 321,
+                "modelMs": 1742,
+                "inputTokens": 21245,
+                "outputTokens": 248,
+                "ok": true
+              },
+              {
+                "index": 2,
+                "action": "done",
+                "target": "The men's Polo t-shirt under Rs. 1200 is \"Green Side Placket Detail T-Shirt\", priced Rs. 1000 (category Men > Tshirts, brand Polo, in stock). Page URL: /product_details/29 (full URL: https://automationexercise.com/product_details/29, relative path shown on the site). Other Polo items were excluded: Premium Polo T-Shirts is Rs. 1500 (over budget), and the rest are a top, a dress-style top, and jeans. Nothing was added to the cart and no login or signup was done.",
+                "pagePath": "/product_details/29",
+                "startMs": 5451,
+                "browserMs": 0,
+                "modelMs": 1808,
+                "inputTokens": 24181,
+                "outputTokens": 310,
+                "ok": true
+              }
+            ],
+            "metrics": {
+              "totalMs": 7260,
+              "modelMs": 5461,
+              "browserMs": 1799,
+              "inputTokens": 61752,
+              "outputTokens": 691,
+              "toolCalls": 2,
+              "estimatedCostUsd": 0.006521
+            },
+            "outcome": {
+              "success": true,
+              "agentClaimedDone": true,
+              "cart": []
+            },
+            "meta": {
+              "effort": "medium",
+              "maxSteps": "25",
+              "mode": "audit",
+              "expectedAnswer": "Green Side Placket Detail T-Shirt | 1000",
+              "crossOriginAssets": "allowed"
+            }
+          }
+        ],
+        "completionRate": 1,
+        "medianTotalMs": 7260,
+        "p95TotalMs": 7260,
+        "avgToolCalls": 2,
+        "avgInputTokens": 61752,
+        "avgOutputTokens": 691,
+        "avgCostUsd": 0.006521,
+        "costPerVerifiedSuccessUsd": 0.006521
+      },
+      "createdAt": "2026-10-25T10:14:28.705Z"
+    },
+    {
+      "id": "books-cheapest-poetry",
+      "provenance": "live",
+      "mode": "audit",
+      "url": "https://books.toscrape.com/",
+      "task": "Find the cheapest book in the Poetry category. Reply with its exact title, price and page URL. This is read-only: do not add anything to a basket.",
+      "expectedAnswer": [
+        "Poems That Make Grown Women Cry",
+        "14.19"
+      ],
+      "model": "claude-haiku-5-5",
+      "repetitions": 1,
+      "summary": {
+        "siteVersion": "baseline",
+        "url": "https://books.toscrape.com/",
+        "runs": [
+          {
+            "runId": "run-baseline-2026-10-25T10-14-28-854Z",
+            "provenance": "live",
+            "siteVersion": "baseline",
+            "url": "https://books.toscrape.com",
+            "task": "Find the cheapest book in the Poetry category. Reply with its exact title, price and page URL. This is read-only: do not add anything to a basket.",
+            "expectedSku": "(audit: no cart)",
+            "model": "claude-haiku-5-5",
+            "startedAt": "2026-10-25T10:14:28.854Z",
+            "steps": [
+              {
+                "index": 0,
+                "action": "navigate",
+                "target": "/catalogue/category/books/poetry_23/index.html",
+                "pagePath": "/",
+                "startMs": 800,
+                "browserMs": 482,
+                "modelMs": 1140,
+                "inputTokens": 12887,
+                "outputTokens": 63,
+                "ok": true
+              },
+              {
+                "index": 1,
+                "action": "done",
+                "target": "The Poetry category (19 books, all on one page) has a cheapest book: \"Poems That Make Grown Women Cry\", priced at £14.19. Page URL: /catalogue/poems-that-make-grown-women-cry_824/index.html (relative to the store's root; the store's origin wasn't shown in the page outline). Next cheapest were \"Untitled Collection: Sabbath Poems 2014\" at £14.27 and \"The Collected Poems of W.B. Yeats\" at £15.42. I only browsed and did not add anything to the basket.",
+                "pagePath": "/catalogue/category/books/poetry_23/index.html",
+                "startMs": 2421,
+                "browserMs": 0,
+                "modelMs": 4011,
+                "inputTokens": 24572,
+                "outputTokens": 613,
+                "ok": true
+              }
+            ],
+            "metrics": {
+              "totalMs": 6433,
+              "modelMs": 5151,
+              "browserMs": 1282,
+              "inputTokens": 37459,
+              "outputTokens": 676,
+              "toolCalls": 1,
+              "estimatedCostUsd": 0.004084
+            },
+            "outcome": {
+              "success": true,
+              "agentClaimedDone": true,
+              "cart": []
+            },
+            "meta": {
+              "effort": "medium",
+              "maxSteps": "25",
+              "mode": "audit",
+              "expectedAnswer": "Poems That Make Grown Women Cry | 14.19",
+              "crossOriginAssets": "allowed"
+            }
+          }
+        ],
+        "completionRate": 1,
+        "medianTotalMs": 6433,
+        "p95TotalMs": 6433,
+        "avgToolCalls": 1,
+        "avgInputTokens": 37459,
+        "avgOutputTokens": 676,
+        "avgCostUsd": 0.004084,
+        "costPerVerifiedSuccessUsd": 0.004084
+      },
+      "createdAt": "2026-10-25T10:14:35.311Z"
+    },
+    {
+      "id": "demoblaze-priciest-laptop",
+      "provenance": "live",
+      "mode": "audit",
+      "url": "https://www.demoblaze.com/",
+      "task": "Find the most expensive laptop in this store. Reply with its exact name, price and page URL. This is read-only: do not add anything to a cart, sign up or log in.",
+      "expectedAnswer": [
+        "MacBook Pro",
+        "1100"
+      ],
+      "model": "claude-haiku-5-5",
+      "repetitions": 1,
+      "summary": {
+        "siteVersion": "baseline",
+        "url": "https://www.demoblaze.com/",
+        "runs": [
+          {
+            "runId": "run-baseline-2026-10-25T10-14-35-511Z",
+            "provenance": "live",
+            "siteVersion": "baseline",
+            "url": "https://www.demoblaze.com",
+            "task": "Find the most expensive laptop in this store. Reply with its exact name, price and page URL. This is read-only: do not add anything to a cart, sign up or log in.",
+            "expectedSku": "(audit: no cart)",
+            "model": "claude-haiku-5-5",
+            "startedAt": "2026-10-25T10:14:35.511Z",
+            "steps": [
+              {
+                "index": 0,
+                "action": "click",
+                "target": "link \"Laptops\" -> #",
+                "pagePath": "/",
+                "startMs": 345,
+                "browserMs": 47,
+                "modelMs": 1471,
+                "inputTokens": 2217,
+                "outputTokens": 45,
+                "ok": true
+              },
+              {
+                "index": 1,
+                "action": "click",
+                "target": "link \"Laptops\" -> #",
+                "pagePath": "/",
+                "startMs": 1863,
+                "browserMs": 10040,
+                "modelMs": 3826,
+                "inputTokens": 5636,
+                "outputTokens": 551,
+                "ok": true
+              },
+              {
+                "index": 2,
+                "action": "done",
+                "target": "The most expensive laptop is \"MacBook Pro\" at $1100, page URL: /prod.html?idp_=15 (relative to the store root). I found it under the Laptops category, which lists six laptops: Sony vaio i5 ($790), Sony vaio i7 ($790), MacBook air ($700), Dell i7 8gb ($700), 2017 Dell 15.6 Inch ($700), and MacBook Pro ($1100). I did not add anything to a cart, sign up, or log in.",
+                "pagePath": "/",
+                "startMs": 15729,
+                "browserMs": 0,
+                "modelMs": 2847,
+                "inputTokens": 9083,
+                "outputTokens": 396,
+                "ok": true
+              }
+            ],
+            "metrics": {
+              "totalMs": 18576,
+              "modelMs": 8144,
+              "browserMs": 10432,
+              "inputTokens": 16936,
+              "outputTokens": 992,
+              "toolCalls": 2,
+              "estimatedCostUsd": 0.00219
+            },
+            "outcome": {
+              "success": true,
+              "agentClaimedDone": true,
+              "cart": []
+            },
+            "meta": {
+              "effort": "medium",
+              "maxSteps": "25",
+              "mode": "audit",
+              "expectedAnswer": "MacBook Pro | 1100",
+              "crossOriginAssets": "allowed"
+            }
+          }
+        ],
+        "completionRate": 1,
+        "medianTotalMs": 18576,
+        "p95TotalMs": 18576,
+        "avgToolCalls": 2,
+        "avgInputTokens": 16936,
+        "avgOutputTokens": 992,
+        "avgCostUsd": 0.00219,
+        "costPerVerifiedSuccessUsd": 0.00219
+      },
+      "createdAt": "2026-10-25T10:14:54.110Z"
+    }
+  ]
+}

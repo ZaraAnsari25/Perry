@@ -2,6 +2,7 @@ import type { VariantSummary } from "@agentfix/shared";
 import Link from "next/link";
 
 import type { Measurement, SavedPatch } from "@/lib/results";
+import { FIXED_STORE_URL, host } from "@/lib/mode";
 
 import { MakeLiveButton } from "./make-live-button";
 import { MeasureButton } from "./measure-button";
@@ -154,7 +155,7 @@ function NoPatch() {
 export function LiveBadge() {
   return (
     <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-medium text-white dark:bg-emerald-500 dark:text-emerald-950">
-      Live on localhost:3002
+      Live on {host(FIXED_STORE_URL)}
     </span>
   );
 }
@@ -194,12 +195,12 @@ export function PatchCard({
         <p className="text-sm">
           The fixed store at{" "}
           <a
-            href="http://localhost:3002/search?q=black+running+shoe"
+            href={`${FIXED_STORE_URL}/search?q=black+running+shoe`}
             target="_blank"
             rel="noreferrer"
             className="font-medium text-blue-700 underline dark:text-blue-400"
           >
-            localhost:3002
+            {host(FIXED_STORE_URL)}
           </a>{" "}
           is running this fix.
         </p>

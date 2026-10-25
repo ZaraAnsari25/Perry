@@ -1,0 +1,69 @@
+{
+  "runId": "run-baseline-2026-10-25T10-14-35-511Z",
+  "provenance": "live",
+  "siteVersion": "baseline",
+  "url": "https://www.demoblaze.com",
+  "task": "Find the most expensive laptop in this store. Reply with its exact name, price and page URL. This is read-only: do not add anything to a cart, sign up or log in.",
+  "expectedSku": "(audit: no cart)",
+  "model": "claude-haiku-5-5",
+  "startedAt": "2026-10-25T10:14:35.511Z",
+  "steps": [
+    {
+      "index": 0,
+      "action": "click",
+      "target": "link \"Laptops\" -> #",
+      "pagePath": "/",
+      "startMs": 345,
+      "browserMs": 47,
+      "modelMs": 1471,
+      "inputTokens": 2217,
+      "outputTokens": 45,
+      "ok": true
+    },
+    {
+      "index": 1,
+      "action": "click",
+      "target": "link \"Laptops\" -> #",
+      "pagePath": "/",
+      "startMs": 1863,
+      "browserMs": 10040,
+      "modelMs": 3826,
+      "inputTokens": 5636,
+      "outputTokens": 551,
+      "ok": true
+    },
+    {
+      "index": 2,
+      "action": "done",
+      "target": "The most expensive laptop is \"MacBook Pro\" at $1100, page URL: /prod.html?idp_=15 (relative to the store root). I found it under the Laptops category, which lists six laptops: Sony vaio i5 ($790), Sony vaio i7 ($790), MacBook air ($700), Dell i7 8gb ($700), 2017 Dell 15.6 Inch ($700), and MacBook Pro ($1100). I did not add anything to a cart, sign up, or log in.",
+      "pagePath": "/",
+      "startMs": 15729,
+      "browserMs": 0,
+      "modelMs": 2847,
+      "inputTokens": 9083,
+      "outputTokens": 396,
+      "ok": true
+    }
+  ],
+  "metrics": {
+    "totalMs": 18576,
+    "modelMs": 8144,
+    "browserMs": 10432,
+    "inputTokens": 16936,
+    "outputTokens": 992,
+    "toolCalls": 2,
+    "estimatedCostUsd": 0.00219
+  },
+  "outcome": {
+    "success": true,
+    "agentClaimedDone": true,
+    "cart": []
+  },
+  "meta": {
+    "effort": "medium",
+    "maxSteps": "25",
+    "mode": "audit",
+    "expectedAnswer": "MacBook Pro | 1100",
+    "crossOriginAssets": "allowed"
+  }
+}
