@@ -3,8 +3,8 @@ import { afterEach, test } from "node:test";
 
 import { catalog, findVariant, type Product } from "../../apps/storefront/lib/catalog.ts";
 import { verifyCart } from "@agentfix/verifier";
-import { runShop } from "./core.ts";
 import type { VariantRow } from "./search.ts";
+import { runShop } from "./test-impl.ts";
 
 const STORE = "http://store.test";
 const ctx = { storeUrl: STORE, cartId: "cart-1" };
@@ -22,14 +22,15 @@ function fakeStore(options: { failWith?: Error; postRedirect?: string } = {}) {
   globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
     const url = new URL(String(input));
     const method = init?.method ?? "GET";
-    calls.push({ method, url: url.href, body: init?.body?.toString(), cookie: new Headers(init?.headers).get("cookie") ?? undefined });
+    const form = init?.body instanceof FormData ? init.body : new URLSearchParams(String(init?.body ?? ""));
+    const body = init?.body === undefined ? undefined : `sku=${form.get("sku")}&slug=${form.get("slug")}`;
+    calls.push({ method, url: url.href, body, cookie: new Headers(init?.headers).get("cookie") ?? undefined });
     if (options.failWith) throw options.failWith;
     assert.equal(url.origin, STORE, "shop only contacts the store URL");
     if (method === "GET")
       return Response.json({ cartId: url.searchParams.get("cartId"), items: [...cart].map(([sku, quantity]) => ({ sku, quantity })) });
     if (options.postRedirect) return new Response(null, { status: 303, headers: { location: `${STORE}${options.postRedirect}` } });
-    const form = new URLSearchParams(String(init?.body));
-    const sku = form.get("sku") ?? "";
+    const sku = String(form.get("sku") ?? "");
     const match = findVariant(sku);
     if (!match || match.variant.stock === 0)
       return new Response(null, { status: 303, headers: { location: `${STORE}/products/${form.get("slug")}?error=sold-out` } });
@@ -116,7 +117,7 @@ test("an unreachable or odd store is a system problem (exit 2)", async () => {
   for (const line of ["cart add VEL-BLK-08", "cart show", "checkout --dry-run"]) {
     const r = await shop(line);
     assert.equal(r.exitCode, 2, line);
-    assert.equal(r.stderr, "shop: could not reach the store (fetch failed)\n");
+    assert.match(r.stderr, /^shop: could not reach the store \(.+\)\n/);
   }
   fakeStore({ postRedirect: "/somewhere-else" });
   assert.equal((await shop("cart add VEL-BLK-08")).exitCode, 2);

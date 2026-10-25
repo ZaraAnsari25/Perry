@@ -8,6 +8,8 @@ Two ways to use it:
 
 Both are thin wrappers around `runShop` in `core.ts`, so one implementation and one set of tests cover every way in.
 
+The standard `runShop` must meet is written down in [CONTRACT.md](CONTRACT.md): commands, flags, exact output formats, exit codes and refusals. `core.ts` is the hand-written implementation; Perry can also have Factory Droid write one for the store (`npm run generate:interface`), accepted only if it passes the same contract tests. `PERRY_SHOP_IMPL=generated` makes the sandbox and the MCP server use `generated/core.ts` instead (default `handwritten`); `AgentShell.implementation` says which one ran.
+
 ## `shop`
 
 | Command | Behavior | Exit |
@@ -86,6 +88,7 @@ Runs Perry's cart verifier (read-only) against the store and prints `VERIFIED` o
 
 ```bash
 npm test -w @agentfix/agent-interface                                   # unit, contract, guide, sandbox and MCP tests; no network
+SHOP_IMPL=generated npm test -w @agentfix/agent-interface               # the contract tests (search, shop) against generated/core.ts
 STORE_URL=http://localhost:3001 npm test -w @agentfix/agent-interface   # plus the integration test against a running store
 ```
 

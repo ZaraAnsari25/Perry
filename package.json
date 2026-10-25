@@ -20,7 +20,9 @@
     "reset:demo": "npm run reset:demo --workspace packages/optimizer",
     "bench:interface": "npm run bench:interface -w @agentfix/benchmark",
     "bench:three": "npm run bench:interface -w @agentfix/benchmark -- --reps 5 --three",
-    "interface:export": "npm run export -w @agentfix/agent-interface"
+    "interface:export": "npm run export -w @agentfix/agent-interface",
+    "generate:interface": "npm run generate:interface -w @agentfix/optimizer --",
+    "use:generated": "npm run use:generated -w @agentfix/optimizer --"
   },
   "devDependencies": {
     "@types/node": "22.20.5",

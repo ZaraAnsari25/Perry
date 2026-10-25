@@ -4,5 +4,6 @@
 export { buildGuide } from "./guide.ts";
 export { searchCatalog, type NearMiss, type SearchFilters, type VariantRow } from "./search.ts";
 export { runShop, type ShopContext, type ShopResult } from "./core.ts";
+export { loadShop, type RunShop, type ShopImplementation } from "./impl.ts";
 export { createShopCommand } from "./shop.ts";
 export { MAX_OUTPUT_CHARS, createAgentShell, type AgentShell, type ShellResult } from "./shell.ts";

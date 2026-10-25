@@ -61,7 +61,25 @@ export interface OptimizeResult extends PatchResult {
   preview?: { query: string; slug: string; before?: string[]; after: string[] };
 }
 
-const git = async (cwd: string, ...args: string[]) => (await run("git", args, { cwd, maxBuffer: 16 << 20 })).stdout;
+export const git = async (cwd: string, ...args: string[]) => (await run("git", args, { cwd, maxBuffer: 16 << 20 })).stdout;
+
+/**
+ * A disposable detached worktree of `baseRef` (default HEAD) under sandboxRoot
+ * (default <repo>-droid-sandbox, outside the repo). Remove it with removeWorktree.
+ */
+export async function createWorktree(
+  repoPath: string,
+  name: string,
+  options: { baseRef?: string; sandboxRoot?: string } = {},
+): Promise<{ worktree: string; baseCommit: string }> {
+  const repo = realpathSync(repoPath);
+  const baseCommit = (await git(repo, "rev-parse", "--verify", `${options.baseRef ?? "HEAD"}^{commit}`)).trim();
+  const sandboxRoot = options.sandboxRoot ?? resolve(repo, "..", `${basename(repo)}-droid-sandbox`);
+  mkdirSync(sandboxRoot, { recursive: true });
+  const worktree = join(realpathSync(sandboxRoot), name);
+  await git(repo, "worktree", "add", "--detach", worktree, baseCommit);
+  return { worktree, baseCommit };
+}
 
 export function droidPrompt(finding: Finding, allowedFiles: readonly string[], feedback?: string): string {
   const evidence = finding.evidence

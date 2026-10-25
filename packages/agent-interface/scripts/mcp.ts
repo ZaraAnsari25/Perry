@@ -3,10 +3,16 @@
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
+import { loadShop } from "../impl.ts";
 import { createShopServer } from "../mcp.ts";
 
 const storeUrl = process.env.STORE_URL ?? "http://localhost:3001";
 const cartId = crypto.randomUUID();
 
-await createShopServer({ storeUrl, cartId }).connect(new StdioServerTransport());
-console.error(`perry-shop MCP server: store ${storeUrl}, cart id ${cartId}`);
+const { implementation, runShop } = await loadShop().catch((error: Error) => {
+  console.error(`perry-shop MCP server: ${error.message}`);
+  process.exit(1);
+});
+
+await createShopServer({ storeUrl, cartId }, runShop).connect(new StdioServerTransport());
+console.error(`perry-shop MCP server: store ${storeUrl}, cart id ${cartId}, ${implementation} shop commands`);
