@@ -106,13 +106,27 @@ export const benchmark = async (
   };
 };
 
-/** Same task, same agent, baseline then patched storefront. */
+/**
+ * Same task, same agent, both storefronts. Runs alternate baseline, patched,
+ * baseline, ... so any drift in API latency over the session affects both
+ * versions equally.
+ */
 export const compare = async (
   { baselineUrl, patchedUrl, task, expectedSku, repetitions }: Parameters<Compare>[0],
   onRun?: OnRun,
 ): Promise<BenchmarkResult> => {
-  const baselineRuns = await runMany(baselineUrl, task, expectedSku, "baseline", repetitions, onRun);
-  const patchedRuns = await runMany(patchedUrl, task, expectedSku, "patched", repetitions, onRun);
+  const baselineRuns: AgentTrace[] = [];
+  const patchedRuns: AgentTrace[] = [];
+  for (let i = 1; i <= repetitions; i++) {
+    for (const [siteVersion, url, runs] of [
+      ["baseline", baselineUrl, baselineRuns],
+      ["patched", patchedUrl, patchedRuns],
+    ] as const) {
+      const trace = await runTask({ url, task, expectedSku, siteVersion });
+      runs.push(trace);
+      await onRun?.(trace, i, repetitions);
+    }
+  }
   const baseline = summarize("baseline", baselineUrl, baselineRuns);
   const patched = summarize("patched", patchedUrl, patchedRuns);
   return {
