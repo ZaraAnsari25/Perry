@@ -29,9 +29,9 @@ function completion(v: VariantSummary): string {
 }
 
 /**
- * "Same agent, three ways in": the original website, the Droid-fixed website
- * and the agent interface, measured with the same agent, task and cart check.
- * Renders nothing until there is a result or a guide to show.
+ * The agent-interface section: what it is, how it compares with the websites
+ * (same agent, task and cart check), one run command by command, and Droid
+ * building the same commands. Renders nothing until there is something to show.
  */
 export async function AgentInterfacePanel({ now }: { now: number }) {
   const [threeWay, interfaceOnly, guide, generated] = await Promise.all([
@@ -50,12 +50,16 @@ export async function AgentInterfacePanel({ now }: { now: number }) {
     <section aria-labelledby="interface-heading" className="space-y-4">
       <div className="space-y-1">
         <h2 id="interface-heading" className="text-lg font-semibold">
-          Same agent, three ways in
+          A second way in: <code className="font-mono">shop</code> commands for AI agents
         </h2>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          One task, one model, one cart check. Only the website or the way in changes.
+        <p className="max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
+          Fixing the website helps agents that browse. Agents that can run tools don&apos;t need web pages at all: Perry
+          has Factory Droid write <code className="font-mono">shop</code> commands from the store&apos;s own code, checks
+          them, and gives them to agents.
         </p>
       </div>
+
+      <HowItWorks />
 
       {threeWay ? (
         <Comparison result={threeWay.result} file={threeWay.file} now={now} />
@@ -65,26 +69,67 @@ export async function AgentInterfacePanel({ now }: { now: number }) {
         </p>
       )}
 
-      {generated && <GeneratedCard gen={generated} now={now} />}
-
       {transcript && transcriptSource && (
         <Transcript trace={transcript} result={transcriptSource.result} file={transcriptSource.file} now={now} />
       )}
 
+      {generated && <GeneratedCard gen={generated} measuredWith={implementations(threeWay?.result.agentInterface?.runs ?? [])} now={now} />}
+
       {guide && (
-        <div className="space-y-2 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <h3 className="text-sm font-semibold">What the agent sees</h3>
-          <p className="text-xs text-zinc-500">
-            The guide in the agent&apos;s first message, generated from the store&apos;s catalog {age(guide.generatedAt, now)}. The
-            agent then runs <code className="font-mono">shop</code> commands through one sandboxed bash tool: no files, no
-            network, only the store&apos;s own data and its real cart.
-          </p>
-          <pre className="overflow-x-auto rounded-md bg-zinc-950 p-3 font-mono text-xs leading-relaxed text-zinc-100">
-            {guide.guide}
-          </pre>
-        </div>
+        <details className="group rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+          <summary className="cursor-pointer text-sm font-semibold">
+            What the agent sees
+            <span className="ml-2 text-xs font-normal text-zinc-500">the guide in its first message</span>
+          </summary>
+          <div className="mt-3 space-y-2">
+            <p className="text-xs text-zinc-500">
+              Generated from the store&apos;s catalog {age(guide.generatedAt, now)}. The agent runs{" "}
+              <code className="font-mono">shop</code> commands through one sandboxed bash tool: no files, no network,
+              only the store&apos;s own data and its real cart.
+            </p>
+            <pre className="overflow-x-auto rounded-md bg-zinc-950 p-3 font-mono text-xs leading-relaxed text-zinc-100">
+              {guide.guide}
+            </pre>
+          </div>
+        </details>
       )}
     </section>
+  );
+}
+
+const steps = [
+  {
+    title: "Droid writes the commands",
+    body: "From the store's catalog and cart code. Perry checks them before any agent can use them (details below).",
+  },
+  {
+    title: "The agent runs commands",
+    body: "One search with filters, then one add to cart. Every price, size and stock level comes from the live catalog; nothing is made up.",
+  },
+  {
+    title: "Perry checks the real cart",
+    body: "A purchase counts only if the store's own cart holds exactly the right item, the same check as on the websites.",
+  },
+];
+
+function HowItWorks() {
+  return (
+    <ol className="grid gap-3 md:grid-cols-3">
+      {steps.map((s, i) => (
+        <li key={s.title} className="flex gap-3 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <span
+            aria-hidden
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white dark:bg-blue-500"
+          >
+            {i + 1}
+          </span>
+          <span className="space-y-1">
+            <span className="block text-sm font-medium">{s.title}</span>
+            <span className="block text-xs text-zinc-600 dark:text-zinc-400">{s.body}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -121,108 +166,109 @@ function Comparison({ result, file, now }: { result: BenchmarkResult; file: stri
     detail: string;
     v: VariantSummary;
     verdict?: BenchmarkResult["verdict"];
-    commands?: boolean;
   }[] = [
-    { label: "Original website", detail: "browser", v: original },
-    ...(result.patched ? [{ label: "Droid-fixed website", detail: "browser", v: result.patched, verdict: result.verdict }] : []),
+    { label: "Original website", detail: "agent clicks through pages", v: original },
+    ...(result.patched
+      ? [{ label: "Droid-fixed website", detail: "agent clicks through pages", v: result.patched, verdict: result.verdict }]
+      : []),
     ...(result.agentInterface
-      ? [{ label: "Agent interface", detail: "shop commands", v: result.agentInterface, verdict: result.agentInterfaceVerdict, commands: true }]
+      ? [{ label: "Shop commands", detail: "agent runs commands", v: result.agentInterface, verdict: result.agentInterfaceVerdict }]
       : []),
   ];
   const costs = conditions.map((c) => c.v.costPerVerifiedSuccessUsd ?? 0);
   const maxCost = Math.max(...costs, Number.EPSILON);
+  const before = original.costPerVerifiedSuccessUsd;
+  const commands = result.agentInterface;
+  const saving =
+    commands && before && commands.costPerVerifiedSuccessUsd !== null
+      ? Math.round((1 - commands.costPerVerifiedSuccessUsd / before) * 100)
+      : null;
 
   return (
     <div className="space-y-4 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-      <ResultBadge result={result} file={file} now={now} />
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold">Same agent, three ways in</h3>
+        <p className="text-xs text-zinc-500">
+          The same task (&ldquo;{result.task}&rdquo;), model and cart check each time.
+        </p>
+      </div>
+
+      {commands && saving !== null && (
+        <p className="text-2xl font-semibold tracking-tight">
+          {saving > 0 ? `${saving}% cheaper` : saving < 0 ? `${-saving}% more expensive` : "Same cost"}{" "}
+          <span className="text-base font-normal text-zinc-600 dark:text-zinc-400">
+            per verified purchase with shop commands than on the original website ·{" "}
+            {commands.avgToolCalls.toFixed(0)} commands instead of {original.avgToolCalls.toFixed(1)} browser steps
+          </span>
+        </p>
+      )}
 
       <div className="overflow-x-auto rounded-md border border-zinc-200 dark:border-zinc-800">
-        <table className="w-full text-left text-sm">
+        <table className="w-full min-w-[40rem] text-left text-sm">
           <thead className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800">
             <tr>
-              <th className="px-3 py-2 font-medium" />
-              <th className="px-3 py-2 text-right font-medium">Verified</th>
-              <th className="px-3 py-2 text-right font-medium">Avg steps*</th>
-              <th className="px-3 py-2 text-right font-medium">Avg tokens</th>
-              <th className="px-3 py-2 text-right font-medium">Cost per verified purchase</th>
+              <th className="px-3 py-2 font-medium">Way in</th>
+              <th className="px-3 py-2 font-medium">Cost per verified purchase</th>
+              <th className="px-3 py-2 text-right font-medium">Steps</th>
               <th className="px-3 py-2 text-right font-medium">Median time</th>
+              <th className="px-3 py-2 text-right font-medium">Verified</th>
             </tr>
           </thead>
           <tbody>
-            {conditions.map((c) => (
-              <tr key={c.label} className="border-b border-zinc-100 last:border-0 dark:border-zinc-800/60">
-                <td className="px-3 py-2">
-                  <span className="font-medium">{c.label}</span>
-                  <span className="block text-xs text-zinc-500">{c.detail}</span>
-                </td>
-                <td className="px-3 py-2 text-right tabular-nums">{completion(c.v)}</td>
-                <td className="px-3 py-2 text-right tabular-nums">{c.v.avgToolCalls.toFixed(1)}</td>
-                <td className="px-3 py-2 text-right tabular-nums">{tokens(c.v).toLocaleString("en-US")}</td>
-                <td className="px-3 py-2 text-right font-medium tabular-nums">{usd(c.v.costPerVerifiedSuccessUsd)}</td>
-                <td className="px-3 py-2 text-right tabular-nums">{(c.v.medianTotalMs / 1000).toFixed(1)}s</td>
-              </tr>
-            ))}
+            {conditions.map((c, i) => {
+              const after = c.v.costPerVerifiedSuccessUsd;
+              return (
+                <tr key={c.label} className="border-b border-zinc-100 last:border-0 dark:border-zinc-800/60">
+                  <td className="px-3 py-2">
+                    <span className="font-medium">{c.label}</span>
+                    <span className="block text-xs text-zinc-500">{c.detail}</span>
+                  </td>
+                  <td className="w-1/2 px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <div aria-hidden className="min-w-16 flex-1">
+                        <div
+                          className="h-3 rounded-sm bg-blue-600 dark:bg-blue-500"
+                          style={{ width: `${Math.max((costs[i]! / maxCost) * 100, 1)}%` }}
+                        />
+                      </div>
+                      <span className="w-16 font-medium tabular-nums">{usd(after)}</span>
+                      <span className="w-14">
+                        {c.v !== original && before !== null && after !== null && (
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ${verdictTone[c.verdict ?? "no_change"]}`}
+                            title={c.verdict ? verdictLabel[c.verdict] : "no verdict saved"}
+                          >
+                            {change(before, after)}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums">{c.v.avgToolCalls.toFixed(1)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{(c.v.medianTotalMs / 1000).toFixed(1)}s</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{completion(c.v)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-zinc-500">
-        * Steps are browser actions on the websites and shell commands on the agent interface. Model{" "}
-        <code className="font-mono">{result.model}</code>, {result.repetitions} runs per condition, same task and cart
-        check.{" "}
-        {result.agentInterface && <ImplementationNote runs={result.agentInterface.runs} />}
-      </p>
-
-      <ul className="grid gap-3 md:grid-cols-2">
-        {conditions
-          .filter((c) => c.v !== original)
-          .map((c) => {
-            const before = original.costPerVerifiedSuccessUsd;
-            const after = c.v.costPerVerifiedSuccessUsd;
-            return (
-              <li key={c.label} className="space-y-1 rounded-md border border-zinc-200 p-3 text-sm dark:border-zinc-800">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">{c.label} vs. original</span>
-                  {c.verdict ? (
-                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${verdictTone[c.verdict]}`}>
-                      {verdictLabel[c.verdict]}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-zinc-500">no verdict saved</span>
-                  )}
-                </div>
-                <p className="tabular-nums text-zinc-700 dark:text-zinc-300">
-                  Cost per verified purchase {before !== null && after !== null ? change(before, after) : "–"} · steps{" "}
-                  {change(original.avgToolCalls, c.v.avgToolCalls)}
-                </p>
-              </li>
-            );
-          })}
-      </ul>
-
-      <figure className="space-y-2">
-        <figcaption className="text-xs font-medium uppercase tracking-wide text-zinc-500">Cost per verified purchase</figcaption>
-        <div className="space-y-1.5">
-          {conditions.map((c, i) => (
-            <div key={c.label} className="grid grid-cols-[9rem_1fr] items-center gap-3 text-sm">
-              <span className="truncate">{c.label}</span>
-              <div className="flex items-center gap-2">
-                <div
-                  aria-hidden
-                  className="h-4 rounded-sm bg-blue-600 dark:bg-blue-500"
-                  style={{ width: `${Math.max((costs[i]! / maxCost) * 100, 1)}%`, maxWidth: "calc(100% - 5.5rem)" }}
-                />
-                <span className="tabular-nums text-xs">{usd(c.v.costPerVerifiedSuccessUsd)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </figure>
 
       <p className="text-sm text-zinc-700 dark:text-zinc-300">
-        Many agents can only browse, so the website has to work for them. Agents that use tools can use the interface.
-        Perry measures every path with the same agent and the same verified cart.{" "}
-        <span className="text-zinc-500">The Droid fix changes the website&apos;s HTML; the agent interface leaves the website alone.</span>
+        Many agents can only browse, so the website has to work for them; the Droid fix changes its HTML. Agents that
+        use tools can use the commands, which leave the website alone. Perry measures both with the same agent and the
+        same verified cart.
       </p>
+
+      <div className="space-y-1 border-t border-zinc-100 pt-3 text-xs text-zinc-500 dark:border-zinc-800">
+        <ResultBadge result={result} file={file} now={now} />
+        <p>
+          Steps are browser actions on the websites and commands with shop. Model{" "}
+          <code className="font-mono">{result.model}</code>, {result.repetitions} runs each, average{" "}
+          {conditions.map((c) => `${tokens(c.v).toLocaleString("en-US")}`).join(" / ")} tokens.{" "}
+          {result.agentInterface && <ImplementationNote runs={result.agentInterface.runs} />}
+        </p>
+      </div>
     </div>
   );
 }
@@ -234,9 +280,12 @@ function Transcript({ trace, result, file, now }: { trace: AgentTrace; result: B
   return (
     <div className="space-y-3 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold">One agent-interface run, command by command</h3>
+        <h3 className="text-sm font-semibold">
+          Watch one run: {shell.length} command{shell.length === 1 ? "" : "s"},{" "}
+          {outcome.success ? "verified purchase" : "not verified"}
+        </h3>
         <p className="text-xs text-zinc-500">
-          Run <code className="font-mono">{trace.runId}</code> · {shell.length} command{shell.length === 1 ? "" : "s"} ·{" "}
+          Everything the agent typed and everything it got back. Run <code className="font-mono">{trace.runId}</code> ·{" "}
           {result.provenance === "fixture" ? (
             <strong className="text-amber-800 dark:text-amber-300">sample data, not a real run</strong>
           ) : (
@@ -294,77 +343,157 @@ function Transcript({ trace, result, file, now }: { trace: AgentTrace; result: B
 }
 
 /** Which `shop` implementation the interface runs used (meta.interfaceImpl, recorded by the runner). */
+function implementations(runs: AgentTrace[]): string[] {
+  return [...new Set(runs.flatMap((r) => (r.meta?.interfaceImpl ? [r.meta.interfaceImpl] : [])))];
+}
+
 function ImplementationNote({ runs }: { runs: AgentTrace[] }) {
-  const impls = [...new Set(runs.flatMap((r) => (r.meta?.interfaceImpl ? [r.meta.interfaceImpl] : [])))];
+  const impls = implementations(runs);
   if (impls.length === 0) return null;
   const name = (i: string) => (i === "generated" ? "generated by Droid" : i === "handwritten" ? "hand-written" : i);
   return <>Interface commands: {impls.map(name).join(" and ")}.</>;
 }
 
-const gateName: Record<string, string> = {
-  allowlist: "Only its one allowed file",
-  independence: "Its own code, not a copy",
-  typecheck: "Typechecks",
-  "contract tests": "Contract tests pass",
-  integration: "Real cart purchase verifies",
+/** Perry's gates on Droid's code (packages/optimizer/generate-interface.ts), in plain words. */
+const gateInfo: Record<string, { name: string; why: string }> = {
+  allowlist: {
+    name: "Changed only its one allowed file",
+    why: "So it can't touch prices, stock, the cart or the checks themselves.",
+  },
+  independence: {
+    name: "Wrote its own code",
+    why: "No imports from our version and no copied blocks, so it really was built from the store's code.",
+  },
+  typecheck: { name: "Compiles", why: "The whole project still builds with Droid's file in it." },
+  "contract tests": {
+    name: "Every answer matches the catalog",
+    why: "The same tests as our version, including thousands of search combinations: nothing wrong returned, nothing missed.",
+  },
+  integration: {
+    name: "A real purchase verifies",
+    why: "It added the right shoe to the real store's cart; sold-out and duplicate requests left the cart unchanged.",
+  },
 };
 
-/** The newest run in which Droid wrote the interface's commands, with Perry's gates. */
-function GeneratedCard({ gen, now }: { gen: InterfaceGen; now: number }) {
+const readsList = [
+  { what: "The product catalog", file: "apps/storefront/lib/catalog.ts", note: "products, prices, sizes, stock" },
+  { what: "The cart API", file: "apps/storefront/app/api/cart/route.ts", note: "how to read the cart and add to it" },
+  { what: "Perry's standard for shop commands", file: "packages/agent-interface/CONTRACT.md", note: "which commands, exact output" },
+];
+
+/** The newest run in which Droid wrote the shop commands, with Perry's gates. */
+function GeneratedCard({ gen, measuredWith, now }: { gen: InterfaceGen; measuredWith: string[]; now: number }) {
   const accepted = gen.status === "accepted";
+  const passed = gen.gates.filter((g) => g.ok && !g.skipped).length;
   return (
-    <div className="space-y-3 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="flex flex-wrap items-center gap-2">
-        <h3 className="text-sm font-semibold">Agent interface generated by Droid</h3>
-        <span
-          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            accepted
-              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-              : "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300"
-          }`}
-        >
-          {accepted ? "Passed every check" : gen.status === "failed" ? "Failed" : "Rejected"}
-        </span>
-        {gen.provenance === "fixture" ? (
+    <div className="space-y-4 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="space-y-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-sm font-semibold">How these commands were made: Droid wrote them, Perry checked them</h3>
           <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
-            Scripted test, not Droid
+            {gen.provenance === "fixture" ? "Scripted test, not Droid" : "Recorded run"}
           </span>
-        ) : (
-          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
-            Recorded run
+        </div>
+        <p className="max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
+          <span className="font-medium text-zinc-800 dark:text-zinc-200">Why:</span> no store should need someone to
+          hand-write commands for AI agents. So Perry has Factory Droid write them from the store&apos;s own code, and
+          only lets agents use them once they pass every check. The same works for any store.
+        </p>
+      </div>
+
+      <ol className="grid gap-3 lg:grid-cols-3">
+        <li className="space-y-2 rounded-md border border-zinc-200 p-3 dark:border-zinc-800">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">1 · What Droid reads</p>
+          <ul className="space-y-1.5 text-sm">
+            {readsList.map((r) => (
+              <li key={r.file}>
+                {r.what} <span className="text-zinc-500">({r.note})</span>
+                <code className="block font-mono text-xs text-zinc-500">{r.file}</code>
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-zinc-500">
+            Not our hand-written reference version: it&apos;s removed from Droid&apos;s copy, so Droid can&apos;t copy it.
+          </p>
+        </li>
+        <li className="space-y-2 rounded-md border border-zinc-200 p-3 dark:border-zinc-800">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">2 · What Droid does</p>
+          <ul className="list-disc space-y-1.5 pl-4 text-sm">
+            <li>Works in a throwaway copy of the code, never the real project.</li>
+            <li>
+              Writes exactly one file, <code className="font-mono text-xs">generated/core.ts</code>: the{" "}
+              <code className="font-mono">shop</code> commands.
+            </li>
+            <li>Every other edit and every shell command is blocked.</li>
+          </ul>
+        </li>
+        <li className="space-y-2 rounded-md border border-zinc-200 p-3 dark:border-zinc-800">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">3 · What Perry checks before use</p>
+          <ul className="space-y-1.5 text-sm">
+            {gen.gates.map((g) => {
+              const info = gateInfo[g.name];
+              const status = g.skipped ? "skipped" : g.ok ? "passed" : "failed";
+              return (
+                <li key={g.name} className="flex gap-2">
+                  <span
+                    role="img"
+                    aria-label={status}
+                    className={`w-4 shrink-0 text-center ${
+                      g.skipped ? "text-zinc-400" : g.ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
+                    }`}
+                  >
+                    {g.skipped ? "–" : g.ok ? "✓" : "✗"}
+                  </span>
+                  <span>
+                    {info?.name ?? g.name}
+                    <span className="block text-xs text-zinc-500">{g.ok && !g.skipped ? (info?.why ?? g.detail) : g.detail}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </li>
+      </ol>
+
+      <p
+        className={`rounded-md px-3 py-2 text-sm font-medium ${
+          accepted
+            ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+            : "bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300"
+        }`}
+      >
+        {accepted
+          ? `✅ Passed all ${passed} checks, so agents use Droid's commands.`
+          : `⛔ ${gen.status === "failed" ? "Generation failed" : "Turned away"}${gen.reason ? `: ${gen.reason}` : ""}. Agents keep using the last accepted commands.`}
+        {accepted && measuredWith.length > 0 && (
+          <span className="block text-xs font-normal">
+            {measuredWith.includes("generated")
+              ? "The comparison and the run above used these commands."
+              : "The comparison above used our hand-written reference version, not these."}
           </span>
         )}
-      </div>
-      <p className="text-xs text-zinc-500">
-        Droid read the store&apos;s catalog and cart code and wrote its <code className="font-mono">shop</code> commands
-        from Perry&apos;s standard contract; Perry checked them before any agent could use them. Generated {age(gen.createdAt, now)}
-        {gen.droidSessionId && (
-          <>
-            {" "}
-            · Droid session <code className="font-mono">{gen.droidSessionId}</code>
-          </>
-        )}{" "}
-        · <code className="font-mono">{gen.file.replace("data/results/", "")}</code>
       </p>
-      <ul className="space-y-1.5 text-sm">
-        {gen.gates.map((g) => (
-          <li key={g.name} className="flex gap-2">
-            <span
-              aria-hidden
-              className={`w-4 shrink-0 text-center ${
-                g.skipped ? "text-zinc-400" : g.ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
-              }`}
-            >
-              {g.skipped ? "–" : g.ok ? "✓" : "✗"}
-            </span>
-            <span>
-              {gateName[g.name] ?? g.name}
-              <span className="sr-only"> ({g.skipped ? "skipped" : g.ok ? "passed" : "failed"})</span>
-              <span className="block text-xs text-zinc-500">{g.detail}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+
+      <details className="text-xs text-zinc-500">
+        <summary className="cursor-pointer">Check details</summary>
+        <ul className="mt-2 space-y-1">
+          {gen.gates.map((g) => (
+            <li key={g.name}>
+              <span className="font-medium">{gateInfo[g.name]?.name ?? g.name}:</span> {g.detail}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2">
+          Generated {age(gen.createdAt, now)}
+          {gen.droidSessionId && (
+            <>
+              {" "}
+              · Droid session <code className="font-mono">{gen.droidSessionId}</code>
+            </>
+          )}{" "}
+          · <code className="font-mono">{gen.file.replace("data/results/", "")}</code>
+        </p>
+      </details>
     </div>
   );
 }
