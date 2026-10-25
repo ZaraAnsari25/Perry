@@ -81,18 +81,13 @@ export function age(iso: string, now: number): string {
   return `on ${new Date(iso).toLocaleString("en-US")}`;
 }
 
-/**
- * Fixes generated from the run being viewed, newest first. When there are
- * none, the saved backup can be shown on request, labeled as a replay.
- */
+/** Fixes generated from the run being viewed, newest first. */
 export function PatchPanel({
   patches,
-  backup,
   live,
   now,
 }: {
   patches: SavedPatch[];
-  backup: SavedPatch | null;
   /** Worktree the fixed store on localhost:3002 is serving, if any. */
   live?: string;
   now: number;
@@ -104,19 +99,6 @@ export function PatchPanel({
         Fix for this run
       </h2>
       {latest ? <PatchCard patch={latest} now={now} live={live} /> : <NoPatch />}
-      {!latest && backup && (
-        <details className="rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700">
-          <summary className="cursor-pointer px-4 py-3 text-sm">
-            <span className="font-medium">Show the saved backup fix</span>{" "}
-            <span className="text-zinc-500">
-              (a real Droid fix generated {age(backup.createdAt, now)}, for use if a live run fails)
-            </span>
-          </summary>
-          <div className="border-t border-dashed border-zinc-300 p-3 dark:border-zinc-700">
-            <PatchCard patch={backup} now={now} live={live} replay />
-          </div>
-        </details>
-      )}
       {earlier.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Earlier fixes for this run</h3>
@@ -141,6 +123,18 @@ export function PatchPanel({
       )}
     </section>
   );
+}
+
+/**
+ * A blocked request in plain words. Mirrors describeBlocked in
+ * packages/optimizer, which the dashboard doesn't import (it would bundle the
+ * Droid SDK into the site).
+ */
+function describeBlocked(entry: string): string {
+  const outside = entry.split(", ").filter((p) => p.startsWith("../") || p.startsWith("/"));
+  if (outside.length > 0) return `An edit to a path outside its sandbox, usually a mistyped path: ${outside.join(", ")}`;
+  if (/^[a-z_]+$/.test(entry)) return entry === "exec" ? "A shell command, which Droid may not run" : `A "${entry}" action, which Droid may not run`;
+  return `An edit to ${entry}, which is not one of the files it may change`;
 }
 
 export function FixBadge({ patch }: { patch: SavedPatch }) {
@@ -190,6 +184,7 @@ export function PatchCard({
           {isLive && <LiveBadge />}
           <span className="text-xs text-zinc-500">
             {source(patch)} · generated {age(patch.createdAt, now)}
+            {patch.attempt && patch.attempt > 1 ? ` · attempt ${patch.attempt}, told why the last one failed` : ""}
           </span>
         </div>
         <p className="text-base font-medium">{fixState(patch).sentence}</p>
@@ -260,12 +255,10 @@ export function PatchCard({
 
       {patch.blocked.length > 0 && (
         <div className="rounded-md bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
-          <div className="font-medium text-amber-900 dark:text-amber-200">
-            Droid tried to change something it wasn&apos;t allowed to, and Perry stopped it
-          </div>
-          <ul className="mt-1 list-disc pl-5 font-mono text-xs">
+          <div className="font-medium text-amber-900 dark:text-amber-200">Perry blocked some of Droid&apos;s requests</div>
+          <ul className="mt-1 list-disc pl-5 text-xs text-amber-950 dark:text-amber-100">
             {patch.blocked.map((b) => (
-              <li key={b}>{b}</li>
+              <li key={b}>{describeBlocked(b)}</li>
             ))}
           </ul>
         </div>

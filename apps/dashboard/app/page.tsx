@@ -6,7 +6,7 @@ import { connection } from "next/server";
 
 import { apifyAudits } from "@/lib/apify";
 import { liveWorktree } from "@/lib/child-process";
-import { allPatches, backupPatch, latestBenchmark, loadCompare, recentPatches } from "@/lib/results";
+import { allPatches, latestBenchmark, loadCompare, recentPatches } from "@/lib/results";
 
 import { ApifyPanel } from "./apify-panel";
 import { OptimizeButton } from "./optimize-button";
@@ -55,8 +55,12 @@ export default async function Home({
   const diagnosis = await diagnose(trace);
   // Only fixes generated from the run being viewed.
   const patches = (await recentPatches()).filter((p) => p.traceRunId === trace.runId);
-  const backup = await backupPatch();
-  const droidFixes = (await allPatches()).filter((p) => !p.redTeam).length;
+  const everyFix = (await allPatches()).filter((p) => !p.redTeam);
+  const droidFixes = everyFix.length;
+  // Accepted fixes that can still be made live: what "Choose an earlier fix" offers.
+  const hasEarlierFixes = everyFix.some((p) => p.servable);
+  // If the newest fix for this run wasn't accepted, Optimize becomes "Try again".
+  const lastTry = patches[0]?.status !== "accepted" ? patches[0] : undefined;
   // Which saved fix, if any, the fixed store on localhost:3002 is serving.
   const live = await liveWorktree();
   const apify = measured ? null : await apifyAudits();
@@ -190,14 +194,18 @@ export default async function Home({
         )}
         {!measured && diagnosis.findings.some((f) => f.kind === "excessive_navigation") && (
           <OptimizeButton
+            key={lastTry?.file ?? "fresh"}
             benchmark={benchmark && runs[runIndex] ? benchmark.file.replace("data/results/", "") : undefined}
             run={runIndex + 1}
+            retryOf={lastTry?.file}
+            attempt={lastTry?.attempt}
+            hasEarlierFixes={hasEarlierFixes}
           />
         )}
       </section>
 
       {!measured ? (
-        <PatchPanel patches={patches} backup={backup} live={live} now={Date.now()} />
+        <PatchPanel patches={patches} live={live} now={Date.now()} />
       ) : (
         <p className="rounded-lg border border-dashed border-zinc-300 p-5 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
           {site === "patched" ? (

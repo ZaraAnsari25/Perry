@@ -54,7 +54,7 @@ lsof -ti tcp:3000 -sTCP:LISTEN | xargs kill   # change 3000 to the busy port
 - It may only change the search card and search code. A permission check blocks everything else, including shell commands.
 - Perry then checks the change: only allowed files, it builds, and every price and stock level on the page still matches the catalog.
 
-**~1:50 · The result.** Show the verdict, the **before/after Tempo Lite card** ("Size 8: Sold out" is now visible in search), and the three checks. Click **Make this fix live on localhost:3002**, wait for the green **Live** badge (about 5 seconds), then open http://localhost:3002/search?q=black+running+shoe in a new tab.
+**~1:50 · The result.** Show the verdict, the **before/after Tempo Lite card** ("Size 8: Sold out" is now visible in search), and the three checks. Click **Make this fix live on localhost:3002** (in the green result under the checklist, or on the fix card), wait for the green **Live** badge (about 5 seconds), then open http://localhost:3002/search?q=black+running+shoe in a new tab.
 
 **2:15 · Does it work?** Click **Fix history** (top right of the dashboard) and open the fix labeled **Demo backup**: the one Droid made earlier and Perry measured. In **Does this fix help the shopping agent?**: 5 runs per store with the same agent, still 100% verified, **7 → 4 steps** and **−37% cost per verified purchase**. Mention that **Measure this fix** runs this comparison live in about 2 minutes.
 
@@ -66,9 +66,9 @@ lsof -ti tcp:3000 -sTCP:LISTEN | xargs kill   # change 3000 to the busy port
 
 | Problem | What to do |
 |---|---|
-| Optimize is still running at ~1:50 | Keep talking, then use the backup fix: under **Fix for this run**, open **Show the saved backup fix** and click **Make this fix live on localhost:3002**. Say it's one Droid made earlier; it is labeled **Replay of an earlier run**. |
-| Optimize says **Fix not accepted** | That's the safety gates working. Show the red reason, then make the backup fix live the same way. |
-| No Wi-Fi | Use the backup fix and its saved measurement; both are labeled as recorded. The Apify section shows "unavailable"; skip it. |
+| Optimize is still running at ~1:50 | Keep talking, then use the backup: click **Fix history**, open the fix labeled **Demo backup**, and click **Make this fix live on localhost:3002**. Say it's one Droid made earlier; it is labeled **Replay of an earlier run**. |
+| The checklist ends with **⛔ Droid's fix didn't pass the checks** | That's the safety gates working; say so and read the **Why** line. If there's time, click **Try again with Droid** (Droid is told why the last attempt failed). Otherwise click **Choose an earlier fix** and make the **Demo backup** live. |
+| No Wi-Fi | Use the **Demo backup** in Fix history and its saved measurement; both are labeled as recorded. The Apify section shows "unavailable"; skip it. |
 | :3002 says "This site can't be reached" | No fix is live yet (normal after a reset). Click **Make this fix live** on the fix you want, wait about 5 seconds, then reload. |
 | :3002 shows the wrong fix | Click **Make this fix live** on the fix you want, wait about 5 seconds, then reload. |
 | A button says **Busy** | Another Optimize, Measure or switch is still running; wait for it. |
