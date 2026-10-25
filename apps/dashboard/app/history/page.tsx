@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import { liveWorktree } from "@/lib/child-process";
 import { type PatchLocation, allPatches, latestBenchmark } from "@/lib/results";
 
-import { LiveBadge, PatchCard, StatusBadge, age, source } from "../patch-panel";
+import { FixBadge, LiveBadge, PatchCard, age, source } from "../patch-panel";
 
 const locationLabel: Record<PatchLocation, string | null> = {
   current: null,
@@ -40,7 +40,8 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
         <h1 className="text-2xl font-semibold tracking-tight">Fix history</h1>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Every fix Factory Droid has produced, newest first: {fixes.filter((p) => p.status === "accepted").length}{" "}
-          accepted, {fixes.filter((p) => p.status !== "accepted").length} not accepted. Open one to see what it
+          passed the safety checks ({fixes.filter((p) => p.measurements[0]?.result.verdict === "improved").length} of
+          them measured to help), {fixes.filter((p) => p.status !== "accepted").length} rejected. Open one to see what it
           changed and the checks it went through.
         </p>
         {tests > 0 && (
@@ -71,7 +72,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
               <li key={p.file}>
                 <details className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
                   <summary className="flex cursor-pointer flex-wrap items-center gap-2 px-4 py-3 text-sm">
-                    <StatusBadge status={p.status} />
+                    <FixBadge patch={p} />
                     {isLive && <LiveBadge />}
                     <span className="font-medium">
                       {p.redTeam ? source(p) : `Droid fix for ${runLabel(p.traceRunId)}`}
