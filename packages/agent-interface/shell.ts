@@ -9,6 +9,11 @@ import { createShopCommand } from "./shop.ts";
 
 export const MAX_OUTPUT_CHARS = 8000;
 
+const TRUNCATION_NOTE = `\n[output truncated at ${MAX_OUTPUT_CHARS} characters; narrow your search with more flags or --limit]`;
+
+const truncate = (text: string) =>
+  text.length > MAX_OUTPUT_CHARS ? text.slice(0, MAX_OUTPUT_CHARS) + TRUNCATION_NOTE : text;
+
 export interface ShellResult {
   /** Truncated to MAX_OUTPUT_CHARS, ending with a truncation note if cut. */
   stdout: string;
@@ -41,7 +46,7 @@ export async function createAgentShell({ storeUrl, cartId }: { storeUrl: string;
       const durationMs = () => Math.round(performance.now() - start);
       try {
         const r = await bash.exec(command);
-        return { stdout: r.stdout, stderr: r.stderr, exitCode: r.exitCode, durationMs: durationMs() };
+        return { stdout: truncate(r.stdout), stderr: truncate(r.stderr), exitCode: r.exitCode, durationMs: durationMs() };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         return { stdout: "", stderr: `shell error: ${message}`, exitCode: 1, durationMs: durationMs() };
