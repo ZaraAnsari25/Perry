@@ -4,6 +4,8 @@ Perry measures how an AI browsing agent completes a real task on a website, diag
 
 North-star metric: **cost per verified successful task**. Speed and token savings count only when the verified cart outcome is unchanged.
 
+Perry also gives agents that use tools a second way in: an **agent interface** of `shop` commands built from the store's own data (its catalog and real cart), never by scraping its pages. Perry then measures the **same agent, same task and same verified cart three ways**: the original website, the Droid-fixed website, and the agent interface. Many agents can only browse, so the website still has to work for them; agents that use tools can use the interface. The Droid fix changes the website's HTML; the agent interface leaves the website alone. Real outside agents (Claude Desktop, Claude Code) can use the same commands through the `perry-shop` MCP server. See [packages/agent-interface](packages/agent-interface/README.md).
+
 ## Ownership
 
 | Path | Owner |
@@ -69,5 +71,6 @@ Every result carries `provenance: "live" | "replay" | "fixture"`. Never present 
 ## Fair-comparison rules
 
 - Same browsing agent in both conditions: same model, prompt, tools and task. Only the website changes.
-- The optimization renders color, size and stock in the search-results HTML; the agent gets no special search tool.
+- The optimization renders color, size and stock in the search-results HTML; the browsing agent gets no special search tool.
+- The agent interface is a separate, third condition: the same model, task and cart check, with one sandboxed bash tool running `shop` commands instead of a browser. It's compared with the website, never mixed into the website conditions.
 - The catalog has exactly one eligible shoe (black, size 8, in stock, under $120); decoys force product-page checks on the baseline.
