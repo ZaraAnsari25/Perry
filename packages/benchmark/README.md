@@ -126,3 +126,28 @@ On the interface, every run took the same path: one `shop search` with the task'
 - 5 runs per condition, one task, one controlled store.
 - The interface's advantage comes partly from structured search running in code, which this task suits well. The website conditions still matter for agents that can only browse.
 - Cost is estimated from list prices. Time includes model API latency.
+
+## Friction store (`STORE_FRICTION=1`)
+
+Setting `STORE_FRICTION=1` gives the storefront two common agent-unfriendly patterns on product pages. Unset (the default), every page renders exactly as before.
+
+- **Size picker** (`apps/storefront/components/size-picker.tsx`): styled `div`s with no `<select>`, `<label>`, radio inputs or ARIA roles. Sold-out sizes are shown only by a strike-through, and the chosen size only by colour.
+- **Promo pop-up** (`apps/storefront/components/promo-modal.tsx`): a "10% off" modal covering the page, including Add to cart, until it's closed. Its only close control is a "×" with no accessible name. It shows once per browser session.
+
+The catalog, cart and task are unchanged. Run it on its own port, e.g. `STORE_FRICTION=1 npm run start -w @agentfix/storefront -- -p 3003`. Measure it with `--out-prefix friction` so the result isn't saved as `benchmark-*`.
+
+### Measured result (2026-10-25, 5 live runs, browser agent, friction store on :3003)
+
+The same agent that completes the normal store every time completed the friction store 3 times out of 5. Result file: `data/results/friction-2026-10-25T10-06-05-143Z.json`.
+
+| Metric | Normal store (three-way result above) | Friction store |
+| --- | --- | --- |
+| Verified completion | 5 / 5 (100%) | 3 / 5 (60%) |
+| Average tool calls | 6.6 | 11.0 |
+| Average tokens | 32,594 | 82,858 |
+| Cost per verified success | $0.00358 | $0.01496 |
+| Median / p95 total time | 9.3 s / 9.5 s | 49.3 s / 63.3 s |
+
+**Why runs failed:** the pop-up mounts after the page loads and covers the size boxes. Every run's first clicks timed out after 10 s each. The successful runs eventually closed the "×", picked size 8 and added to cart. Both failed runs retried and reloaded without noticing the modal, then gave up with an empty cart. One of them also tried to use the size boxes like a dropdown.
+
+**Next:** widening `DROID_ALLOWED_FILES` to these two components (a shared-types change) lets Droid fix them behind the same gates. The fix is then measured the same way.

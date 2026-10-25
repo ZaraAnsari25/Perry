@@ -1,5 +1,11 @@
 import { notFound } from "next/navigation";
+import { PromoModal } from "@/components/promo-modal";
+import { SizePicker } from "@/components/size-picker";
 import { getProduct } from "@/lib/catalog";
+
+// STORE_FRICTION=1 swaps in realistic agent-unfriendly UI (an unlabelled div
+// size picker and a blocking promo pop-up). Unset, the page is unchanged.
+const friction = () => process.env.STORE_FRICTION === "1";
 
 export default async function ProductPage({
   params,
@@ -46,24 +52,29 @@ export default async function ProductPage({
 
       <form action="/api/cart" method="post" className="flex items-end gap-2">
         <input type="hidden" name="slug" value={product.slug} />
-        <div className="flex flex-col gap-1">
-          <label htmlFor="sku" className="text-sm font-medium">
-            Size
-          </label>
-          <select id="sku" name="sku" required className="rounded border border-zinc-300 px-3 py-2">
-            <option value="">Select a size</option>
-            {product.variants.map((v) => (
-              <option key={v.sku} value={v.sku} disabled={v.stock === 0}>
-                {v.size}
-                {v.stock === 0 ? " (sold out)" : ""}
-              </option>
-            ))}
-          </select>
-        </div>
+        {friction() ? (
+          <SizePicker variants={product.variants.map((v) => ({ size: v.size, sku: v.sku, stock: v.stock }))} />
+        ) : (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="sku" className="text-sm font-medium">
+              Size
+            </label>
+            <select id="sku" name="sku" required className="rounded border border-zinc-300 px-3 py-2">
+              <option value="">Select a size</option>
+              {product.variants.map((v) => (
+                <option key={v.sku} value={v.sku} disabled={v.stock === 0}>
+                  {v.size}
+                  {v.stock === 0 ? " (sold out)" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <button type="submit" className="rounded bg-zinc-900 px-4 py-2 text-white">
           Add to cart
         </button>
       </form>
+      {friction() && <PromoModal />}
     </article>
   );
 }
