@@ -8,15 +8,15 @@ export default async function Commands() {
   return (
     <Page>
       <PageHeader
-        title="Skip the web pages: give agents the store's catalog directly"
-        audience="Feature 2 · an even better way, for agents that use tools"
+        title="Give agents a direct line to the store"
+        audience="Feature 2 · for the agent-first internet"
         tone="blue"
       >
-        Fixing the website helped, but the agent still has to read pages built for people. Every online store already
-        keeps all the answers in one place, its product catalog; the website is that catalog drawn as pages. So for agents
-        that can use tools (Claude Desktop, Claude Code, coding agents), Perry has Factory Droid build a direct line to the
-        catalog: a few <code className="font-mono">shop</code> commands that answer straight from it. The website stays
-        exactly as it is.
+        Feature 1 makes today&apos;s websites work better for agents. Feature 2 is built for the agent-first internet, where
+        agents skip pages made for people and ask the store directly. Every online store already keeps its answers in one
+        place, its product catalog. So for agents that can use tools (Claude Desktop, Claude Code, coding agents), Perry has
+        Factory Droid build a few <code className="font-mono">shop</code> commands that answer straight from it. The two
+        work side by side: the website stays exactly as it is for every agent that still browses.
       </PageHeader>
       <CommandsSection now={Date.now()} />
       <Pager back={{ href: "/website", label: "Feature 1: Fix the website" }} next={{ href: "/results", label: "Results" }} />

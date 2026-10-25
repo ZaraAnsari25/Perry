@@ -202,7 +202,7 @@ export function LiveAction({
   const reason = /^(rejected|failed): (.+)$/m.exec(log)?.[2];
 
   return (
-    <div className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50/60 p-4 dark:border-zinc-800 dark:bg-zinc-950/30">
+    <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"

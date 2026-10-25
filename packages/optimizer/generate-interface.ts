@@ -181,7 +181,7 @@ function summarizeTests(output: string): { pass: number; fail: number; failing: 
 export async function runContractGate(interfaceDir: string, impl: string): Promise<{ ok: boolean; detail: string }> {
   const env = testEnv({ SHOP_IMPL: impl });
   delete env.STORE_URL;
-  const out = await run(process.execPath, ["--test", "search.test.ts", "shop.test.ts"], {
+  const out = await run(process.execPath, ["--test", "--test-reporter=tap", "search.test.ts", "shop.test.ts"], {
     cwd: interfaceDir,
     env,
     maxBuffer: 64 << 20,
@@ -199,7 +199,7 @@ export async function runContractGate(interfaceDir: string, impl: string): Promi
 /** The integration test against a running store: a real add lands, refusals don't change the cart, verifyCart succeeds. */
 export async function runIntegrationGate(interfaceDir: string, impl: string, storeUrl: string): Promise<{ ok: boolean; detail: string }> {
   const env = testEnv({ SHOP_IMPL: impl, STORE_URL: storeUrl });
-  const out = await run(process.execPath, ["--test", "--test-name-pattern=integration", "shop.test.ts"], {
+  const out = await run(process.execPath, ["--test", "--test-reporter=tap", "--test-name-pattern=integration", "shop.test.ts"], {
     cwd: interfaceDir,
     env,
     maxBuffer: 16 << 20,

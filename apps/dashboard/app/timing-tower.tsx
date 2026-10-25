@@ -64,7 +64,7 @@ export function TimingTower({
     e.a === null ? "plain" : !ranked ? (e.wasted ? "plain" : "baseline") : e.baseline ? "baseline" : rankOf.get(e.label) === 0 ? "best" : "improved";
 
   return (
-    <figure className="rounded-2xl bg-carbon p-5 text-carbon-text shadow-[0_30px_60px_-30px_rgba(13,17,23,0.55)] sm:p-6">
+    <figure className="@container rounded-2xl bg-carbon p-5 text-carbon-text shadow-[0_30px_60px_-30px_rgba(13,17,23,0.55)] sm:p-6">
       <figcaption className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[11px] tracking-[0.08em] text-carbon-muted uppercase">
         <span>{label}</span>
         <span>{status}</span>
@@ -86,11 +86,11 @@ export function TimingTower({
                 href={e.href ?? ""}
                 scroll={e.href ? false : undefined}
                 aria-current={e.current ? "true" : undefined}
-                className={`grid h-full grid-cols-[2.25rem_minmax(0,8rem)_1fr_auto] items-center gap-3 sm:grid-cols-[2.5rem_11rem_1fr_5.5rem_4rem_6.5rem] sm:gap-4 ${
+                className={`grid h-full grid-cols-[2.25rem_minmax(0,8rem)_1fr_auto] items-center gap-3 @2xl:grid-cols-[2.5rem_11rem_1fr_5.5rem_4rem_6.5rem] @2xl:gap-4 ${
                   e.href ? "-mx-2 rounded-lg px-2 transition-colors hover:bg-carbon-seam/60" : ""
                 } ${e.current ? "bg-carbon-seam/70" : ""}`}
               >
-                <span className="font-mono text-sm font-semibold text-carbon-muted tabular-nums sm:text-base">
+                <span className="font-mono text-sm font-semibold text-carbon-muted tabular-nums @2xl:text-base">
                   {ranked ? (allRun && settled ? `P${rank + 1}` : "P–") : `${demoIndex + 1}`}
                 </span>
                 <span className="min-w-0">
@@ -110,17 +110,23 @@ export function TimingTower({
                         ))
                       : Array.from({ length: 6 }, (_, s) => <span key={s} className="flex-1 rounded-[3px] bg-carbon-seam" />)}
                   </span>
-                  <span className="mt-1.5 block font-mono text-[11px] whitespace-nowrap text-carbon-muted tabular-nums">
+                  <span className="mt-1.5 block truncate font-mono text-[11px] text-carbon-muted tabular-nums">
                     {e.a ? `${e.a.steps.toFixed(1)} steps · ${e.a.verified}/${e.a.runs} verified` : "not run yet"}
                   </span>
+                  {/* Narrow towers have no tokens and time columns, so they go here. */}
+                  {e.a && (
+                    <span className="block truncate font-mono text-[11px] text-carbon-muted tabular-nums @2xl:hidden">
+                      {Math.round(e.a.tokens).toLocaleString("en-US")} tok · {e.a.seconds.toFixed(1)}s
+                    </span>
+                  )}
                 </span>
-                <span className="hidden text-right font-mono text-xs text-carbon-muted tabular-nums sm:block">
+                <span className="hidden text-right font-mono text-xs text-carbon-muted tabular-nums @2xl:block">
                   {e.a ? `${Math.round(e.a.tokens).toLocaleString("en-US")} tok` : "—"}
                 </span>
-                <span className="hidden text-right font-mono text-xs text-carbon-muted tabular-nums sm:block">
+                <span className="hidden text-right font-mono text-xs text-carbon-muted tabular-nums @2xl:block">
                   {e.a ? `${e.a.seconds.toFixed(1)}s` : "—"}
                 </span>
-                <span className={`text-right font-mono text-base font-semibold tabular-nums sm:text-lg ${tone[k].text}`}>
+                <span className={`text-right font-mono text-base font-semibold tabular-nums @2xl:text-lg ${tone[k].text}`}>
                   {money(e.a?.costPerPurchase)}
                 </span>
               </Row>

@@ -45,11 +45,12 @@ export default async function Website({ searchParams }: { searchParams: Promise<
 
   return (
     <Page>
-      <PageHeader title="Droid fixes the website" audience="Feature 1 · for agents that browse websites" tone="violet">
-        Many AI agents, such as ChatGPT&apos;s agent and Claude in Chrome, can only use a store the way a person does: load
-        a page, read it, click. Perry hands Step 1&apos;s diagnosis to Factory Droid, an AI coding agent, which edits the
-        store&apos;s own search page so the agent finds its answer sooner. The website changes; the agents don&apos;t need
-        anything new.
+      <PageHeader title="Droid fixes the website" audience="Feature 1 · for today's internet" tone="violet">
+        We built two complementary approaches: one for the internet as it is today, and one for the agent-first internet
+        we see coming. This is the first. Today, most AI agents, such as ChatGPT&apos;s agent and Claude in Chrome, shop the
+        way a person does: load a page, read it, click. Perry hands Step 1&apos;s diagnosis to Factory Droid, an AI coding
+        agent, which edits the store&apos;s own search page so these agents find their answer sooner. The agents don&apos;t
+        need anything new.
       </PageHeader>
 
       <Card className="space-y-0 p-0 sm:p-0">

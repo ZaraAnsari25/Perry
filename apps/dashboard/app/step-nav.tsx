@@ -40,13 +40,17 @@ export function StepNav({ progress }: { progress: Progress }) {
                 <span className="flex items-center gap-1.5">
                   {"n" in s && <span className="font-mono text-[11px] tabular-nums">{s.n}</span>}
                   {s.label}
-                  {done && <span className="sr-only">(done)</span>}
+                  {done && (
+                    <span className="text-perry" title="Done in this demo session">
+                      <span aria-hidden>✓</span>
+                      <span className="sr-only">(done)</span>
+                    </span>
+                  )}
                 </span>
+                {/* Only the page you're on is underlined; done steps get a check instead. */}
                 <span aria-hidden className="mt-2 block h-1 overflow-hidden rounded-full bg-seam">
                   <span
-                    className={`block h-full rounded-full transition-[width,background-color] duration-[600ms] ease-[var(--ease-timing)] ${
-                      done ? "w-full bg-perry" : current ? "w-1/3 bg-ink" : "w-0"
-                    }`}
+                    className={`block h-full rounded-full bg-ink transition-[width] duration-300 ${current ? "w-full" : "w-0"}`}
                   />
                 </span>
               </Link>

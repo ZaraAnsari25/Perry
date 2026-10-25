@@ -104,21 +104,21 @@ export async function CommandsSection({ now }: { now: number }) {
 
   return (
     <div className="space-y-6">
-      <WhyItWorks result={recorded?.result ?? null} outside={outside} backupOutside={backupOutside} now={now} />
-
       <HowDroidBuildsIt gen={generated} backup={backupGen} backupRun={backupRun} now={now} />
-      {/* Appears once Droid's commands pass in this demo session (always, before the first reset). */}
-      {(generated?.status === "accepted" || !earlier) && <RunStory run={run} now={now} />}
+      {/* Appears only once Droid's commands pass every check. */}
+      {generated?.status === "accepted" && <RunStory run={run} now={now} />}
 
-      {guide && (
-        <details className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <summary className="cursor-pointer text-sm font-semibold">
-            What the agent is told first
-            <span className="ml-2 text-xs font-normal text-zinc-500">
-              the short guide in its first message
-            </span>
-          </summary>
-          <div className="mt-3 space-y-2">
+      {/* The explanations, folded so the page leads with what you can do. */}
+      <div className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
+        <Fold title="Why commands are cheaper than browsing" hint="browsing vs. commands, side by side">
+          <WhyItWorks result={recorded?.result ?? null} />
+        </Fold>
+        <Fold title="How any AI agent uses them: MCP" hint="Claude Desktop, Claude Code and other MCP apps">
+          <AnyAgent outside={outside} backup={backupOutside} now={now} />
+        </Fold>
+        {guide && (
+        <Fold title="What the agent is told first" hint="the short guide in its first message">
+          <div className="space-y-2">
             <p className="text-xs text-zinc-500">
               Generated from the store&apos;s catalog{" "}
               {age(guide.generatedAt, now)}, with a real example search. Agents
@@ -130,9 +130,26 @@ export async function CommandsSection({ now }: { now: number }) {
               {guide.guide}
             </pre>
           </div>
-        </details>
-      )}
+        </Fold>
+        )}
+      </div>
     </div>
+  );
+}
+
+/** A collapsed section: a title row that opens to the details. */
+function Fold({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {
+  return (
+    <details className="group px-5 py-4">
+      <summary className="flex cursor-pointer list-none items-baseline gap-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+        <span aria-hidden className="text-zinc-400 transition-transform group-open:rotate-90">
+          ›
+        </span>
+        {title}
+        <span className="text-xs font-normal text-zinc-500">{hint}</span>
+      </summary>
+      <div className="mt-4 space-y-4">{children}</div>
+    </details>
   );
 }
 
@@ -157,17 +174,7 @@ function Flow({ steps, tone }: { steps: string[]; tone: string }) {
 }
 
 /** Browsing vs. commands, side by side, with the recorded averages when there are some. */
-function WhyItWorks({
-  result,
-  outside,
-  backupOutside,
-  now,
-}: {
-  result: BenchmarkResult | null;
-  outside: OutsideAgentCheck | null;
-  backupOutside: OutsideAgentCheck | null;
-  now: number;
-}) {
+function WhyItWorks({ result }: { result: BenchmarkResult | null }) {
   const browse = result?.patched
     ? averages(result.patched.runs)
     : result
@@ -180,10 +187,7 @@ function WhyItWorks({
   const pageCount = (a: RunAverages) =>
     `${a.steps.toFixed(1)} steps · ${whole(a.tokens)} tokens`;
   return (
-    <Card>
-      <h3 className="font-semibold">
-        Why this works, and how any agent can use it
-      </h3>
+    <>
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
           <p className="text-sm font-medium">
@@ -259,8 +263,7 @@ function WhyItWorks({
         Perry&apos;s written standard keeps the commands the same everywhere, so
         any agent already knows how to use them.
       </p>
-      <AnyAgent outside={outside} backup={backupOutside} now={now} />
-    </Card>
+    </>
   );
 }
 
@@ -333,9 +336,7 @@ function HowDroidBuildsIt({
         )}
       </div>
       <p className="max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
-        No one hand-writes commands for a store. Droid writes them from the
-        store&apos;s code, and Perry lets agents use them only after they pass
-        every check. The same steps work for any store.
+        Agents only get Droid&apos;s commands after they pass every check. The same steps work for any store.
       </p>
       <ol className="grid gap-3 lg:grid-cols-3">
         <Step n={1} title="Droid reads the store">
@@ -343,9 +344,6 @@ function HowDroidBuildsIt({
             {reads.map((r) => (
               <li key={r.file}>
                 <span className="font-medium">{r.what}</span>: {r.note}
-                <code className="block font-mono text-[11px] text-zinc-500">
-                  {r.file}
-                </code>
               </li>
             ))}
           </ul>
@@ -697,12 +695,7 @@ type CommandRun = { trace: AgentTrace; file: string; result: BenchmarkResult };
 function RunStory({ run, now }: { run: CommandRun | null; now: number }) {
   return (
     <Card>
-      <div className="space-y-1">
-        <h3 className="font-semibold">Try it: watch the agent shop with Droid&apos;s commands</h3>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          The same agent and task as Step 1, using the commands instead of the website.
-        </p>
-      </div>
+      <h3 className="font-semibold">Try it: watch the agent shop with Droid&apos;s commands</h3>
       <LiveAction kind="try" />
       {run ? <RunBody {...run} now={now} /> : <p className="text-sm text-zinc-500">No run yet in this demo session.</p>}
     </Card>
@@ -883,8 +876,7 @@ function AnyAgent({
   now: number;
 }) {
   return (
-    <div className="space-y-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-      <h4 className="font-medium">How any AI agent uses them: MCP</h4>
+    <div className="space-y-4">
       <p className="max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
         MCP (Model Context Protocol) is the open standard AI apps use to plug in
         tools. Perry serves the same commands as an MCP server called{" "}
