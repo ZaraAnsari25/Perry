@@ -50,7 +50,9 @@ function progress(log: string): { steps: Step[]; outcome?: { ok: boolean; text: 
     return { label: s.label, state, detail: i === 1 ? droidDetail : i === firstOpen && failure ? failure.replace(/^(rejected|failed): /, "") : undefined };
   });
 
-  if (status === "accepted") return { steps, outcome: { ok: true, text: "Fix accepted. See the result below." } };
+  if (status === "accepted") {
+    return { steps, outcome: { ok: true, text: "The fix passed every safety check. See it below; measure it to find out whether it helps." } };
+  }
   if (status) return { steps, outcome: { ok: false, text: "Fix not accepted. See why below." } };
   return { steps };
 }

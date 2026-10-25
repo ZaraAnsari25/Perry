@@ -1,4 +1,4 @@
-import type { PatchStatus, VariantSummary } from "@agentfix/shared";
+import type { VariantSummary } from "@agentfix/shared";
 import Link from "next/link";
 
 import type { Measurement, SavedPatch } from "@/lib/results";
@@ -6,17 +6,57 @@ import type { Measurement, SavedPatch } from "@/lib/results";
 import { MakeLiveButton } from "./make-live-button";
 import { MeasureButton } from "./measure-button";
 
-const statusTone: Record<PatchStatus, string> = {
-  accepted: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
-  rejected: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-  failed: "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200",
+const tone = {
+  good: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
+  bad: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
+  neutral: "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200",
+  pending: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
 };
 
-const verdict: Record<PatchStatus, string> = {
-  accepted: "Accepted: the fix passed every check.",
-  rejected: "Rejected: the fix failed a check, so it was not used.",
-  failed: "Droid did not finish, so there is no fix to check.",
-};
+/**
+ * What a fix has shown so far. Passing the checks proves a fix is safe, not
+ * that it helps; only a measurement (same agent on both stores) shows that.
+ */
+function fixState(patch: SavedPatch): { label: string; tone: keyof typeof tone; sentence: string } {
+  if (patch.status === "rejected") {
+    return { label: "Rejected", tone: "bad", sentence: "Rejected: the fix failed a check, so it was not used." };
+  }
+  if (patch.status === "failed") {
+    return { label: "Failed", tone: "neutral", sentence: "Droid did not finish, so there is no fix to check." };
+  }
+  const m = patch.measurements[0]?.result;
+  if (!m?.patched) {
+    return {
+      label: "Safe · not measured yet",
+      tone: "pending",
+      sentence: "Passed every safety check. Measure it to find out whether it actually helps the shopping agent.",
+    };
+  }
+  if (m.verdict === "improved") {
+    const pct = (before: number, after: number) => Math.round((1 - after / before) * 100);
+    const cost =
+      m.baseline.costPerVerifiedSuccessUsd && m.patched.costPerVerifiedSuccessUsd
+        ? `, ${pct(m.baseline.costPerVerifiedSuccessUsd, m.patched.costPerVerifiedSuccessUsd)}% cheaper per verified purchase`
+        : "";
+    return {
+      label: "Improved",
+      tone: "good",
+      sentence: `Safe, and measured to help: ${pct(m.baseline.avgToolCalls, m.patched.avgToolCalls)}% fewer steps${cost}.`,
+    };
+  }
+  if (m.verdict === "regressed") {
+    return {
+      label: "Safe · made it worse",
+      tone: "bad",
+      sentence: "Safe, but the shopping agent did worse with it. Don't keep it.",
+    };
+  }
+  return {
+    label: "Safe · didn't clearly help",
+    tone: "neutral",
+    sentence: "Safe, but measuring showed no clear improvement for the shopping agent.",
+  };
+}
 
 // The three gates, in plain words. The keys match PatchResult.checks.
 const gates = [
@@ -85,7 +125,7 @@ export function PatchPanel({
               <li key={p.file}>
                 <details className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
                   <summary className="flex cursor-pointer flex-wrap items-center gap-2 px-4 py-2 text-sm">
-                    <StatusBadge status={p.status} />
+                    <FixBadge patch={p} />
                     <span>{source(p)}</span>
                     <span className="text-xs text-zinc-500">generated {age(p.createdAt, now)}</span>
                     {live !== undefined && p.worktreePath === live && <LiveBadge />}
@@ -103,12 +143,9 @@ export function PatchPanel({
   );
 }
 
-export function StatusBadge({ status }: { status: PatchStatus }) {
-  return (
-    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${statusTone[status]}`}>
-      {status}
-    </span>
-  );
+export function FixBadge({ patch }: { patch: SavedPatch }) {
+  const state = fixState(patch);
+  return <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${tone[state.tone]}`}>{state.label}</span>;
 }
 
 function NoPatch() {
@@ -144,7 +181,7 @@ export function PatchCard({
     <article className="space-y-5 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <header className="space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge status={patch.status} />
+          <FixBadge patch={patch} />
           {replay && (
             <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
               Replay of an earlier run
@@ -155,7 +192,7 @@ export function PatchCard({
             {source(patch)} · generated {age(patch.createdAt, now)}
           </span>
         </div>
-        <p className="text-base font-medium">{verdict[patch.status]}</p>
+        <p className="text-base font-medium">{fixState(patch).sentence}</p>
       </header>
 
       {isLive ? (
