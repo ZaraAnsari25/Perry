@@ -8,6 +8,7 @@
 //   ... -- --hostile catalog|price|stock                        # apply a scripted hostile patch instead of Droid
 //   ... -- --keep-rejected                                      # keep the worktree of a rejected patch
 //   ... -- --benchmark benchmark-<time>.json --run 3            # optimize baseline run 3 of a saved benchmark
+//   ... -- --retry-of data/results/patch-<time>.json            # retry a fix that was not accepted, telling Droid why
 //
 // Each result is saved to data/results/patch-<time>.json for the dashboard,
 // with the progress log. The dashboard's Optimize button runs this script.
@@ -19,7 +20,7 @@ import { fileURLToPath } from "node:url";
 import { type AgentTrace, type BenchmarkResult, DROID_ALLOWED_FILES } from "@agentfix/shared";
 import { sampleTrace } from "@agentfix/shared/fixtures";
 
-import { optimize } from "../index.ts";
+import { optimize, retryFeedback } from "../index.ts";
 import { HOSTILE_PATCHES, type HostilePatchName, applyHostilePatch } from "../red-team.ts";
 
 const repoPath = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -40,6 +41,20 @@ function pickTrace(): AgentTrace {
   return trace;
 }
 const trace = pickTrace();
+
+// A retry tells Droid why the previous attempt was not accepted.
+const retryOf = arg("--retry-of");
+if (retryOf !== undefined && !/^data\/results\/(?:backup\/|archive\/)?patch-[\w.-]+\.json$/.test(retryOf)) {
+  throw new Error(`Not a saved fix result: ${retryOf}`);
+}
+const previous = retryOf
+  ? (JSON.parse(readFileSync(join(repoPath, retryOf), "utf8")) as Parameters<typeof retryFeedback>[0] & {
+      status: string;
+      attempt?: number;
+    })
+  : undefined;
+if (previous?.status === "accepted") throw new Error(`${retryOf} was accepted; there is nothing to retry.`);
+const attempt = (previous?.attempt ?? 1) + (previous ? 1 : 0);
 const serve = process.argv.includes("--serve");
 const port = arg("--port") ? Number(arg("--port")) : undefined;
 const hostileName = arg("--hostile");
@@ -58,6 +73,7 @@ Make whatever edits are needed. Do not run shell commands. Reply with a short su
 
 const log: string[] = [];
 console.log(`trace:      ${trace.runId} (${trace.provenance})`);
+if (previous) console.log(`retry:      attempt ${attempt}, after ${retryOf}`);
 const result = await optimize(
   { trace, repoPath, allowedFiles: [...DROID_ALLOWED_FILES] },
   {
@@ -70,6 +86,7 @@ const result = await optimize(
       console.log(line);
     },
     prompt: redTeam && !hostile ? redTeamPrompt : undefined,
+    feedback: previous ? retryFeedback(previous) : undefined,
     simulatedPatch: hostile && {
       description: hostile.description,
       apply: (worktree) => applyHostilePatch(worktree, hostile),
@@ -81,7 +98,7 @@ mkdirSync(resultsDir, { recursive: true });
 const saved = join(resultsDir, `patch-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
 writeFileSync(
   saved,
-  `${JSON.stringify({ ...result, traceRunId: trace.runId, redTeam, hostile: hostileName, log, createdAt: new Date().toISOString() }, null, 2)}\n`,
+  `${JSON.stringify({ ...result, traceRunId: trace.runId, redTeam, hostile: hostileName, attempt, retryOf, log, createdAt: new Date().toISOString() }, null, 2)}\n`,
 );
 
 console.log("\n--- diff ---");

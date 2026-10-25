@@ -1,7 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+import { MakeLiveButton } from "./make-live-button";
+
+/** A first attempt plus two retries; matches the optimize route's cap. */
+const MAX_ATTEMPTS = 3;
 
 type RunState = "idle" | "running" | "done" | "error";
 type StepState = "pending" | "active" | "done" | "failed";
@@ -29,7 +35,7 @@ const LOOKS = /^\[tool\] (Read|Grep|Glob|LS)\b/;
 const EDITS = /^\[tool\] (ApplyPatch|Edit|Create|MultiEdit)\b/;
 
 /** Turns the streamed run log into a plain-language checklist. */
-function progress(log: string): { steps: Step[]; outcome?: { ok: boolean; text: string } } {
+function progress(log: string): { steps: Step[]; outcome?: { ok: boolean; text: string; reason?: string } } {
   const lines = log.split("\n");
   const done = STEPS.map((s) => s.done(lines));
   const firstOpen = done.indexOf(false);
@@ -51,10 +57,29 @@ function progress(log: string): { steps: Step[]; outcome?: { ok: boolean; text: 
   });
 
   if (status === "accepted") {
-    return { steps, outcome: { ok: true, text: "The fix passed every safety check. See it below; measure it to find out whether it helps." } };
+    return {
+      steps,
+      outcome: { ok: true, text: "The fix passed every safety check. Make it live to try it, then measure whether it helps." },
+    };
   }
-  if (status) return { steps, outcome: { ok: false, text: "Fix not accepted. See why below." } };
+  if (status) {
+    return {
+      steps,
+      outcome: {
+        ok: false,
+        text: "Droid's fix didn't pass the checks, so it wasn't used. Nothing on the store changed.",
+        reason: failure?.replace(/^(rejected|failed): /, ""),
+      },
+    };
+  }
   return { steps };
+}
+
+/** The saved result file and attempt number, read from the run log. */
+function resultInfo(log: string): { file?: string; attempt: number } {
+  const file = /^saved:\s+.*?(data\/results\/patch-[\w.-]+\.json)\s*$/m.exec(log)?.[1];
+  const attempt = Number(/^retry:\s+attempt (\d+)/m.exec(log)?.[1] ?? 1);
+  return { file, attempt };
 }
 
 const icon: Record<StepState, string> = { pending: "○", active: "◐", done: "✓", failed: "✗" };
@@ -65,20 +90,38 @@ const tone: Record<StepState, string> = {
   failed: "text-red-600 dark:text-red-400",
 };
 
-/** Runs optimize() on the shown trace through /api/optimize and shows its progress. */
-export function OptimizeButton({ benchmark, run }: { benchmark?: string; run?: number }) {
+/**
+ * Runs optimize() on the shown trace through /api/optimize and shows its
+ * progress, then the next step: make an accepted fix live, or try again (Droid
+ * is told why the last attempt failed) or choose an earlier fix.
+ */
+export function OptimizeButton({
+  benchmark,
+  run,
+  retryOf,
+  attempt: retryAttempt = 1,
+  hasEarlierFixes,
+}: {
+  benchmark?: string;
+  run?: number;
+  /** A fix that wasn't accepted: the button then retries it instead of starting fresh. */
+  retryOf?: string;
+  /** Attempt number of retryOf. */
+  attempt?: number;
+  hasEarlierFixes: boolean;
+}) {
   const router = useRouter();
   const [state, setState] = useState<RunState>("idle");
   const [log, setLog] = useState("");
 
-  async function start() {
+  async function start(previous?: string) {
     setState("running");
     setLog("");
     try {
       const response = await fetch("/api/optimize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(benchmark ? { benchmark, run } : {}),
+        body: JSON.stringify({ ...(benchmark ? { benchmark, run } : {}), ...(previous ? { retryOf: previous } : {}) }),
       });
       if (!response.body) throw new Error(`HTTP ${response.status}`);
       const reader = response.body.getReader();
@@ -91,7 +134,7 @@ export function OptimizeButton({ benchmark, run }: { benchmark?: string; run?: n
         setLog(text);
       }
       setState(response.ok ? "done" : "error");
-      // Show the saved result in the Patch section.
+      // Show the saved result in the fix section.
       router.refresh();
     } catch (error) {
       setLog((prev) => `${prev}\n${error instanceof Error ? error.message : String(error)}`);
@@ -101,26 +144,38 @@ export function OptimizeButton({ benchmark, run }: { benchmark?: string; run?: n
 
   const { steps, outcome } = progress(log);
   const refused = state === "error" && !log.includes("worktree:");
+  const result = resultInfo(log);
+  const isRetry = retryOf !== undefined;
+  const nextAttempt = (isRetry ? retryAttempt : 0) + 1;
 
   return (
     <div className="space-y-4 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={start}
-          disabled={state === "running"}
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-        >
-          {state === "running" ? "Optimizing…" : "Optimize with Factory Droid"}
-        </button>
+      {state === "idle" && (
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => start(retryOf)}
+            disabled={isRetry && nextAttempt > MAX_ATTEMPTS}
+            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          >
+            {isRetry ? "Try again with Droid" : "Optimize with Factory Droid"}
+          </button>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            {!isRetry
+              ? "Factory Droid fixes a copy of the store; Perry checks the fix before accepting it."
+              : nextAttempt > MAX_ATTEMPTS
+                ? `Droid has tried ${MAX_ATTEMPTS} times for this run.`
+                : `Droid tries again and is told why the last attempt wasn't accepted (attempt ${nextAttempt} of ${MAX_ATTEMPTS}).`}
+          </p>
+          {isRetry && hasEarlierFixes && <EarlierFixesLink />}
+        </div>
+      )}
+
+      {state === "running" && (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          {state === "idle"
-            ? "Factory Droid fixes a copy of the store; Perry checks the fix before accepting it."
-            : state === "running"
-              ? "Usually takes about a minute."
-              : null}
+          {log.includes("retry:") ? "Droid is trying again with feedback. " : "Optimizing. "}Usually takes about a minute.
         </p>
-      </div>
+      )}
 
       {state !== "idle" && (
         <div aria-live="polite" className="space-y-3">
@@ -142,18 +197,52 @@ export function OptimizeButton({ benchmark, run }: { benchmark?: string; run?: n
               ))}
             </ol>
           )}
-          {outcome && (
-            <p
-              className={`rounded-md px-3 py-2 text-sm font-medium ${
-                outcome.ok
-                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
-                  : "bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300"
-              }`}
-            >
-              {outcome.ok ? "✅ " : "⛔ "}
-              {outcome.text}
-            </p>
+
+          {outcome?.ok && (
+            <div className="space-y-2 rounded-md bg-emerald-50 px-3 py-2 dark:bg-emerald-950/40">
+              <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">✅ {outcome.text}</p>
+              {result.file && <MakeLiveButton file={result.file} />}
+            </div>
           )}
+
+          {outcome && !outcome.ok && (
+            <div className="space-y-2 rounded-md bg-red-50 px-3 py-2 dark:bg-red-950/40">
+              <p className="text-sm font-medium text-red-800 dark:text-red-300">⛔ {outcome.text}</p>
+              {outcome.reason && <p className="text-xs text-red-900 dark:text-red-200">Why: {outcome.reason}</p>}
+              <div className="flex flex-wrap items-center gap-3">
+                {result.file && result.attempt < MAX_ATTEMPTS ? (
+                  <button
+                    type="button"
+                    onClick={() => start(result.file)}
+                    className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+                  >
+                    Try again with Droid
+                  </button>
+                ) : (
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                    Droid has tried {MAX_ATTEMPTS} times for this run.
+                  </span>
+                )}
+                {result.file && result.attempt < MAX_ATTEMPTS && (
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                    Droid is told why this attempt wasn&apos;t accepted (attempt {result.attempt + 1} of {MAX_ATTEMPTS}).
+                  </span>
+                )}
+                {hasEarlierFixes && <EarlierFixesLink />}
+              </div>
+            </div>
+          )}
+
+          {state !== "running" && !outcome && !refused && (
+            <button
+              type="button"
+              onClick={() => start(retryOf)}
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700"
+            >
+              Run again
+            </button>
+          )}
+
           {log && !refused && (
             <details className="text-xs">
               <summary className="cursor-pointer text-zinc-500">Show technical log</summary>
@@ -165,5 +254,13 @@ export function OptimizeButton({ benchmark, run }: { benchmark?: string; run?: n
         </div>
       )}
     </div>
+  );
+}
+
+function EarlierFixesLink() {
+  return (
+    <Link href="/history" className="text-sm font-medium text-blue-700 underline dark:text-blue-400">
+      Choose an earlier fix
+    </Link>
   );
 }

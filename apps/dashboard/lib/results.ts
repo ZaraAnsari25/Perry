@@ -27,6 +27,10 @@ export interface SavedPatch extends PatchResult {
   location: PatchLocation;
   /** Before/after measurements of this fix (compare runs), newest first. */
   measurements: Measurement[];
+  /** 1 for a first try; 2 or 3 for retries after a fix that wasn't accepted. */
+  attempt?: number;
+  /** The fix this one retried, if any. */
+  retryOf?: string;
 }
 
 export type PatchLocation = "current" | "backup" | "archive";
@@ -118,14 +122,6 @@ export function recentPatches(limit = 50): Promise<SavedPatch[]> {
 export async function allPatches(): Promise<SavedPatch[]> {
   const all = (await Promise.all((["current", "backup", "archive"] as const).map((l) => readPatches(l, 500)))).flat();
   return all.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-}
-
-/**
- * A fix generated earlier and kept as a demo fallback, in data/results/backup/.
- * Shown only on request and labeled as a replay, never as the current fix.
- */
-export async function backupPatch(): Promise<SavedPatch | null> {
-  return (await readPatches("backup", 1))[0] ?? null;
 }
 
 /**
