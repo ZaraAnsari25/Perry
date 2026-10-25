@@ -7,8 +7,9 @@
     ".": "./index.ts"
   },
   "scripts": {
-    "test": "node --test index.test.ts",
-    "bench": "node --env-file-if-exists=../../.env scripts/run.ts"
+    "test": "node --test index.test.ts interface.test.ts",
+    "bench": "node --env-file-if-exists=../../.env scripts/run.ts",
+    "bench:interface": "node --env-file-if-exists=../../.env scripts/run-interface.ts"
   },
   "dependencies": {
     "@agentfix/agent-runner": "*",

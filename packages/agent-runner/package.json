@@ -4,11 +4,13 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./cli": "./cli.ts"
   },
   "scripts": {
-    "test": "node --test index.test.ts",
-    "run-task": "node --env-file-if-exists=../../.env scripts/run.ts"
+    "test": "node --test index.test.ts cli.test.ts",
+    "run-task": "node --env-file-if-exists=../../.env scripts/run.ts",
+    "run-cli": "node --env-file-if-exists=../../.env scripts/run-cli.ts"
   },
   "dependencies": {
     "@agentfix/agent-interface": "*",
