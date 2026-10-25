@@ -4,6 +4,8 @@ Owner: **Person A**. Person A (Zara), branch `feat/agent-benchmark`. Person B do
 
 - `benchmark(input, onRun?)`: runs the agent `repetitions` times on one storefront, one run after another. The summary goes in `BenchmarkResult.baseline`, per the contract, whichever version was run.
 - `compare(input, onRun?)`: runs the baseline and patched storefronts alternately (baseline, patched, baseline, …) with the same agent and task, and returns a `verdict`.
+- `benchmarkInterface(input, onRun?)` (`interface.ts`): runs the CLI-mode agent (`runTaskCli`) through the store's agent interface `repetitions` times. The summary goes in `baseline` with `siteVersion: "agent-interface"`.
+- `compareThree(input, onRun?)` (`interface.ts`): original website, Droid-fixed website and agent interface in rotation, with `verdict` (fixed vs original) and `agentInterfaceVerdict` (interface vs original). It checks that both stores respond before any paid run.
 - `onRun` is called after each run, so traces can be saved before the benchmark finishes.
 
 **Verdict:** `improved` only if the verified completion rate doesn't drop **and** cost per verified success falls by more than 5% (`NOISE_MARGIN`). A lower completion rate is always `regressed`.
@@ -20,7 +22,12 @@ npm run bench -w @agentfix/benchmark -- --reps 2                    # baseline o
 npm run bench -w @agentfix/benchmark -- --reps 5 --compare          # baseline vs PATCHED_URL
 ```
 
-Results are saved to `data/results/`: each run as `trace-*.json`, and the summary as `benchmark-*.json` or `compare-*.json`.
+```bash
+npm run bench:interface -w @agentfix/benchmark -- --reps 2          # agent interface only, on BASELINE_URL
+npm run bench:interface -w @agentfix/benchmark -- --reps 5 --three  # original vs fixed vs interface (15 runs)
+```
+
+Results are saved to `data/results/`: each run as `trace-*.json`, and the summary as `benchmark-*.json` or `compare-*.json`. The agent-interface scripts save `interface-*.json` and `compare3-*.json` instead, never `benchmark-*` or `compare-*`, which the dashboard reads as browser runs.
 
 ## Methodology
 
@@ -74,3 +81,48 @@ Diagnosis on a baseline trace: the agent opened 4 product pages to buy 1 product
 - One task on one controlled storefront; results don't automatically carry over to other sites or tasks.
 - Cost is estimated from list prices, not billed amounts.
 - Latency includes model API response time, which varies with load. Tool calls, tokens and verified completion are the more stable comparison.
+
+## Agent interface and three-way comparison
+
+`compareThree` measures the same task three ways: **(1)** the original website, **(2)** the Droid-fixed website and **(3)** the store's agent interface.
+
+**What the agent gets in condition 3:**
+
+- **One `bash` tool** (plus `done`) in a sandboxed fake shell (`@agentfix/agent-interface`, built on `just-bash`). There's no real shell, no store files, no network access and no JavaScript/Python runtime, and long outputs are truncated.
+- **`shop` commands** built from the store's own catalog and cart (`shop search`, `shop product`, `shop cart add`, `shop cart show`, `shop checkout --dry-run`). The agent learns them from a short guide in its first message. The guide is generated from the catalog and doesn't name the answer.
+- **`shop cart add <SKU>`** posts to the storefront's existing `POST /api/cart` under the run's own `cart_id`. Checkout is dry-run only, so no order is ever placed.
+
+**Held constant across all three:** model (`claude-haiku-5-5`), effort (`medium`), task text, the 25-step limit, list-price cost accounting, and the verifier. A run succeeds only if `GET /api/cart` for that run's cart holds exactly the expected SKU × 1. Interface runs buy from the original store's cart (`:3001`).
+
+**Run order:** each repetition runs original, then fixed, then interface, so drift in API latency over the session affects all three equally.
+
+**Fairness note:** condition 2 changes the website's HTML. Condition 3 leaves the website alone and changes the interface the agent uses: one shell tool instead of five browser tools. Condition 3 measures what a tool-using agent (such as Claude Code or Droid) could do with an agent interface. It doesn't replace the website, which browsing-only agents still need.
+
+**Trace differences:** interface runs have `runId` `run-agent-interface-…`, `siteVersion: "agent-interface"`, `meta.interface: "cli"` and `meta.interfaceImpl` (`handwritten` or `generated`). Each command is a `"shell"` step with `command`, `exitCode` and `output`, and `pagePath: "cli"`. In these traces, `browserMs` holds shell time.
+
+### Measured result (2026-10-25, 5 + 5 + 5 live runs, rotating)
+
+The same agent bought the right shoe in all 15 runs. Fixing the website cut cost per verified success by 31%; the agent interface cut it by 87%. There were 0 failed agent actions. Result file: `data/results/compare3-2026-10-25T09-53-52-448Z.json`.
+
+| Metric | Original website | Droid-fixed website | Agent interface |
+| --- | --- | --- | --- |
+| Verified completion | 5 / 5 (100%) | 5 / 5 (100%) | 5 / 5 (100%) |
+| Average tool calls | 6.6 (range 5–7) | 4.0 (all runs) | 2.0 (all runs) |
+| Average tokens | 32,594 | 22,469 (−31%) | 3,732 (−89%) |
+| Cost per verified success | $0.00358 | $0.00246 (−31%) | $0.00047 (−87%) |
+| Median / p95 total time | 9.3 s / 9.5 s | 6.6 s / 8.4 s | 4.2 s / 4.3 s |
+| Verdict vs original | | `improved` | `improved` |
+
+**Setup:**
+
+- Original store on `:3001`.
+- Droid-fixed store on `:3002`: Droid patch session `645f6008` on `main` at `c19be23`, the same fix as the two-way result above.
+- Agent interface: hand-written `shop` commands (`meta.interfaceImpl: "handwritten"`) buying from the `:3001` cart.
+
+On the interface, every run took the same path: one `shop search` with the task's filters, then `shop cart add VEL-BLK-08`.
+
+**Limitations:**
+
+- 5 runs per condition, one task, one controlled store.
+- The interface's advantage comes partly from structured search running in code, which this task suits well. The website conditions still matter for agents that can only browse.
+- Cost is estimated from list prices. Time includes model API latency.

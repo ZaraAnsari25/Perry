@@ -23,7 +23,7 @@ export const EFFORT = "medium";
 export const PRICE_PER_MTOK = { input: 0.1, output: 0.5 };
 export const DEFAULT_MAX_STEPS = 25;
 
-const CART_COOKIE = "cart_id";
+export const CART_COOKIE = "cart_id";
 const ACTION_TIMEOUT_MS = 10_000;
 
 const SYSTEM = `You are a shopping assistant operating a web browser in an online store on behalf of a customer.
@@ -31,7 +31,8 @@ Each turn you see the current page as an accessibility outline in which elements
 Take exactly one action per turn using the tools, referring to elements only by refs from the most recent outline, copied exactly (e.g. f2e12, including any prefix).
 When the customer's request has been fulfilled, call done. If it cannot be fulfilled, call done and explain why.`;
 
-const object = (properties: Record<string, unknown>) => ({
+/** Strict JSON schema for a tool's input: every property required, nothing extra. */
+export const object = (properties: Record<string, unknown>) => ({
   type: "object" as const,
   properties,
   required: Object.keys(properties),
@@ -192,7 +193,8 @@ export async function perform(
   }
 }
 
-const costUsd = (inputTokens: number, outputTokens: number) =>
+/** Estimated USD cost of a run at PRICE_PER_MTOK. Shared by the browser and CLI runners. */
+export const costUsd = (inputTokens: number, outputTokens: number) =>
   Number(
     ((inputTokens * PRICE_PER_MTOK.input + outputTokens * PRICE_PER_MTOK.output) / 1_000_000).toFixed(6),
   );
