@@ -16,7 +16,9 @@ import { type RunAverages, averages, change, usd, whole } from "@/lib/metrics";
 
 import { LiveAction } from "./live-actions";
 import { age } from "./patch-panel";
-import { Card, FeatureLabel, SectionIntro } from "./ui";
+import { StateMark } from "./icons";
+import { TimingTower, TowerStatus } from "./timing-tower";
+import { Card } from "./ui";
 
 /** This demo session (since `npm run reset:demo`) and the time before it, for backups. */
 async function windows(): Promise<{ session: Window; earlier: Window | null }> {
@@ -101,52 +103,22 @@ export async function CommandsSection({ now }: { now: number }) {
   ]);
 
   return (
-    <section
-      id="commands"
-      aria-labelledby="commands-heading"
-      className="scroll-mt-6 space-y-5"
-    >
-      <SectionIntro
-        label={
-          <FeatureLabel
-            n={2}
-            tone="blue"
-            audience="An even better way, for agents that use tools"
-          />
-        }
-        id="commands-heading"
-        title="Skip the web pages: give agents the store's catalog directly"
-      >
-        Fixing the website helped, but the agent still has to read pages built
-        for people. Then we noticed: every online store already keeps all the
-        answers in one place, its product catalog. The website is just that
-        catalog drawn as pages. So for agents that can use tools (Claude
-        Desktop, Claude Code, coding agents), Perry has Factory Droid build a
-        direct line to the catalog: a few{" "}
-        <code className="font-mono">shop</code> commands that answer straight
-        from it. The website stays exactly as it is.
-      </SectionIntro>
+    <div className="space-y-6">
+      <HowDroidBuildsIt gen={generated} backup={backupGen} backupRun={backupRun} now={now} />
+      {/* Appears only once Droid's commands pass every check. */}
+      {generated?.status === "accepted" && <RunStory run={run} now={now} />}
 
-      <WhyItWorks result={recorded?.result ?? null} />
-
-      <HowDroidBuildsIt gen={generated} backup={backupGen} now={now} />
-      <RunStory
-        run={run}
-        backup={backupRun}
-        ready={generated?.status === "accepted" || !earlier}
-        now={now}
-      />
-      <AnyAgent outside={outside} backup={backupOutside} now={now} />
-
-      {guide && (
-        <details className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <summary className="cursor-pointer text-sm font-semibold">
-            What the agent is told first
-            <span className="ml-2 text-xs font-normal text-zinc-500">
-              the short guide in its first message
-            </span>
-          </summary>
-          <div className="mt-3 space-y-2">
+      {/* The explanations, folded so the page leads with what you can do. */}
+      <div className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
+        <Fold title="Why commands are cheaper than browsing" hint="browsing vs. commands, side by side">
+          <WhyItWorks result={recorded?.result ?? null} />
+        </Fold>
+        <Fold title="How any AI agent uses them: MCP" hint="Claude Desktop, Claude Code and other MCP apps">
+          <AnyAgent outside={outside} backup={backupOutside} now={now} />
+        </Fold>
+        {guide && (
+        <Fold title="What the agent is told first" hint="the short guide in its first message">
+          <div className="space-y-2">
             <p className="text-xs text-zinc-500">
               Generated from the store&apos;s catalog{" "}
               {age(guide.generatedAt, now)}, with a real example search. Agents
@@ -158,9 +130,26 @@ export async function CommandsSection({ now }: { now: number }) {
               {guide.guide}
             </pre>
           </div>
-        </details>
-      )}
-    </section>
+        </Fold>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** A collapsed section: a title row that opens to the details. */
+function Fold({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {
+  return (
+    <details className="group px-5 py-4">
+      <summary className="flex cursor-pointer list-none items-baseline gap-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+        <span aria-hidden className="text-zinc-400 transition-transform group-open:rotate-90">
+          ›
+        </span>
+        {title}
+        <span className="text-xs font-normal text-zinc-500">{hint}</span>
+      </summary>
+      <div className="mt-4 space-y-4">{children}</div>
+    </details>
   );
 }
 
@@ -198,10 +187,7 @@ function WhyItWorks({ result }: { result: BenchmarkResult | null }) {
   const pageCount = (a: RunAverages) =>
     `${a.steps.toFixed(1)} steps · ${whole(a.tokens)} tokens`;
   return (
-    <Card>
-      <h3 className="font-semibold">
-        Why this works, and why it&apos;s cheaper
-      </h3>
+    <>
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
           <p className="text-sm font-medium">
@@ -277,7 +263,7 @@ function WhyItWorks({ result }: { result: BenchmarkResult | null }) {
         Perry&apos;s written standard keeps the commands the same everywhere, so
         any agent already knows how to use them.
       </p>
-    </Card>
+    </>
   );
 }
 
@@ -329,10 +315,12 @@ const reads = [
 function HowDroidBuildsIt({
   gen,
   backup,
+  backupRun,
   now,
 }: {
   gen: InterfaceGen | null;
   backup: InterfaceGen | null;
+  backupRun: CommandRun | null;
   now: number;
 }) {
   return (
@@ -348,9 +336,7 @@ function HowDroidBuildsIt({
         )}
       </div>
       <p className="max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
-        No one hand-writes commands for a store. Droid writes them from the
-        store&apos;s code, and Perry lets agents use them only after they pass
-        every check. The same steps work for any store.
+        Agents only get Droid&apos;s commands after they pass every check. The same steps work for any store.
       </p>
       <ol className="grid gap-3 lg:grid-cols-3">
         <Step n={1} title="Droid reads the store">
@@ -358,9 +344,6 @@ function HowDroidBuildsIt({
             {reads.map((r) => (
               <li key={r.file}>
                 <span className="font-medium">{r.what}</span>: {r.note}
-                <code className="block font-mono text-[11px] text-zinc-500">
-                  {r.file}
-                </code>
               </li>
             ))}
           </ul>
@@ -403,6 +386,12 @@ function HowDroidBuildsIt({
           <p className="text-xs text-zinc-500">
             Recorded {age(backup.createdAt, now)}.
           </p>
+          {backupRun && (
+            <div className="space-y-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+              <p className="font-medium">The agent shopping with recorded commands</p>
+              <RunBody {...backupRun} now={now} />
+            </div>
+          )}
         </Backup>
       )}
     </Card>
@@ -425,27 +414,10 @@ function Gates({ gen }: { gen: InterfaceGen | null }) {
       {gates.map((g) => {
         const info = gateInfo[g.name];
         const pending = "pending" in g;
-        const status = pending
-          ? "not run yet"
-          : g.skipped
-            ? "skipped"
-            : g.ok
-              ? "passed"
-              : "failed";
         return (
           <li key={g.name} className="flex gap-2">
-            <span
-              role="img"
-              aria-label={status}
-              className={`w-4 shrink-0 text-center ${
-                pending || g.skipped
-                  ? "text-zinc-400"
-                  : g.ok
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-red-600 dark:text-red-400"
-              }`}
-            >
-              {pending ? "○" : g.skipped ? "–" : g.ok ? "✓" : "✗"}
+            <span className="mt-0.5">
+              <StateMark state={pending ? "pending" : g.skipped ? "skipped" : g.ok ? "done" : "failed"} />
             </span>
             <span>
               {info?.name ?? g.name}
@@ -475,8 +447,8 @@ function GenResult({ gen }: { gen: InterfaceGen }) {
         }`}
       >
         {accepted
-          ? `✅ Passed all ${passed} checks, so these are the commands agents use.`
-          : `⛔ ${gen.status === "failed" ? "Generation failed" : "Turned away"}${gen.reason ? `: ${gen.reason}` : ""}. Agents keep using the last accepted commands.`}
+          ? `Passed all ${passed} checks, so these are the commands agents use.`
+          : `${gen.status === "failed" ? "Generation failed" : "Turned away"}${gen.reason ? `: ${gen.reason}` : ""}. Agents keep using the last accepted commands.`}
       </p>
       <details className="text-xs text-zinc-500">
         <summary className="cursor-pointer">Technical details</summary>
@@ -720,46 +692,12 @@ function Action({ step, n }: { step: TraceStep; n: number }) {
 
 type CommandRun = { trace: AgentTrace; file: string; result: BenchmarkResult };
 
-function RunStory({
-  run,
-  backup,
-  ready,
-  now,
-}: {
-  run: CommandRun | null;
-  backup: CommandRun | null;
-  ready: boolean;
-  now: number;
-}) {
+function RunStory({ run, now }: { run: CommandRun | null; now: number }) {
   return (
     <Card>
-      <div className="space-y-1">
-        <h3 className="font-semibold">
-          Try it: watch the agent shop with the commands
-        </h3>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          The same agent and task as Step 1, using the commands instead of the
-          website.
-        </p>
-      </div>
-      <LiveAction
-        kind="try"
-        disabledReason={
-          ready ? undefined : "Generate the commands with Droid first (above)."
-        }
-      />
-      {run ? (
-        <RunBody {...run} now={now} />
-      ) : (
-        <p className="text-sm text-zinc-500">
-          No run yet in this demo session.
-        </p>
-      )}
-      {!run && backup && (
-        <Backup what="run">
-          <RunBody {...backup} now={now} />
-        </Backup>
-      )}
+      <h3 className="font-semibold">Try it: watch the agent shop with Droid&apos;s commands</h3>
+      <LiveAction kind="try" />
+      {run ? <RunBody {...run} now={now} /> : <p className="text-sm text-zinc-500">No run yet in this demo session.</p>}
     </Card>
   );
 }
@@ -810,8 +748,8 @@ function RunBody({ trace, file, result, now }: CommandRun & { now: number }) {
         }`}
       >
         {outcome.success
-          ? "✅ Perry checked the store's real cart: exactly the right shoe."
-          : "⛔ Perry checked the store's real cart: not the right purchase."}{" "}
+          ? "Perry checked the store's real cart: exactly the right shoe."
+          : "Perry checked the store's real cart: not the right purchase."}{" "}
         <span className="font-normal">
           {outcome.cart.length === 0
             ? "Cart empty"
@@ -901,7 +839,7 @@ function OutsideCard({
       }`}
     >
       <p className="font-medium">
-        {outside.success ? "✅" : "⛔"} {outside.client}{" "}
+        {outside.client}{" "}
         {outside.success
           ? "put the right shoe in the cart"
           : "didn't make the right purchase"}
@@ -938,8 +876,7 @@ function AnyAgent({
   now: number;
 }) {
   return (
-    <Card>
-      <h3 className="font-semibold">Works with any AI agent, through MCP</h3>
+    <div className="space-y-4">
       <p className="max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
         MCP (Model Context Protocol) is the open standard AI apps use to plug in
         tools. Perry serves the same commands as an MCP server called{" "}
@@ -1018,7 +955,7 @@ function AnyAgent({
           </details>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -1079,37 +1016,12 @@ export async function ResultsSection({
   ];
 
   return (
-    <section
-      id="results"
-      aria-labelledby="results-heading"
-      className="scroll-mt-6 space-y-5"
-    >
-      <SectionIntro
-        label={
-          <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
-            Results
-          </span>
-        }
-        id="results-heading"
-        title="Same agent, same task, three ways in"
-      >
-        Once both features are in place, Perry runs the agent 5 times each way,
-        back to back, with the same model, task and cart check. Only the way
-        into the store changes. A purchase counts only if the store&apos;s real
-        cart holds exactly the right shoe.
-      </SectionIntro>
-
+    <div className="space-y-6">
       <Card>
         <ol className="space-y-1.5 text-sm">
           {checklist.map((c) => (
             <li key={c.text} className="flex gap-2">
-              <span
-                role="img"
-                aria-label={c.done ? "done" : "not yet"}
-                className={`w-4 shrink-0 text-center ${c.done ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-400"}`}
-              >
-                {c.done ? "✓" : "○"}
-              </span>
+              <StateMark state={c.done ? "done" : "pending"} />
               {c.text}
             </li>
           ))}
@@ -1125,6 +1037,7 @@ export async function ResultsSection({
             result={current.result}
             file={current.file}
             baseline={baseline}
+            session
             now={now}
           />
         ) : (
@@ -1138,12 +1051,13 @@ export async function ResultsSection({
               result={backup.result}
               file={backup.file}
               baseline={baseline}
+              session={false}
               now={now}
             />
           </Backup>
         )}
       </Card>
-    </section>
+    </div>
   );
 }
 
@@ -1151,11 +1065,13 @@ function Comparison({
   result,
   file,
   baseline,
+  session,
   now,
 }: {
   result: BenchmarkResult;
   file: string;
   baseline: RunAverages | null;
+  session: boolean;
   now: number;
 }) {
   const rows: {
@@ -1163,13 +1079,11 @@ function Comparison({
     sub: string;
     a: RunAverages;
     verdict?: BenchmarkResult["verdict"];
-    bar: string;
   }[] = [
     {
       label: "Original website",
       sub: "Step 1: browsing, no changes",
       a: averages(result.baseline.runs),
-      bar: "bg-zinc-400 dark:bg-zinc-500",
     },
     ...(result.patched
       ? [
@@ -1178,7 +1092,6 @@ function Comparison({
             sub: "Feature 1: browsing after Droid's fix",
             a: averages(result.patched.runs),
             verdict: result.verdict,
-            bar: "bg-violet-500",
           },
         ]
       : []),
@@ -1189,17 +1102,12 @@ function Comparison({
             sub: "Feature 2: commands Droid wrote",
             a: averages(result.agentInterface.runs),
             verdict: result.agentInterfaceVerdict,
-            bar: "bg-blue-600 dark:bg-blue-500",
           },
         ]
       : []),
   ];
   const original = rows[0]!.a;
   const commands = result.agentInterface ? rows[rows.length - 1]!.a : null;
-  const maxCost = Math.max(
-    ...rows.map((r) => r.a.costPerPurchase ?? 0),
-    Number.EPSILON,
-  );
   const saving =
     commands && original.costPerPurchase && commands.costPerPurchase !== null
       ? Math.round(
@@ -1216,21 +1124,16 @@ function Comparison({
 
   return (
     <div className="space-y-4">
+      <TimingTower
+        entries={rows.map((r, i) => ({ label: r.label, sub: r.sub, a: r.a, baseline: i === 0 }))}
+        status={<TowerStatus session={session} />}
+      />
       {commands && saving !== null && (
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Headline
-            value={`${saving}% cheaper`}
-            label="per verified purchase with shop commands than on the original website"
-          />
-          <Headline
-            value={`${commands.steps.toFixed(0)} vs ${original.steps.toFixed(1)}`}
-            label="steps: shop commands vs. browsing the original website"
-          />
-          <Headline
-            value={`${commands.seconds.toFixed(1)}s vs ${original.seconds.toFixed(1)}s`}
-            label="average time per purchase"
-          />
-        </div>
+        <p className="text-lg text-balance">
+          With shop commands, the same purchase cost <span className="font-semibold">{saving}% less</span> than on the
+          original website, in {commands.steps.toFixed(0)} steps instead of {original.steps.toFixed(1)} and{" "}
+          {commands.seconds.toFixed(1)}s instead of {original.seconds.toFixed(1)}s.
+        </p>
       )}
 
       <div className="overflow-x-auto">
@@ -1257,17 +1160,9 @@ function Comparison({
                   <span className="font-medium">{r.label}</span>
                   <span className="block text-xs text-zinc-500">{r.sub}</span>
                 </td>
-                <td className="w-2/5 px-3 py-3">
+                <td className="px-3 py-3">
                   <div className="flex items-center gap-2">
-                    <div aria-hidden className="min-w-12 flex-1">
-                      <div
-                        className={`h-3 rounded-sm ${r.bar}`}
-                        style={{
-                          width: `${Math.max(((r.a.costPerPurchase ?? 0) / maxCost) * 100, 1)}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="w-16 font-medium tabular-nums">
+                    <span className="w-20 font-mono font-medium tabular-nums">
                       {usd(r.a.costPerPurchase)}
                     </span>
                     <span className="w-14">
@@ -1343,17 +1238,6 @@ function Comparison({
         )}
         <code className="font-mono">{file.replace("data/results/", "")}</code>
       </p>
-    </div>
-  );
-}
-
-function Headline({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-950/40">
-      <p className="text-2xl font-semibold tracking-tight tabular-nums">
-        {value}
-      </p>
-      <p className="text-xs text-zinc-600 dark:text-zinc-400">{label}</p>
     </div>
   );
 }

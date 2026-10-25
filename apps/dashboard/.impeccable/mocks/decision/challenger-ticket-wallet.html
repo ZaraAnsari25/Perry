@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Perry · Ticket Wallet</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;800&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:#e9edf5;color:#1c2f5e;font:15px/1.5 Barlow,system-ui,sans-serif}
+.top{background:#1c2f5e;color:#fff;height:64px;display:flex;align-items:center;padding:0 48px}
+.logo{font:800 24px Barlow;letter-spacing:.06em}.logo span{color:#d7263d}
+.top small{margin-left:auto;font:600 13px "Barlow Condensed";letter-spacing:.12em;text-transform:uppercase;color:#b8c3dd}
+.coupons{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:32px 48px 0}
+.cp{background:#fff;padding:18px 20px;border-right:2px dashed #c3cbe0;position:relative}
+.cp:first-child{border-radius:12px 0 0 12px}.cp:last-child{border-radius:0 12px 12px 0;border-right:0}
+.cp.on{background:#1c2f5e;color:#fff}
+.cp .k{font:700 12px "Barlow Condensed";letter-spacing:.14em;text-transform:uppercase;color:#d7263d}
+.cp.on .k{color:#ffb3bd}
+.cp .t{font:800 20px Barlow;margin-top:4px}
+.cp .s{font:600 12px "Barlow Condensed";letter-spacing:.1em;text-transform:uppercase;margin-top:8px;color:#5b3e96}
+.cp.on .s{color:#c8b6ee}
+.main{margin:28px 48px 0;background:#fff;border-radius:16px;display:grid;grid-template-columns:1.5fr 1fr;min-height:560px}
+.l{padding:44px 48px}
+.l .k{font:700 13px "Barlow Condensed";letter-spacing:.16em;text-transform:uppercase;color:#d7263d}
+h1{font:800 56px/1.04 Barlow;margin:12px 0 18px}
+.l p{font-size:18px;color:#46557a;max-width:640px}
+.btn{display:inline-block;margin-top:28px;background:#d7263d;color:#fff;font:700 17px Barlow;padding:14px 24px;border-radius:10px}
+.fare{border-left:2px dashed #c3cbe0;padding:44px 40px;background:#f6f8fc;border-radius:0 16px 16px 0}
+.fare .k{font:700 12px "Barlow Condensed";letter-spacing:.16em;text-transform:uppercase;color:#5b3e96}
+.box{border:1.5px solid #1c2f5e;border-radius:8px;padding:16px 18px;margin-top:14px;display:flex;justify-content:space-between;align-items:baseline}
+.box b{font:800 40px Barlow;color:#5b3e96}.box span{font-size:14px;color:#46557a}
+.valid{margin-top:22px;display:inline-block;border:3px solid #1f9d55;color:#1f9d55;font:700 18px "Barlow Condensed";letter-spacing:.14em;padding:4px 14px;border-radius:6px;transform:rotate(-4deg)}
+</style></head><body>
+<header class="top"><div class="logo">PERRY<span>·</span></div><small>One shopping agent · one task · one verified cart</small></header>
+<nav class="coupons">
+<div class="cp on"><div class="k">Coupon 0</div><div class="t">The trip</div><div class="s">Open</div></div>
+<div class="cp"><div class="k">Coupon 1</div><div class="t">Measure</div><div class="s">Not used</div></div>
+<div class="cp"><div class="k">Coupon 2</div><div class="t">Fix the website</div><div class="s">Not used</div></div>
+<div class="cp"><div class="k">Coupon 3</div><div class="t">Shop commands</div><div class="s">Not used</div></div>
+<div class="cp"><div class="k">Coupon 4</div><div class="t">Results</div><div class="s">Not used</div></div></nav>
+<main class="main"><section class="l"><div class="k">Where this trip goes</div>
+<h1>Make the store work for AI shopping agents.</h1>
+<p>A real agent buys one shoe. Perry finds the wasted steps, then Factory Droid fixes the store two ways: the website for agents that browse, and shop commands for agents that use tools.</p>
+<span class="btn">Tear off coupon 1: Measure →</span></section>
+<aside class="fare"><div class="k">Fare per verified purchase · last recorded</div>
+<div class="box"><span>Original website</span><b>$0.0039</b></div>
+<div class="box"><span>Fixed website</span><b>$0.0025</b></div>
+<div class="box"><span>Shop commands</span><b>$0.0005</b></div>
+<div class="valid">VALIDATED 5/5</div></aside></main>
+</body></html>

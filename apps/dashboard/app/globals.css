@@ -1,5 +1,112 @@
 @import "tailwindcss";
 
+/* Live Timing: a light working shell, Perry teal for brand and progress, the
+   timing tower as the one dark object, and a motorsport state code used only
+   where it means something. */
+@theme {
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --color-ground: #f5f6f8;
+  --color-panel: #ffffff;
+  --color-seam: #e3e6eb;
+  --color-ink: #0d1117;
+  --color-muted: #5b6472;
+  --color-faint: #8a93a1;
+  --color-perry: #0e9f8e;
+  --color-perry-deep: #0b7f72;
+  --color-perry-wash: #e3f5f2;
+  --color-carbon: #0d1117;
+  --color-carbon-seam: #222833;
+  --color-carbon-text: #e6e8eb;
+  --color-carbon-muted: #8b949e;
+  --color-best: #8b5cf6;
+  --color-improved: #22c55e;
+  --color-baseline: #f59e0b;
+  --color-failed: #e5484d;
+
+  --ease-timing: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
 :root {
   color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-ground: #0b0e13;
+    --color-panel: #12161d;
+    --color-seam: #232a35;
+    --color-ink: #e8ebef;
+    --color-muted: #a3acb9;
+    --color-faint: #7d8796;
+    --color-perry-wash: #0d2a27;
+    --color-carbon: #070a0e;
+    --color-carbon-seam: #1c222c;
+  }
+}
+
+body {
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Browser surfaces carry the design too. */
+::selection {
+  background: color-mix(in srgb, var(--color-perry) 28%, transparent);
+}
+:focus-visible {
+  outline: 2px solid var(--color-perry);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+a {
+  text-underline-offset: 3px;
+}
+html {
+  scrollbar-color: var(--color-seam) transparent;
+  caret-color: var(--color-perry);
+}
+
+/* The one motion grammar: 600ms on the timing curve. Reduced motion shows the final state. */
+@keyframes lap-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pulse-dot {
+  50% {
+    opacity: 0.25;
+  }
+}
+.lap-segment {
+  transform-origin: left;
+  animation: lap-fill 600ms var(--ease-timing) both;
+}
+.tower-row {
+  animation: rise 600ms var(--ease-timing) both;
+}
+.live-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lap-segment,
+  .tower-row,
+  .live-dot {
+    animation: none;
+  }
 }

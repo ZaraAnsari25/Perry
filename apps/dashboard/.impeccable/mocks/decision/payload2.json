@@ -1,0 +1,79 @@
+{
+  "title": "Choose Perry's look (round 2)",
+  "question": "Steered: more professional, more techy, motion on the front page. The roll assigned Live Timing. Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned-r2",
+      "kind": "assigned",
+      "label": "Live Timing",
+      "kicker": "THE ROLL",
+      "lineage": "Formula 1 live timing screens and timing towers",
+      "thesis": "The three ways into the store race like cars on a timing tower: same track, same task, fastest verified purchase wins.",
+      "palette": ["#f5f6f8", "#0d1117", "#0e9f8e", "#8b5cf6", "#22c55e", "#f59e0b"],
+      "materials": ["timing tower", "tabular figures", "sector color code"],
+      "viewport": "A clean light shell with the step bar; the hero is a dark timing tower where the agent's laps on each way in tick live, the best result in purple.",
+      "risk": "Motorsport color code must be explained once, or purple and green read as decoration.",
+      "raised": [
+        {"from": "challenger-splitflap", "raise": "Values change in place inside a fixed grid; rows and columns never reflow."},
+        {"from": "challenger-zoomap", "raise": "One motion grammar: every move shares one duration and curve."},
+        {"from": "challenger-manual", "raise": "The step bar shows each step's extent and progress, not just its name."},
+        {"from": "challenger-roster", "raise": "Every way in carries the same fields in the same places."}
+      ],
+      "html": ".impeccable/mocks/decision/assigned-r2.html"
+    },
+    {
+      "id": "model-pick-r2",
+      "kind": "pick",
+      "label": "Protocol Trace",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "network sequence diagrams in protocol specs",
+      "thesis": "Show what the agent actually does: every request between agent, website and catalog drawn as a live sequence diagram.",
+      "palette": ["#ffffff", "#0f172a", "#0e9f8e", "#e2e8f0", "#ef4444"],
+      "materials": ["swimlanes", "message arrows", "monospaced labels"],
+      "viewport": "Three swimlanes (Agent, Website, Catalog); messages animate across them, 7 hops on the website versus 2 with shop commands.",
+      "risk": "Close to how developer docs already look: familiar, and techy readers have seen it.",
+      "html": ".impeccable/mocks/decision/model-pick-r2.html"
+    },
+    {
+      "id": "challenger-console",
+      "kind": "challenger",
+      "catalogId": "digital-design-canon-dark-first-developer-console",
+      "label": "Developer Console",
+      "verdict": "competitive",
+      "lineage": "dark-first developer consoles",
+      "thesis": "A graphite working surface: panels on hairline seams, accents only for state.",
+      "palette": ["#16181d", "#22252c", "#e6e8eb", "#0e9f8e", "#f59e0b", "#ef4444"],
+      "materials": ["hairline seams", "monospaced figures"],
+      "viewport": "Persistent panels: steps on the left, the run in the middle, results on the right.",
+      "case": "Fuses cleanly and techy readers identify with it; loses on clarity for first-time viewers.",
+      "risk": "Near-black dev tool look is the category default.",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-dark-first-developer-console-hero.webp",
+      "html": ".impeccable/mocks/decision/challenger-console.html"
+    },
+    {
+      "id": "challenger-gateboard",
+      "kind": "challenger",
+      "catalogId": "vernacular-ephemera-boarding-pass-and-gate-board",
+      "label": "Gate Board",
+      "verdict": "competitive",
+      "lineage": "boarding pass and live gate board",
+      "thesis": "Results rerank in place like flights on a gate board; a change stays lit until you've seen it.",
+      "palette": ["#ffffff", "#111827", "#e5e7eb", "#2563eb", "#f97316"],
+      "materials": ["segmented pass", "ranked board"],
+      "viewport": "A pass for the task on top; below, a board ranking the three ways in by cost.",
+      "case": "Holds product clarity: ranking three ways by cost is the result; loses on identity.",
+      "risk": "Travel metaphor needs translating for a shopping product.",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-boarding-pass-and-gate-board-hero.webp",
+      "html": ".impeccable/mocks/decision/challenger-gateboard.html"
+    },
+    {"id": "challenger-splitflap", "kind": "challenger", "catalogId": "signals-instruments-split-flap-concourse", "label": "Split-Flap Concourse", "verdict": "declined", "lineage": "rail split-flap boards", "thesis": "Columns never move; only their flaps.", "palette": ["#111111", "#f5f5f5", "#f5a623", "#b3261e"], "materials": ["flaps", "steel frame"], "viewport": "A black board of rows.", "case": "Fuses poorly: retro instrument, close to a direction already eliminated.", "risk": "Reads as a costume.", "kept": "Values change in place inside a fixed grid."},
+    {"id": "challenger-zoomap", "kind": "challenger", "catalogId": "aww2-zoo-gardens-guide-map", "label": "Zoo Guide Map", "verdict": "declined", "lineage": "zoo guide maps", "thesis": "Swelling lobes of flat color.", "palette": ["#8ed462", "#f5f1e4", "#2c2e2a", "#ff705d"], "materials": ["flat color", "coastlines"], "viewport": "One lobe per screen.", "case": "Fuses poorly: playful, against the professional steer.", "risk": "Too whimsical.", "kept": "One motion grammar for everything."},
+    {"id": "challenger-manual", "kind": "challenger", "catalogId": "rw-manual-acetate-tab-board", "label": "Software Manual", "verdict": "declined", "lineage": "boxed software manuals", "thesis": "A stepped tab rail sized by extent.", "palette": ["#e8722a", "#f2c230", "#2f9e44", "#1c7ed6"], "materials": ["acetate leaves", "divider board"], "viewport": "An open manual at a tab.", "case": "Fuses poorly: nostalgic, not techy.", "risk": "Reads vintage.", "kept": "The step bar shows each step's extent."},
+    {"id": "challenger-roster", "kind": "challenger", "catalogId": "pop-culture-shelf-character-goods-catalog", "label": "Character Catalog", "verdict": "declined", "lineage": "character goods catalogs", "thesis": "A ranked roster with fixed furniture per entry.", "palette": ["#fde2e4", "#e2ece9", "#ffffff", "#ff8fab"], "materials": ["pastel grid", "name plates"], "viewport": "A grid of mascots.", "case": "Fuses poorly: cute, against the professional steer.", "risk": "Childish.", "kept": "Every way in carries the same fields in the same places."}
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "code"},
+  "canon": true,
+  "canonCard": {"kind": "canon", "label": "The category standard", "thesis": "A clean SaaS dashboard: side navigation, cards and charts, executed impeccably.", "palette": ["#ffffff", "#111827", "#2563eb", "#f3f4f6"], "materials": ["clean grid", "neutral cards"], "viewport": "Side rail with the steps; stat cards and the result chart.", "risk": "Indistinguishable from every other dashboard by design.", "html": ".impeccable/mocks/decision/canon-r2.html"},
+  "steer": true
+}

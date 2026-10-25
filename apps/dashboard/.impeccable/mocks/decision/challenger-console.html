@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Perry · Console</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:#16181d;color:#e6e8eb;font:14px/1.5 Geist,system-ui,sans-serif;display:grid;grid-template-columns:260px 1fr 360px;grid-template-rows:52px 1fr}
+.top{grid-column:1/-1;border-bottom:1px solid #2a2e36;display:flex;align-items:center;padding:0 20px;gap:12px}
+.top b{font-size:16px}.top span{font:500 12px "Geist Mono";color:#8b949e}
+.p{border-right:1px solid #2a2e36;padding:20px}
+.h{font:600 11px Geist;letter-spacing:.12em;text-transform:uppercase;color:#8b949e;margin-bottom:12px}
+.step{padding:10px 12px;border-radius:8px;margin-bottom:4px;color:#c9d1d9}.step.on{background:#22252c;color:#fff}
+.step small{display:block;color:#8b949e;font-size:12px}
+h1{font:600 30px/1.15 Geist;letter-spacing:-.02em;margin-bottom:10px}
+.mid p{color:#9aa4b2;max-width:640px}
+.log{margin-top:24px;background:#1b1e24;border:1px solid #2a2e36;border-radius:10px;padding:16px;font:500 13px/1.9 "Geist Mono";color:#9aa4b2}
+.log b{color:#0e9f8e;font-weight:500}.log i{color:#f59e0b;font-style:normal}
+.k{display:flex;justify-content:space-between;border-top:1px solid #2a2e36;padding:14px 0}
+.k b{font:500 22px "Geist Mono"}.k.g b{color:#0e9f8e}
+.btn{display:inline-block;margin-top:20px;background:#0e9f8e;color:#06201d;font-weight:600;padding:9px 14px;border-radius:8px}
+</style></head><body>
+<header class="top"><b>perry</b><span>workspace / shoe-store · agent claude-haiku-5-5</span></header>
+<aside class="p"><div class="h">Steps</div>
+<div class="step on">Overview<small>the plan</small></div><div class="step">1 · Measure<small>not run</small></div><div class="step">2 · Fix the website<small>not run</small></div><div class="step">3 · Shop commands<small>not run</small></div><div class="step">Results<small>not run</small></div></aside>
+<main class="p mid"><h1>Make the store work for AI shopping agents.</h1>
+<p>Perry runs a real agent on the store, then Factory Droid fixes it two ways. Every purchase is verified on the real cart.</p>
+<div class="log">$ perry measure --task "black running shoe, size 8"<br>  agent opened 4 product pages to buy 1 <i>wasted 3</i><br>$ droid fix website <b>passed 3/3 checks</b><br>$ droid write shop-commands <b>passed 5/5 checks</b><br>$ perry compare <b>5/5 verified each way</b></div>
+<span class="btn">Run step 1</span></main>
+<aside class="p"><div class="h">Cost per verified purchase · last recorded</div>
+<div class="k"><span>Original website</span><b>$0.00385</b></div><div class="k"><span>Fixed website</span><b>$0.00248</b></div><div class="k g"><span>Shop commands</span><b>$0.00047</b></div></aside>
+</body></html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Perry · Protocol Trace</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:#fff;color:#0f172a;font:15px/1.5 Geist,system-ui,sans-serif}
+.top{height:60px;display:flex;align-items:center;padding:0 48px;border-bottom:1px solid #e2e8f0;gap:28px}
+.logo{font-weight:700;font-size:20px}.top a{font-size:14px;color:#64748b}.top a.on{color:#0f172a;font-weight:600}
+.top .r{margin-left:auto;font:500 12px "JetBrains Mono";color:#0e9f8e}
+.hero{padding:44px 48px 0}
+h1{font:700 48px/1.05 Geist;letter-spacing:-.03em;max-width:900px}
+.hero p{font-size:18px;color:#475569;margin-top:14px;max-width:820px}
+.diag{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:32px 48px}
+.panel{border:1px solid #e2e8f0;border-radius:14px;padding:20px;position:relative;height:500px}
+.panel h3{font-size:15px}.panel h3 span{font:500 12px "JetBrains Mono";color:#64748b;margin-left:8px}
+.lanes{position:absolute;top:64px;left:20px;right:20px;bottom:20px;display:grid;grid-template-columns:repeat(3,1fr)}
+.lane{border-left:1px dashed #cbd5e1;position:relative}.lane:first-child{border-left:0}
+.lane b{display:block;text-align:center;font:500 12px "JetBrains Mono";color:#334155;background:#f1f5f9;margin:0 12px;padding:6px;border-radius:6px}
+.lane:after{content:"";position:absolute;left:50%;top:34px;bottom:0;border-left:2px solid #e2e8f0}
+.msg{position:absolute;left:16.6%;height:2px;background:#0f172a;transform-origin:left;animation:draw 3s var(--d) infinite}
+.msg.back{background:#94a3b8}
+.msg:after{content:attr(data-l);position:absolute;top:-18px;left:8px;font:500 11px "JetBrains Mono";color:#475569;white-space:nowrap}
+.bad{background:#ef4444}.bad:after{color:#ef4444}
+.ok{background:#0e9f8e}.ok:after{color:#0e9f8e}
+@keyframes draw{0%{transform:scaleX(0)}25%,100%{transform:scaleX(1)}}
+</style></head><body>
+<header class="top"><span class="logo">perry</span><a class="on">Overview</a><a>1 Measure</a><a>2 Fix the website</a><a>3 Shop commands</a><a>Results</a><span class="r">same agent · verified cart</span></header>
+<section class="hero"><h1>See every step an AI agent takes to buy one shoe, then make it shorter.</h1>
+<p>Perry traces a real agent on the store. Factory Droid fixes the website for agents that browse, and writes shop commands for agents that use tools.</p></section>
+<section class="diag">
+<div class="panel"><h3>On the original website<span>7 steps · $0.00385</span></h3>
+<div class="lanes"><div class="lane"><b>Agent</b></div><div class="lane"><b>Website</b></div><div class="lane"><b>Catalog</b></div></div>
+<i class="msg" style="top:120px;width:33%;--d:0s" data-l="search"></i>
+<i class="msg bad" style="top:165px;width:33%;--d:.3s" data-l="open Tempo Lite"></i>
+<i class="msg bad" style="top:210px;width:33%;--d:.6s" data-l="open Cloud Glide"></i>
+<i class="msg bad" style="top:255px;width:33%;--d:.9s" data-l="open Aero Pace"></i>
+<i class="msg" style="top:300px;width:33%;--d:1.2s" data-l="open Velocity Runner"></i>
+<i class="msg" style="top:345px;width:33%;--d:1.5s" data-l="choose size 8"></i>
+<i class="msg ok" style="top:390px;width:33%;--d:1.8s" data-l="add to cart ✓"></i></div>
+<div class="panel"><h3>With shop commands<span>2 steps · $0.00047</span></h3>
+<div class="lanes"><div class="lane"><b>Agent</b></div><div class="lane"><b>Website</b></div><div class="lane"><b>Catalog</b></div></div>
+<i class="msg" style="top:120px;width:66%;--d:0s" data-l="shop search black running ≤$120 size 8 in stock"></i>
+<i class="msg ok" style="top:180px;width:66%;--d:.4s" data-l="shop cart add VEL-BLK-08 ✓"></i></div>
+</section></body></html>
