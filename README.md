@@ -12,6 +12,8 @@ North-star metric: **cost per verified successful task**. Speed and token saving
 | `apps/dashboard/` | Person B (Michelle) |
 | `packages/agent-runner/`, `benchmark/`, `verifier/`, `apify/` | Person A |
 | `packages/diagnosis/`, `optimizer/`, `factory/` | Person B |
+| `packages/agent-interface/` | Person B |
+| `packages/agent-runner/cli.ts`, `packages/benchmark/interface.ts` and their scripts | Person A |
 | `packages/shared/` | Both. Frozen; changes need review from both people |
 | `data/tasks.json` | Person A |
 | `data/results/` | Generated, gitignored |

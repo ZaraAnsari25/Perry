@@ -1,0 +1,23 @@
+{
+  "name": "@agentfix/agent-interface",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./guide": "./guide.ts"
+  },
+  "scripts": {
+    "test": "node --test search.test.ts shop.test.ts guide.test.ts shell.test.ts mcp.test.ts",
+    "export": "node scripts/export.ts",
+    "mcp": "node scripts/mcp.ts",
+    "verify-cart": "node scripts/verify-cart.ts"
+  },
+  "dependencies": {
+    "@agentfix/shared": "*",
+    "@agentfix/verifier": "*",
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "just-bash": "3.6.0",
+    "zod": "4.6.5"
+  }
+}

@@ -10,7 +10,7 @@
 // ---------------------------------------------------------------------------
 
 /** Which storefront build a run targeted. */
-export type SiteVersion = "baseline" | "patched";
+export type SiteVersion = "baseline" | "patched" | "agent-interface";
 
 /**
  * Where a result came from. Never present "fixture" or "replay" as live.
@@ -49,7 +49,8 @@ export type StepAction =
   | "observe"
   | "extract"
   | "wait"
-  | "done";
+  | "done"
+  | "shell";
 
 /** One agent step: the model chose an action, the browser executed it. */
 export interface TraceStep {
@@ -69,6 +70,12 @@ export interface TraceStep {
   outputTokens: number;
   ok: boolean;
   error?: string;
+  /** Shell steps only: the exact command the agent ran. */
+  command?: string;
+  /** Shell steps only: the command's exit code. */
+  exitCode?: number;
+  /** Shell steps only: what the agent saw (stdout, or stderr if empty), cut to 1,000 characters, for the dashboard transcript. */
+  output?: string;
 }
 
 export interface CartItem {
@@ -243,6 +250,10 @@ export interface BenchmarkResult {
   patched?: VariantSummary;
   verdict?: "improved" | "no_change" | "regressed";
   createdAt: IsoTimestamp;
+  /** Three-way comparisons only: the agent-interface condition. */
+  agentInterface?: VariantSummary;
+  /** Three-way comparisons only: agent interface vs. baseline, same rule as `verdict`. */
+  agentInterfaceVerdict?: BenchmarkResult["verdict"];
 }
 
 // ---------------------------------------------------------------------------
