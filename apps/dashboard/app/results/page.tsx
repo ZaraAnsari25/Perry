@@ -1,16 +1,14 @@
 import { connection } from "next/server";
 
-import { apifyAudits } from "@/lib/apify";
 import { selectRun } from "@/lib/run-selection";
 
 import { ResultsSection } from "../agent-interface-panel";
-import { ApifyPanel } from "../apify-panel";
 import { Page, PageHeader, Pager } from "../ui";
 
 export default async function Results() {
   await connection();
   // Step 1's averages, for the reference line under the comparison.
-  const [{ avg }, apify] = await Promise.all([selectRun({}), apifyAudits()]);
+  const { avg } = await selectRun({});
   const now = Date.now();
   return (
     <Page>
@@ -20,7 +18,6 @@ export default async function Results() {
         exactly the right shoe.
       </PageHeader>
       <ResultsSection baseline={avg} now={now} />
-      <ApifyPanel data={apify} now={now} />
       <Pager back={{ href: "/commands", label: "Feature 2: Shop commands" }} next={{ href: "/", label: "Back to the overview" }} />
     </Page>
   );
