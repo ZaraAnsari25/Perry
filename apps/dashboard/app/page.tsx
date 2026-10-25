@@ -243,7 +243,11 @@ function Metric({ label, value, detail }: { label: string; value: string; detail
   );
 }
 
-const siteName: Record<SiteVersion, string> = { baseline: "Original store", patched: "With the fix" };
+const siteName: Record<SiteVersion, string> = {
+  baseline: "Original store",
+  patched: "With the fix",
+  "agent-interface": "Agent interface",
+};
 
 /**
  * The agent runs the page can show. On the dashboard: recorded runs on the
