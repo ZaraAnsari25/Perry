@@ -27,6 +27,8 @@ npm run typecheck
 npm run dev:dashboard   # http://localhost:3000
 ```
 
+To run the full demo (dashboard, original store and fixed store), follow [DEMO.md](DEMO.md).
+
 Demo servers (after `npm run build --workspace apps/storefront` and one accepted `npm run optimize --workspace packages/optimizer`):
 
 ```bash

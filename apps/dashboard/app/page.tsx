@@ -4,9 +4,11 @@ import { sampleTrace } from "@agentfix/shared/fixtures";
 import Link from "next/link";
 import { connection } from "next/server";
 
+import { apifyAudits } from "@/lib/apify";
 import { liveWorktree } from "@/lib/child-process";
 import { allPatches, backupPatch, latestBenchmark, loadCompare, recentPatches } from "@/lib/results";
 
+import { ApifyPanel } from "./apify-panel";
 import { OptimizeButton } from "./optimize-button";
 import { PatchPanel } from "./patch-panel";
 
@@ -57,6 +59,7 @@ export default async function Home({
   const droidFixes = (await allPatches()).filter((p) => !p.redTeam).length;
   // Which saved fix, if any, the fixed store on localhost:3002 is serving.
   const live = await liveWorktree();
+  const apify = measured ? null : await apifyAudits();
   const flaggedSteps = new Set(
     diagnosis.findings.flatMap((f) => f.evidence.flatMap((e) => e.stepIndexes ?? [])),
   );
@@ -216,6 +219,8 @@ export default async function Home({
         </Link>{" "}
         <span className="text-zinc-500">including other runs and ones archived by a reset</span>
       </p>
+
+      {apify && <ApifyPanel data={apify} now={Date.now()} />}
     </main>
   );
 }

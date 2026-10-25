@@ -11,6 +11,9 @@
   },
   "scripts": {
     "dev:dashboard": "npm run dev -w @agentfix/dashboard",
+    "start:dashboard": "npm run start --workspace apps/dashboard",
+    "start:store": "npm run start --workspace apps/storefront",
+    "build:demo": "npm run build --workspace apps/storefront && npm run build --workspace apps/dashboard",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "tsc -p tsconfig.json && npm run typecheck --workspaces --if-present",
     "serve:patched": "npm run serve:patched --workspace packages/optimizer --",
