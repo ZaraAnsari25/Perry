@@ -95,9 +95,9 @@ export function PatchPanel({
   const [latest, ...earlier] = patches;
   return (
     <section aria-labelledby="patch-heading" className="space-y-3">
-      <h2 id="patch-heading" className="text-lg font-semibold">
-        Fix for this run
-      </h2>
+      <h3 id="patch-heading" className="font-semibold">
+        Droid&apos;s fix for the selected run
+      </h3>
       {latest ? <PatchCard patch={latest} now={now} live={live} /> : <NoPatch />}
       {earlier.length > 0 && (
         <div className="space-y-2">

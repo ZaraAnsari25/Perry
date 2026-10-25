@@ -6,7 +6,7 @@ import { spawn } from "node:child_process";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { OPTIMIZE_LOCK as LOCK, REPO, childEnv, measureRunning, optimizeRunning } from "@/lib/child-process";
+import { OPTIMIZE_LOCK as LOCK, REPO, busyWith, childEnv, optimizeRunning } from "@/lib/child-process";
 
 // serve:patched uses 3002, so the gate's own check server uses 3003.
 const CHECK_PORT = "3003";
@@ -43,8 +43,9 @@ export async function POST(request: Request) {
     return new Response("An optimize run is already in progress.\n", { status: 409 });
   }
   // A Droid build would slow the agent and distort a measurement's timings.
-  if (measureRunning()) {
-    return new Response("A measurement is in progress; optimize when it finishes.\n", { status: 409 });
+  const busy = busyWith();
+  if (busy) {
+    return new Response(`Busy: ${busy} is in progress; optimize when it finishes.\n`, { status: 409 });
   }
 
   const child = spawn(process.execPath, args, { cwd: join(REPO, "packages/optimizer"), env: childEnv() });

@@ -1,6 +1,7 @@
 import type { ApifyAudits } from "@/lib/apify";
 
 import { age } from "./patch-panel";
+import { SectionIntro, StepLabel } from "./ui";
 
 const statusTone: Record<string, string> = {
   SUCCEEDED: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
@@ -11,14 +12,11 @@ const statusTone: Record<string, string> = {
 /** Runs of the Perry audit Actor on Apify: the same agent and checks, run in the cloud. */
 export function ApifyPanel({ data, now }: { data: ApifyAudits; now: number }) {
   return (
-    <section aria-labelledby="apify-heading" className="space-y-3">
-      <h2 id="apify-heading" className="text-lg font-semibold">
-        Cloud audits on Apify
-      </h2>
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        The same shopping agent and cart check, packaged as an Apify Actor so anyone can rerun an audit in the cloud
-        without this laptop. These are real runs, read from Apify.
-      </p>
+    <section aria-labelledby="apify-heading" className="space-y-5">
+      <SectionIntro label={<StepLabel>Also</StepLabel>} id="apify-heading" title="Run the same audit in the cloud, on Apify">
+        The Step 1 measurement (same shopping agent, same cart check) is packaged as an Apify Actor, so anyone can audit a
+        store in the cloud without this laptop. These are real runs, read from Apify.
+      </SectionIntro>
       {!data.ok ? (
         <p className="text-sm text-zinc-500">Apify results are unavailable: {data.reason}</p>
       ) : data.audits.length === 0 ? (
