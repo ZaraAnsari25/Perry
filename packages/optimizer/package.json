@@ -7,10 +7,12 @@
     ".": "./index.ts"
   },
   "scripts": {
-    "test": "node --test checks.test.ts",
+    "test": "node --test checks.test.ts generate-interface.test.ts",
     "optimize": "node --env-file-if-exists=../../.env scripts/run.ts",
     "serve:patched": "node scripts/serve-patched.ts",
-    "reset:demo": "node scripts/reset-demo.ts"
+    "reset:demo": "node scripts/reset-demo.ts",
+    "generate:interface": "node --env-file-if-exists=../../.env scripts/generate-interface.ts",
+    "use:generated": "node scripts/use-generated.ts"
   },
   "dependencies": {
     "@agentfix/diagnosis": "*",
