@@ -114,3 +114,9 @@ export async function runShop(args: string[], ctx: { storeUrl: string; cartId: s
   assert.equal(r.ok, false);
   assert.match(r.detail, /contract tests failed: .*soundness and completeness/);
 });
+
+test("the contract's field lists don't count as copying", () => {
+  const fields = ["sku: string;", "slug: string;", "name: string;", "color: string;", "category: string;", "priceUsd: number;", "size: number;", "stock: number;", "inStock: boolean;"];
+  const source = `export interface Row {\n${fields.map((f) => `  ${f}`).join("\n")}\n}\nexport async function runShop() {}\n`;
+  assert.equal(checkIndependence(source, handwritten).ok, true);
+});

@@ -108,12 +108,18 @@ function specifiers(source: string): string[] {
   return out;
 }
 
-/** Significant lines for the copy check: trimmed, whitespace collapsed, no blanks, comments or short lines. */
+/** A bare field declaration such as `priceUsd: number;`: the contract dictates these, so they carry no copied logic. */
+const FIELD_DECLARATION = /^(readonly )?[\w$]+\??: [\w$<>[\]|." ]+[;,]?$/;
+
+/**
+ * Significant lines for the copy check: trimmed, whitespace collapsed, without
+ * blanks, comments, short lines or bare field declarations.
+ */
 function significant(text: string): string[] {
   return text
     .split("\n")
     .map((l) => l.trim().replace(/\s+/g, " "))
-    .filter((l) => l.length >= 12 && !/^(\/\/|\/\*|\*)/.test(l));
+    .filter((l) => l.length >= 12 && !/^(\/\/|\/\*|\*)/.test(l) && !FIELD_DECLARATION.test(l));
 }
 
 function longestSharedRun(a: string[], b: string[]): number {
