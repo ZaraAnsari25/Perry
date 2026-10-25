@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Perry · Standard</title>
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:#f3f4f6;color:#111827;font:15px/1.5 system-ui,-apple-system,sans-serif;display:flex}
+.rail{width:248px;background:#fff;border-right:1px solid #e5e7eb;padding:24px 16px}
+.logo{font-weight:700;font-size:20px;padding:0 10px 24px}
+.nav a{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;color:#374151;font-weight:500;margin-bottom:2px}
+.nav a.on{background:#eff6ff;color:#2563eb}
+.dot{width:8px;height:8px;border-radius:50%;background:#d1d5db}.on .dot{background:#2563eb}
+main{flex:1;padding:32px 40px}
+h1{font-size:28px;font-weight:700}
+.sub{color:#6b7280;margin-top:6px;max-width:760px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:28px}
+.s{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.s .l{color:#6b7280;font-size:13px}.s .v{font-size:30px;font-weight:700;margin-top:6px}
+.chart{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:24px;margin-top:20px}
+.bar{display:grid;grid-template-columns:180px 1fr 90px;align-items:center;gap:14px;margin-top:16px}
+.bar div{height:14px;border-radius:7px;background:#2563eb}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.st{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.st b{display:block;font-size:16px}.st span{color:#6b7280;font-size:14px}
+.btn{display:inline-block;margin-top:12px;background:#2563eb;color:#fff;border-radius:8px;padding:8px 14px;font-weight:600;font-size:14px}
+</style></head><body>
+<aside class="rail"><div class="logo">Perry</div>
+<nav class="nav"><a class="on"><i class="dot"></i>Overview</a><a><i class="dot"></i>Measure</a><a><i class="dot"></i>Fix the website</a><a><i class="dot"></i>Shop commands</a><a><i class="dot"></i>Results</a></nav></aside>
+<main><h1>Overview</h1><p class="sub">Perry measures a real AI agent shopping your store, then Factory Droid fixes it two ways. Every purchase is verified on the real cart.</p>
+<section class="stats"><div class="s"><div class="l">Verified purchases</div><div class="v">5 / 5</div></div><div class="s"><div class="l">Avg steps (original)</div><div class="v">7.0</div></div><div class="s"><div class="l">Cost per purchase</div><div class="v">$0.0039</div></div><div class="s"><div class="l">With shop commands</div><div class="v">−87%</div></div></section>
+<section class="chart"><b>Cost per verified purchase · last recorded</b>
+<div class="bar"><span>Original website</span><div style="width:100%"></div><span>$0.0039</span></div>
+<div class="bar"><span>Fixed website</span><div style="width:64%"></div><span>$0.0025</span></div>
+<div class="bar"><span>Shop commands</span><div style="width:12%"></div><span>$0.0005</span></div></section>
+<section class="steps"><div class="st"><b>1 · Measure</b><span>Run the agent on the original store.</span><br><span class="btn">Open</span></div><div class="st"><b>2 · Fix the website</b><span>Droid edits the search page.</span><br><span class="btn">Open</span></div><div class="st"><b>3 · Shop commands</b><span>Droid writes catalog commands.</span><br><span class="btn">Open</span></div></section>
+</main></body></html>

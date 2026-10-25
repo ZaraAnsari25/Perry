@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Perry · Mission Dossier</title>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:#1b2a41;color:#1b2a41;font:15px/1.5 Archivo,system-ui,sans-serif;padding:28px 48px}
+.top{display:flex;align-items:center;color:#f7f5ef;margin-bottom:22px}
+.logo{font:800 24px Archivo;letter-spacing:.2em}
+.case{margin-left:auto;font:400 13px "Courier Prime";color:#d9c89e}
+.tabs{display:flex;gap:4px;padding-left:24px}
+.tab{background:#c9b583;padding:10px 22px 14px;border-radius:10px 10px 0 0;font:700 13px "Courier Prime";letter-spacing:.08em;text-transform:uppercase}
+.tab.on{background:#d9c89e}
+.folder{background:#d9c89e;border-radius:0 14px 14px 14px;padding:28px;height:740px}
+.sheet{background:#f7f5ef;height:100%;border-radius:6px;padding:40px 48px;display:grid;grid-template-columns:1.4fr 1fr;gap:48px;position:relative}
+.label{font:700 12px "Courier Prime";letter-spacing:.14em;text-transform:uppercase;color:#7a6a45}
+h1{font:800 58px/1.02 Archivo;margin:10px 0 18px}
+.sheet p{font-size:18px;color:#3b4a60;max-width:640px}
+.list{margin-top:28px;display:grid;gap:12px}
+.row{display:flex;gap:16px;align-items:center;border-top:1px dashed #c9b583;padding-top:12px;font-size:16px}
+.row b{font:700 14px "Courier Prime";width:110px}
+.box{border:2px solid #1b2a41;width:16px;height:16px}.box.ok{background:#2e7d5b;border-color:#2e7d5b}
+.stamp{position:absolute;right:70px;top:60px;transform:rotate(-8deg);border:4px solid #c0392b;color:#c0392b;font:800 34px Archivo;letter-spacing:.12em;padding:6px 18px;border-radius:8px;opacity:.85}
+.ev{background:#fff;border:1px solid #e3dccb;border-radius:8px;padding:24px;align-self:end}
+.big{font:800 64px/1 Archivo}.sm{color:#5b6b80;font-size:14px;margin-top:4px}
+.ev hr{border:0;border-top:1px dashed #d9c89e;margin:18px 0}
+</style></head><body>
+<header class="top"><div class="logo">PERRY</div><div class="case">CASE FILE 0425 · STORE: SHOE SHOP · AGENT: CLAUDE HAIKU</div></header>
+<nav class="tabs"><span class="tab on">Briefing</span><span class="tab">1 Measure</span><span class="tab">2 Website</span><span class="tab">3 Commands</span><span class="tab">Results</span></nav>
+<main class="folder"><section class="sheet">
+<div><div class="label">Objective</div>
+<h1>Make this store work for AI shopping agents.</h1>
+<p>A real agent is sent to buy one shoe. Perry records where it wastes effort, then Factory Droid fixes the store two ways. Nothing counts until the store's real cart is checked.</p>
+<div class="list">
+<div class="row"><span class="box"></span><b>STEP 1</b>Measure the agent on the original store</div>
+<div class="row"><span class="box"></span><b>STEP 2</b>Droid fixes the website, for agents that browse</div>
+<div class="row"><span class="box"></span><b>STEP 3</b>Droid writes shop commands, for agents that use tools</div>
+<div class="row"><span class="box"></span><b>RESULTS</b>Same agent, same task, three ways in</div></div></div>
+<aside class="ev"><div class="label">Last recorded evidence</div>
+<div class="big">87%</div><div class="sm">cheaper per verified purchase with shop commands</div><hr>
+<div class="big">2 vs 7</div><div class="sm">steps to buy the right shoe</div></aside>
+<div class="stamp">VERIFIED</div>
+</section></main>
+</body></html>

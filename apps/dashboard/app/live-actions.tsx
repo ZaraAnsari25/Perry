@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { StateMark } from "./icons";
+
 type RunState = "idle" | "running" | "done" | "error";
 type Kind = "generate" | "try" | "compare";
 
@@ -29,7 +31,7 @@ const config: Record<
     running: "Droid is working…",
     note: "Factory Droid writes this store's shop commands from scratch, then Perry runs all five checks, including a real purchase. About 2 to 3 minutes.",
     success: /^Copied /m,
-    done: "✅ Droid's new commands passed every check, and agents now use them.",
+    done: "Droid's new commands passed every check, and agents now use them.",
   },
   try: {
     endpoint: "/api/try-interface",
@@ -37,7 +39,7 @@ const config: Record<
     running: "The agent is shopping…",
     note: "One real run of the same agent and task as Step 1, using the commands. About 10 seconds and under a cent.",
     success: /^Saved /m,
-    done: "✅ Done. The run is shown below.",
+    done: "Done. The run is shown below.",
   },
   compare: {
     endpoint: "/api/compare-three",
@@ -45,7 +47,7 @@ const config: Record<
     running: "Comparing…",
     note: "Runs the same agent 5 times each way: the original website, the fixed website and the shop commands. About 2 minutes and a few cents.",
     success: /^Saved /m,
-    done: "✅ Compared. The results are shown below.",
+    done: "Compared. The results are shown below.",
   },
 };
 
@@ -144,20 +146,17 @@ function progress(kind: Kind, log: string, running: boolean): Progress[] {
   });
 }
 
-const icon: Record<Progress["state"], string> = {
-  pending: "○",
-  running: "◐",
-  done: "✓",
-  failed: "✗",
-  skipped: "–",
-};
-const tone: Record<Progress["state"], string> = {
-  pending: "text-zinc-400",
-  running: "animate-pulse text-blue-600 dark:text-blue-400",
-  done: "text-emerald-600 dark:text-emerald-400",
-  failed: "text-red-600 dark:text-red-400",
-  skipped: "text-zinc-400",
-};
+/** A drawn mark per step state; running is a spinning arc. */
+function Mark({ state }: { state: Progress["state"] }) {
+  if (state === "running")
+    return (
+      <svg viewBox="0 0 16 16" aria-hidden className="h-4 w-4 animate-spin text-perry">
+        <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" strokeOpacity=".2" strokeWidth="1.75" />
+        <path d="M8 2.5a5.5 5.5 0 0 1 5.5 5.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      </svg>
+    );
+  return <StateMark state={state} />;
+}
 
 /** A button that starts a dashboard job, streams its progress in plain words, then refreshes the page. */
 export function LiveAction({
@@ -226,11 +225,8 @@ export function LiveAction({
         <ol aria-live="polite" className="space-y-1.5 text-sm">
           {steps.map((s) => (
             <li key={s.label} className="flex gap-2">
-              <span
-                aria-hidden
-                className={`w-4 shrink-0 text-center ${tone[s.state]}`}
-              >
-                {icon[s.state]}
+              <span className="mt-0.5">
+                <Mark state={s.state} />
               </span>
               <span>
                 {s.label}
@@ -256,7 +252,7 @@ export function LiveAction({
           {refused
             ? log.trim()
             : kind === "generate" && reason
-              ? `⛔ Perry turned Droid's commands away: ${reason} Agents keep using the commands they had.`
+              ? `Perry turned Droid's commands away: ${reason} Agents keep using the commands they had.`
               : "It didn't finish. See the technical log."}
         </p>
       )}

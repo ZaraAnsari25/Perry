@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Perry · Live Timing</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+:root{--ink:#0d1117;--teal:#0e9f8e;--pur:#8b5cf6;--grn:#22c55e;--amb:#f59e0b;--t:.6s cubic-bezier(.2,.8,.2,1)}
+body{width:1440px;height:900px;overflow:hidden;background:#f5f6f8;color:var(--ink);font:15px/1.5 Geist,system-ui,sans-serif}
+.top{height:64px;display:flex;align-items:center;padding:0 48px;border-bottom:1px solid #e3e6eb;background:#fff}
+.logo{font:700 22px Geist;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}.logo i{width:10px;height:10px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px #d6f3ef}
+.steps{display:flex;gap:28px;margin-left:auto}
+.st{width:150px;font-size:13px;font-weight:600;color:#6b7280}.st.on{color:var(--ink)}
+.st .bar{height:4px;border-radius:2px;background:#e3e6eb;margin-top:8px;overflow:hidden}
+.st .bar b{display:block;height:100%;width:0;background:var(--teal)}.st.on .bar b{width:100%}
+.hero{display:grid;grid-template-columns:1fr 660px;gap:56px;padding:56px 48px 0;align-items:center}
+.k{font:600 12px "Geist Mono";letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+h1{font:700 56px/1.04 Geist;letter-spacing:-.035em;margin:16px 0 18px}
+.hero p{font-size:18px;color:#4b5563;max-width:560px}
+.cta{display:inline-flex;gap:10px;margin-top:28px;background:var(--ink);color:#fff;font-weight:600;padding:13px 20px;border-radius:10px}
+.tower{background:var(--ink);color:#e6e8eb;border-radius:16px;padding:22px 24px;box-shadow:0 30px 60px -30px rgba(13,17,23,.5)}
+.th{display:flex;justify-content:space-between;font:500 12px "Geist Mono";color:#8b949e;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.live{color:var(--grn)}.live:before{content:"● ";animation:blink 1.2s infinite}
+.row{display:grid;grid-template-columns:34px 170px 1fr 104px;align-items:center;gap:14px;padding:14px 0;border-top:1px solid #21262d}
+.pos{font:600 18px "Geist Mono";color:#8b949e}
+.nm{font-weight:600}.nm small{display:block;font-weight:400;color:#8b949e;font-size:12px}
+.lap{position:relative;height:10px;display:flex;gap:4px}
+.lap span{flex:1;background:#21262d;border-radius:3px;position:relative;overflow:hidden}
+.lap span:after{content:"";position:absolute;inset:0;transform:scaleX(0);transform-origin:left;animation:fill 2.4s var(--d,0s) infinite}
+.r1 .lap span:after{background:var(--pur)}.r2 .lap span:after{background:var(--grn)}.r3 .lap span:after{background:var(--amb)}
+.tm{font:600 20px "Geist Mono";text-align:right}.r1 .tm{color:var(--pur)}.r2 .tm{color:var(--grn)}
+.key{display:flex;gap:18px;font-size:12px;color:#8b949e;margin-top:12px}.key b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:48px 48px 0}
+.c{background:#fff;border:1px solid #e3e6eb;border-radius:14px;padding:20px}
+.c .n{font:600 12px "Geist Mono";color:#6b7280}.c h3{font:600 18px Geist;margin:6px 0 4px}.c p{font-size:14px;color:#6b7280}
+@keyframes fill{0%{transform:scaleX(0)}40%,100%{transform:scaleX(1)}}
+@keyframes blink{50%{opacity:.2}}
+</style></head><body>
+<header class="top"><div class="logo"><i></i>perry</div>
+<nav class="steps"><div class="st on">Overview<div class="bar"><b></b></div></div><div class="st">1 · Measure<div class="bar"><b></b></div></div><div class="st">2 · Fix the website<div class="bar"><b></b></div></div><div class="st">3 · Shop commands<div class="bar"><b></b></div></div><div class="st">Results<div class="bar"><b></b></div></div></nav></header>
+<section class="hero"><div><div class="k">Same agent · same task · verified cart</div>
+<h1>How fast can an AI agent buy the right shoe?</h1>
+<p>Perry times a real AI agent shopping this store, then Factory Droid fixes the store two ways. Every lap only counts if the store's real cart holds exactly the right item.</p>
+<span class="cta">Start the measurement →</span></div>
+<div class="tower"><div class="th"><span>Cost per verified purchase</span><span class="live">Last recorded</span></div>
+<div class="row r1"><span class="pos">P1</span><span class="nm">Shop commands<small>2 steps · Feature 2</small></span><span class="lap"><span style="--d:0s"></span><span style="--d:.2s"></span></span><span class="tm">$0.00047</span></div>
+<div class="row r2"><span class="pos">P2</span><span class="nm">Fixed website<small>4 steps · Feature 1</small></span><span class="lap"><span style="--d:0s"></span><span style="--d:.2s"></span><span style="--d:.4s"></span><span style="--d:.6s"></span></span><span class="tm">$0.00248</span></div>
+<div class="row r3"><span class="pos">P3</span><span class="nm">Original website<small>7 steps · baseline</small></span><span class="lap"><span style="--d:0s"></span><span style="--d:.2s"></span><span style="--d:.4s"></span><span style="--d:.6s"></span><span style="--d:.8s"></span><span style="--d:1s"></span><span style="--d:1.2s"></span></span><span class="tm">$0.00385</span></div>
+<div class="key"><span><b style="background:var(--pur)"></b>Best</span><span><b style="background:var(--grn)"></b>Improved</span><span><b style="background:var(--amb)"></b>Baseline</span><span>5/5 verified each</span></div></div></section>
+<section class="cards">
+<div class="c"><div class="n">STEP 1</div><h3>Measure</h3><p>A real agent shops the original store.</p></div>
+<div class="c"><div class="n">STEP 2 · FOR AGENTS THAT BROWSE</div><h3>Fix the website</h3><p>Droid edits the search page.</p></div>
+<div class="c"><div class="n">STEP 3 · FOR AGENTS THAT USE TOOLS</div><h3>Shop commands</h3><p>Droid writes commands from the catalog.</p></div>
+<div class="c"><div class="n">RESULTS</div><h3>Same task, three ways in</h3><p>Run all three, verified.</p></div></section>
+</body></html>

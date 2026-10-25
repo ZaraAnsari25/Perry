@@ -453,11 +453,11 @@ function MeasurementResult({ measurement, now }: { measurement: Measurement; now
         </table>
       </div>
       <p className="text-xs">
-        <Link href={`/?compare=${name}&site=patched&run=1`} className="text-blue-700 underline dark:text-blue-400">
+        <Link href={`/measure?compare=${name}&site=patched&run=1`} className="text-blue-700 underline dark:text-blue-400">
           See the agent&apos;s steps on the fixed store
         </Link>
         <span className="text-zinc-500"> · </span>
-        <Link href={`/?compare=${name}&run=1`} className="text-blue-700 underline dark:text-blue-400">
+        <Link href={`/measure?compare=${name}&run=1`} className="text-blue-700 underline dark:text-blue-400">
           and on the original store
         </Link>
       </p>

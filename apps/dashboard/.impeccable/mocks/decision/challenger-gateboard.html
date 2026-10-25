@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Perry · Gate Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:#f3f4f6;color:#111827;font:15px/1.5 Geist,system-ui,sans-serif;padding:32px 48px}
+.top{display:flex;align-items:center;gap:24px;margin-bottom:28px}.top b{font-size:22px}.top a{color:#6b7280;font-size:14px}.top a.on{color:#111827;font-weight:600}
+.pass{background:#fff;border-radius:16px;display:grid;grid-template-columns:repeat(4,1fr) 200px;border:1px solid #e5e7eb}
+.seg{padding:22px 24px;border-right:1px dashed #d1d5db}
+.seg small{font:600 11px Geist;letter-spacing:.12em;text-transform:uppercase;color:#6b7280}
+.seg div{font:600 20px Geist;margin-top:4px}
+.code{display:flex;align-items:center;justify-content:center;font:600 13px "Geist Mono";color:#2563eb;background:repeating-linear-gradient(90deg,#111827 0 2px,#fff 2px 5px);background-size:100% 60%;background-repeat:no-repeat;background-position:center;border-radius:0 16px 16px 0}
+h1{font:700 44px/1.08 Geist;letter-spacing:-.03em;margin:36px 0 10px;max-width:900px}
+.sub{color:#4b5563;font-size:18px;max-width:820px}
+.board{margin-top:28px;background:#111827;color:#f9fafb;border-radius:16px;padding:8px 24px}
+.r{display:grid;grid-template-columns:60px 1fr 140px 160px 160px;padding:16px 0;border-bottom:1px solid #1f2937;align-items:center}
+.r:last-child{border:0}.hd{font:600 11px Geist;letter-spacing:.12em;text-transform:uppercase;color:#9ca3af}
+.r b{font:600 22px "Geist Mono"}.ch{color:#f97316;animation:hold 2s infinite}
+@keyframes hold{50%{color:#fdba74}}
+</style></head><body>
+<header class="top"><b>perry</b><a class="on">Overview</a><a>1 Measure</a><a>2 Fix the website</a><a>3 Shop commands</a><a>Results</a></header>
+<section class="pass"><div class="seg"><small>Passenger</small><div>Claude Haiku agent</div></div><div class="seg"><small>Task</small><div>Black running shoe, size 8</div></div><div class="seg"><small>Budget</small><div>Under $120</div></div><div class="seg"><small>Counts if</small><div>Cart holds VEL-BLK-08</div></div><div class="code">PERRY</div></section>
+<h1>Same agent, same task, three ways in. Ranked by cost.</h1>
+<p class="sub">Perry measures the agent on the store, Factory Droid fixes it two ways, and every purchase is verified on the real cart.</p>
+<section class="board"><div class="r hd"><span>Pos</span><span>Way in</span><span>Steps</span><span>Verified</span><span>Cost</span></div>
+<div class="r"><b>1</b><span>Shop commands · Feature 2</span><span>2</span><span>5/5</span><b class="ch">$0.00047</b></div>
+<div class="r"><b>2</b><span>Fixed website · Feature 1</span><span>4</span><span>5/5</span><b>$0.00248</b></div>
+<div class="r"><b>3</b><span>Original website</span><span>7</span><span>5/5</span><b>$0.00385</b></div></section>
+</body></html>
