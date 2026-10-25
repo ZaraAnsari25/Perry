@@ -19,7 +19,7 @@ import { runDroid } from "../index.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 // realpath: on macOS the temp dir is a symlink, and Droid reports resolved paths.
-const sandbox = realpathSync(mkdtempSync(join(tmpdir(), "agentfix-droid-poc-")));
+const sandbox = realpathSync(mkdtempSync(join(tmpdir(), "perry-droid-poc-")));
 const git = (...args: string[]) =>
   execFileSync("git", args, { cwd: sandbox, encoding: "utf8" });
 
@@ -31,7 +31,7 @@ for (const file of seedFiles) {
 }
 git("init", "-q");
 git("add", ".");
-git("-c", "user.name=AgentFix", "-c", "user.email=agentfix@localhost", "commit", "-q", "-m", "baseline");
+git("-c", "user.name=Perry", "-c", "user.email=perry@localhost", "commit", "-q", "-m", "baseline");
 const baseCommit = git("rev-parse", "HEAD").trim();
 
 const allowed = new Set<string>(DROID_ALLOWED_FILES);

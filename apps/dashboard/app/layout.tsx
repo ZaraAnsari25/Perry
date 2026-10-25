@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AgentFix",
+  title: "Perry",
   description: "Measure, diagnose, repair and verify how AI agents complete tasks on a website.",
 };
 

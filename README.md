@@ -1,6 +1,6 @@
-# AgentFix
+# Perry
 
-AgentFix measures how an AI browsing agent completes a real task on a website, diagnoses avoidable overhead from the trace, has Factory Droid generate a constrained source patch at runtime, and verifies the patched site with the same unchanged agent.
+Perry measures how an AI browsing agent completes a real task on a website, diagnoses avoidable overhead from the trace, has Factory Droid generate a constrained source patch at runtime, and verifies the patched site with the same unchanged agent.
 
 North-star metric: **cost per verified successful task**. Speed and token savings count only when the verified cart outcome is unchanged.
 

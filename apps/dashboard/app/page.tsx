@@ -65,7 +65,7 @@ export default async function Home({
     <main className="mx-auto max-w-5xl space-y-8 px-4 py-10">
       <header className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">AgentFix</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Perry</h1>
           <ProvenanceBadge provenance={trace.provenance} />
           <Link href="/history" className="ml-auto text-sm text-blue-700 underline dark:text-blue-400">
             Fix history
