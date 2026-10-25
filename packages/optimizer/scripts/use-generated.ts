@@ -39,4 +39,4 @@ const target = join(repoPath, GENERATED_INTERFACE_FILE);
 mkdirSync(dirname(target), { recursive: true });
 writeFileSync(target, header + readFileSync(join(repoPath, result.sourceFile), "utf8"));
 console.log(`Copied ${result.sourceFile} to ${GENERATED_INTERFACE_FILE}. Review it, then commit it yourself.`);
-console.log("Use it with PERRY_SHOP_IMPL=generated (sandbox and MCP server).");
+console.log("Agents use it by default (the sandbox, the benchmark and perry-shop, from their next start).");
