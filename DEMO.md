@@ -52,7 +52,7 @@ lsof -ti tcp:3000 -sTCP:LISTEN | xargs kill   # change 3000 to the busy port
    - Claude Desktop, new chat with perry-shop on
    - a terminal in `~/Perry` for `verify-cart`
 7. Check Wi-Fi: Droid (Factory), the shopping agent (Anthropic) and Claude Desktop all need the internet.
-8. Pick the run you will optimize (e.g. **Run 1 · 7 steps**) so it is selected when you start.
+8. Pick the run you'll show (e.g. **Run 1 · 7 steps**) so it is selected when you start, and in **Fix history** check that one fix is labeled **Demo backup**.
 
 ## The three-minute demo
 
@@ -60,11 +60,11 @@ lsof -ti tcp:3000 -sTCP:LISTEN | xargs kill   # change 3000 to the busy port
 
 **0:20 · What the agent did** (dashboard). **Shopping agent runs**: real runs, 100% verified, about 7 steps each. In **Agent steps** the amber rows are wasted visits. **Diagnosis**: "it opened 4 product pages to buy 1, because the search results don't show color or stock."
 
-**0:45 · Fix the website.** Click **Optimize with Factory Droid**. While it runs (45 seconds to 2 minutes):
+**0:45 · Fix the website** (a recorded fix; Optimize takes up to 2 minutes, too long for this slot). Click **Fix history** (top right) and open the fix labeled **Demo backup**. Say: "This is a fix Factory Droid made earlier from one of these runs; it's labeled as a replay." Explain while you show it:
 - Droid works on a disposable copy of the store, and may only change the search card and search code. Everything else is blocked, including shell commands.
-- Perry checks the change: only allowed files, it builds, and every price and stock level still matches the catalog.
+- Perry checked the change: only allowed files, it builds, and every price and stock level still matches the catalog (the three ✓ checks on the card).
 
-If it finishes, show the **before/after Tempo Lite card** ("Size 8: Sold out" now visible in search) and click **Make this fix live on localhost:3002**. If it's still running at 1:25, move on and come back to it at the close; if it fails, use the **Demo backup** from **Fix history** and say it's one Droid made earlier.
+Show the **before/after Tempo Lite card** ("Size 8: Sold out" now visible in search), click **Make this fix live on localhost:3002**, wait for the green **Live** badge (about 5 seconds), and open http://localhost:3002/search?q=black+running+shoe in a new tab. Then **← Back to the dashboard**.
 
 **1:25 · A second way in** (scroll to **Same agent, three ways in**). "Agents that use tools don't need pages at all. The store has the data, so Perry gives them `shop` commands built from the store's own catalog and real cart." Show **What the agent sees** (the guide), then the transcript: one `shop search` that returns exactly one match plus labeled near misses, one `shop cart add`, and **✅ Verified**. "Every command is checked by contract tests against the catalog: thousands of filter combinations, nothing wrong returned, nothing missed."
 
@@ -80,13 +80,16 @@ It prints **VERIFIED**: the real store's cart holds exactly the right shoe. If i
 
 **2:45 · Close.** "Perry measures how AI agents complete tasks on your store, then makes your store work for both kinds of agents: Droid fixes the website for agents that browse, and Perry gives agents that use tools a verified command interface. Same agent, same verified cart, so every number is real."
 
-If there's time or a judge asks: **Fix history → Demo backup** shows the measured website fix (7 → 4 steps, −37% cost), and **Cloud audits on Apify** at the bottom shows the same audit running as an Apify Actor.
+If there's time or a judge asks:
+- **Run Droid live:** on the dashboard, click **Optimize with Factory Droid** on the selected run and talk through the checklist while it runs (45 seconds to 2 minutes). Its fix card has no **Replay** label, because it was made just now.
+- The Demo backup's **Does this fix help the shopping agent?** section shows its measurement (7 → 4 steps, −37% cost).
+- **Cloud audits on Apify** at the bottom shows the same audit running as an Apify Actor.
 
 ## If something goes wrong
 
 | Problem | What to do |
 |---|---|
-| Optimize is still running at ~1:25 | Move on to the agent interface and come back at the close. If it's still running then, use the backup: **Fix history** → **Demo backup** → **Make this fix live on localhost:3002**, and say it's labeled **Replay of an earlier run**. |
+| A live Optimize (extra time) is still running | Keep talking about the gates, or move on; the Demo backup is already live. |
 | The checklist ends with **⛔ Droid's fix didn't pass the checks** | That's the safety gates working; say so and read the **Why** line. If there's time, click **Try again with Droid** (Droid is told why the last attempt failed). Otherwise click **Choose an earlier fix** and make the **Demo backup** live. |
 | **Same agent, three ways in** is missing | No `compare3-*.json` or guide in `data/results/`. Run `npm run interface:export` for the guide; without a three-way result, skip 1:55 and run the old demo (website fix only). |
 | It says **Sample data, not a real run** | Delete `data/results/compare3-sample.json` and refresh. Never present it. |
