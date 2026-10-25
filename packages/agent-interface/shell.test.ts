@@ -84,16 +84,19 @@ test("each run gets a fresh sandbox", async () => {
   assert.notEqual((await b.exec("cat /home/agent/x")).exitCode, 0);
 });
 
-test("PERRY_SHOP_IMPL picks the implementation; a missing generated one fails clearly", async () => {
+test("PERRY_SHOP_IMPL picks the implementation (Droid's generated one by default); a missing generated one fails clearly", async () => {
   const saved = process.env.PERRY_SHOP_IMPL;
   try {
-    delete process.env.PERRY_SHOP_IMPL;
+    process.env.PERRY_SHOP_IMPL = "handwritten";
     assert.equal((await shell()).implementation, "handwritten");
     process.env.PERRY_SHOP_IMPL = "nonsense";
     await assert.rejects(shell(), /must be "handwritten" or "generated"/);
-    process.env.PERRY_SHOP_IMPL = "generated";
-    if (!existsSync(new URL("./generated/core.ts", import.meta.url))) await assert.rejects(shell(), /doesn't exist/);
-    else assert.equal((await shell()).implementation, "generated");
+    for (const choice of [undefined, "generated"]) {
+      if (choice === undefined) delete process.env.PERRY_SHOP_IMPL;
+      else process.env.PERRY_SHOP_IMPL = choice;
+      if (!existsSync(new URL("./generated/core.ts", import.meta.url))) await assert.rejects(shell(), /don't exist/);
+      else assert.equal((await shell()).implementation, "generated");
+    }
   } finally {
     if (saved === undefined) delete process.env.PERRY_SHOP_IMPL;
     else process.env.PERRY_SHOP_IMPL = saved;
