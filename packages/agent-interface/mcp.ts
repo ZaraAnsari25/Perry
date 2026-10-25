@@ -6,8 +6,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 import { catalog } from "../../apps/storefront/lib/catalog.ts";
-import { runShop, type ShopContext } from "./core.ts";
+import { runShop as handwritten, type ShopContext } from "./core.ts";
 import { BASH_ONLY_LINES, buildGuide } from "./guide.ts";
+import type { RunShop } from "./impl.ts";
 
 /** The guide without the bash-only lines, plus how the commands map to tools. */
 export function mcpInstructions(): string {
@@ -23,7 +24,8 @@ Prices, sizes and stock come from the store's catalog; the cart is the store's r
 
 type ToolResult = { content: { type: "text"; text: string }[]; isError?: boolean };
 
-export function createShopServer(ctx: ShopContext): McpServer {
+/** `runShop` defaults to the hand-written one; scripts/mcp.ts passes the one PERRY_SHOP_IMPL chose. */
+export function createShopServer(ctx: ShopContext, runShop: RunShop = handwritten): McpServer {
   const server = new McpServer({ name: "perry-shop", version: "0.0.0" }, { instructions: mcpInstructions() });
 
   const run = async (args: string[], suffix = ""): Promise<ToolResult> => {

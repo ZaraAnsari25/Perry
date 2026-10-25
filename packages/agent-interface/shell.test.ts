@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { afterEach, test } from "node:test";
 
 import { catalog } from "../../apps/storefront/lib/catalog.ts";
@@ -81,4 +82,20 @@ test("each run gets a fresh sandbox", async () => {
   await a.exec("echo note > /home/agent/x");
   assert.equal((await a.exec("cat /home/agent/x")).stdout, "note\n");
   assert.notEqual((await b.exec("cat /home/agent/x")).exitCode, 0);
+});
+
+test("PERRY_SHOP_IMPL picks the implementation; a missing generated one fails clearly", async () => {
+  const saved = process.env.PERRY_SHOP_IMPL;
+  try {
+    delete process.env.PERRY_SHOP_IMPL;
+    assert.equal((await shell()).implementation, "handwritten");
+    process.env.PERRY_SHOP_IMPL = "nonsense";
+    await assert.rejects(shell(), /must be "handwritten" or "generated"/);
+    process.env.PERRY_SHOP_IMPL = "generated";
+    if (!existsSync(new URL("./generated/core.ts", import.meta.url))) await assert.rejects(shell(), /doesn't exist/);
+    else assert.equal((await shell()).implementation, "generated");
+  } finally {
+    if (saved === undefined) delete process.env.PERRY_SHOP_IMPL;
+    else process.env.PERRY_SHOP_IMPL = saved;
+  }
 });

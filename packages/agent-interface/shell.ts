@@ -5,6 +5,7 @@ import { Bash } from "just-bash";
 
 import { catalog } from "../../apps/storefront/lib/catalog.ts";
 import { buildGuide } from "./guide.ts";
+import { loadShop, type ShopImplementation } from "./impl.ts";
 import { createShopCommand } from "./shop.ts";
 
 export const MAX_OUTPUT_CHARS = 8000;
@@ -28,19 +29,26 @@ export interface AgentShell {
   guide: string;
   /** Run one command. Never throws for command errors; returns a non-zero exitCode instead. */
   exec(command: string): Promise<ShellResult>;
+  /** Which `shop` implementation runs (PERRY_SHOP_IMPL); record it as meta.interfaceImpl. */
+  implementation?: ShopImplementation;
 }
 
-/** A fresh sandbox for ONE agent run. */
+/**
+ * A fresh sandbox for ONE agent run. Uses the `shop` implementation PERRY_SHOP_IMPL
+ * names; throws a clear error if it asks for a generated one that doesn't exist.
+ */
 export async function createAgentShell({ storeUrl, cartId }: { storeUrl: string; cartId: string }): Promise<AgentShell> {
+  const { implementation, runShop } = await loadShop();
   const bash = new Bash({
     cwd: "/home/agent",
-    customCommands: [createShopCommand({ storeUrl, cartId })],
+    customCommands: [createShopCommand({ storeUrl, cartId }, runShop)],
     executionLimitProfile: "hardened",
     executionLimits: { maxExecutionTimeMs: 10_000 },
     // No `files`, `network`, `javascript` or `python`: keep them all off.
   });
   return {
     guide: buildGuide(catalog),
+    implementation,
     async exec(command) {
       const start = performance.now();
       const durationMs = () => Math.round(performance.now() - start);
